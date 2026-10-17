@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
+import 'features/settings/data/repositories/settings_repository_impl.dart';
 import 'features/shopping_lists/data/datasources/shopping_list_local_datasource.dart';
 import 'features/shopping_lists/data/repositories/shopping_list_repository_impl.dart';
 import 'features/shopping_lists/presentation/controllers/shopping_lists_controller.dart';
@@ -13,11 +14,14 @@ void main() async {
   final ShoppingListRepositoryImpl repository = ShoppingListRepositoryImpl(
     localDataSource: localDataSource,
   );
+  final SqliteSettingsRepository settingsRepository = SqliteSettingsRepository();
 
-  // Initialize reactive controller
+  // Initialize reactive controller with persisted settings
   final ShoppingListsController controller = ShoppingListsController(
     repository: repository,
+    settingsRepository: settingsRepository,
   );
+  await controller.loadSettings();
 
   runApp(ShopLiistProApp(controller: controller));
 }

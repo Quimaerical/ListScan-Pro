@@ -61,6 +61,11 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   }
 
   @override
+  Future<void> updateItemAmount(String id, int amount) {
+    return localDataSource.updateItemAmount(id, amount);
+  }
+
+  @override
   String exportToMarkdown(ShoppingList list) {
     return ListFileHandler.exportToMarkdown(list);
   }

@@ -60,6 +60,9 @@ class MockShoppingListRepository implements ShoppingListRepository {
   Future<void> toggleItemCompleted(String id, bool isCompleted) async {}
 
   @override
+  Future<void> updateItemAmount(String id, int amount) async {}
+
+  @override
   String exportToMarkdown(ShoppingList list) => '# ${list.title}\n';
 
   @override

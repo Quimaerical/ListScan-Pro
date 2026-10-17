@@ -18,11 +18,25 @@ class ListFileHandler {
     buffer.writeln();
 
     for (final ShoppingItem item in list.items) {
+      if (item.isSeparator) {
+        if (item.name.trim().isNotEmpty) {
+          buffer.writeln();
+          buffer.writeln('--- ${item.name.trim()} ---');
+          buffer.writeln();
+        } else {
+          buffer.writeln();
+          buffer.writeln('---');
+          buffer.writeln();
+        }
+        continue;
+      }
+
       final String check = item.isCompleted ? '[x]' : '[ ]';
+      final String amountPrefix = item.amount > 1 ? '${item.amount}x ' : '';
       final String qtyPrefix = (item.quantity != null && item.quantity!.trim().isNotEmpty)
           ? '${item.quantity!.trim()} '
           : '';
-      buffer.writeln('- $check $qtyPrefix${item.name.trim()}');
+      buffer.writeln('- $check $amountPrefix$qtyPrefix${item.name.trim()}');
     }
 
     return buffer.toString();
@@ -39,7 +53,8 @@ class ListFileHandler {
     final String listId = _uuid.v4();
     final DateTime now = DateTime.now();
 
-    final RegExp titleRegex = RegExp(r'^#+\s+(.+)$');
+    final RegExp titleRegex = RegExp(r'^#\s+(.+)$');
+    final RegExp separatorRegex = RegExp(r'^(?:---|###)\s*(.*?)(?:\s*---)?$');
     final RegExp itemRegex = RegExp(r'^[-*]\s+\[([ xX])\]\s*(.*)$');
 
     int sortOrder = 0;
@@ -63,15 +78,28 @@ class ListFileHandler {
       if (itemMatch != null) {
         final String mark = itemMatch.group(1) ?? ' ';
         final bool isCompleted = mark.toLowerCase() == 'x';
-        final String fullText = itemMatch.group(2)?.trim() ?? '';
+        final String rawText = itemMatch.group(2)?.trim() ?? '';
 
-        if (fullText.isEmpty) continue;
+        if (rawText.isEmpty) continue;
+
+        // Check multiplier prefix e.g. "3x Cervezas"
+        int amount = 1;
+        String fullText = rawText;
+        final RegExp multMatcher = RegExp(r'^(\d+)\s*[xX]\s+(.+)$');
+        final Match? matchMult = multMatcher.firstMatch(rawText);
+        if (matchMult != null) {
+          amount = int.tryParse(matchMult.group(1) ?? '1') ?? 1;
+          fullText = matchMult.group(2)?.trim() ?? rawText;
+        }
 
         // Try extracting quantity if starting with digit e.g. "2 kg Manzanas"
         String? quantity;
         String name = fullText;
 
-        final RegExp qtyMatcher = RegExp(r'^(\d+(?:[.,]\d+)?\s*(?:kg|g|l|ml|oz|lb|unid|pza|uds|botellas|paquetes|latas|cajas)?)\s+(.+)$', caseSensitive: false);
+        final RegExp qtyMatcher = RegExp(
+          r'^(\d+(?:[.,]\d+)?\s*(?:kg|g|l|ml|oz|lb|unid|pza|uds|botellas|paquetes|latas|cajas)?)\s+(.+)$',
+          caseSensitive: false,
+        );
         final Match? matchQty = qtyMatcher.firstMatch(fullText);
         if (matchQty != null) {
           quantity = matchQty.group(1)?.trim();
@@ -84,7 +112,25 @@ class ListFileHandler {
             listId: listId,
             name: name,
             quantity: quantity,
+            amount: ShoppingItem.clampAmount(amount),
             isCompleted: isCompleted,
+            sortOrder: sortOrder++,
+            createdAt: now,
+          ),
+        );
+        continue;
+      }
+
+      // Extract visual separators
+      final Match? sepMatch = separatorRegex.firstMatch(line);
+      if (sepMatch != null) {
+        final String label = sepMatch.group(1)?.trim() ?? '';
+        items.add(
+          ShoppingItem(
+            id: _uuid.v4(),
+            listId: listId,
+            name: label,
+            isSeparator: true,
             sortOrder: sortOrder++,
             createdAt: now,
           ),

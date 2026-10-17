@@ -89,5 +89,27 @@ void main() {
       expect(emptyList.pendingCount, equals(0));
       expect(emptyList.progressPercentage, equals(0.0));
     });
+
+    test('ignores visual separators in totalCount and completedCount', () {
+      final now = DateTime.now();
+      final listWithSeparators = ShoppingList(
+        id: 'sep-list',
+        title: 'Con Separadores',
+        createdAt: now,
+        updatedAt: now,
+        items: [
+          ShoppingItem(id: 's1', listId: 'sep-list', name: 'Frutas', isSeparator: true, createdAt: now),
+          ShoppingItem(id: 'p1', listId: 'sep-list', name: 'Manzanas', isCompleted: true, amount: 3, createdAt: now),
+          ShoppingItem(id: 's2', listId: 'sep-list', name: 'Bebidas', isSeparator: true, createdAt: now),
+          ShoppingItem(id: 'p2', listId: 'sep-list', name: 'Agua', isCompleted: false, amount: 2, createdAt: now),
+        ],
+      );
+
+      // Only real products count: p1 and p2 (total: 2, completed: 1)
+      expect(listWithSeparators.totalCount, equals(2));
+      expect(listWithSeparators.completedCount, equals(1));
+      expect(listWithSeparators.pendingCount, equals(1));
+      expect(listWithSeparators.progressPercentage, equals(0.5));
+    });
   });
 }

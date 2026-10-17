@@ -145,4 +145,16 @@ class ShoppingListLocalDataSource {
       whereArgs: <dynamic>[id],
     );
   }
+
+  Future<void> updateItemAmount(String id, int amount) async {
+    final Database db = await _db;
+    await db.update(
+      SqliteDbHelper.tableItems,
+      <String, dynamic>{
+        'amount': ShoppingItem.clampAmount(amount),
+      },
+      where: 'id = ?',
+      whereArgs: <dynamic>[id],
+    );
+  }
 }

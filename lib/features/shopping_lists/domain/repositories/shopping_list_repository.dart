@@ -30,6 +30,9 @@ abstract class ShoppingListRepository {
   /// Toggles the completed status of an item.
   Future<void> toggleItemCompleted(String id, bool isCompleted);
 
+  /// Persists the integer counter of an item (clamped to a valid range).
+  Future<void> updateItemAmount(String id, int amount);
+
   /// Serializes a [ShoppingList] into standard GitHub / Obsidian checklist Markdown (.md).
   String exportToMarkdown(ShoppingList list);
 

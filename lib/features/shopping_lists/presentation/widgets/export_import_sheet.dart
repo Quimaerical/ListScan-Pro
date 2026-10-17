@@ -3,13 +3,14 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../../../core/services/native_share_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/glass_card.dart';
 import '../../domain/models/shopping_list.dart';
 import '../controllers/shopping_lists_controller.dart';
 
 /// Modal bottom sheet for exporting lists to Markdown/CSV, copying to clipboard,
-/// or importing local files without third-party sharing plugins.
+/// sharing directly to other applications, or importing local files.
 class ExportImportSheet extends StatelessWidget {
   final ShoppingListsController controller;
   final ShoppingList? activeList;
@@ -34,6 +35,24 @@ class ExportImportSheet extends StatelessWidget {
         activeList: activeList,
       ),
     );
+  }
+
+  Future<void> _handleShareDirectly(BuildContext context) async {
+    if (activeList == null) return;
+    final String mdContent = controller.exportToMarkdown(activeList!);
+    Navigator.of(context).pop();
+    final bool shared = await NativeShareService.shareText(
+      text: mdContent,
+      title: activeList!.title,
+    );
+    if (!shared && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Lista copiada al portapapeles.'),
+          backgroundColor: AppColors.primaryMint,
+        ),
+      );
+    }
   }
 
   Future<void> _handleSaveMarkdown(BuildContext context) async {
@@ -209,12 +228,22 @@ class ExportImportSheet extends StatelessWidget {
             const SizedBox(height: 18.0),
 
             if (activeList != null) ...<Widget>[
+              // Direct Native Share tile
+              _SheetActionTile(
+                icon: Icons.share_rounded,
+                iconColor: AppColors.primaryMint,
+                title: 'Compartir a otra aplicación',
+                subtitle: 'Envía la lista directamente por WhatsApp, Telegram, Correo o Mensajes.',
+                onTap: () => _handleShareDirectly(context),
+              ),
+              const SizedBox(height: 10.0),
+
               // Copy to Clipboard tile
               _SheetActionTile(
                 icon: Icons.copy_all_rounded,
                 iconColor: const Color(0xFF8B5CF6),
                 title: 'Copiar al Portapapeles',
-                subtitle: 'Copia el checklist en Markdown para enviarlo por WhatsApp o Notas.',
+                subtitle: 'Copia el checklist en Markdown para pegarlo donde prefieras.',
                 onTap: () => _handleCopyToClipboard(context),
               ),
               const SizedBox(height: 10.0),

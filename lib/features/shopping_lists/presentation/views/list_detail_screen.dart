@@ -7,6 +7,7 @@ import '../../domain/models/shopping_list.dart';
 import '../controllers/shopping_lists_controller.dart';
 import '../widgets/color_picker_palette.dart';
 import '../widgets/export_import_sheet.dart';
+import '../widgets/list_separator_tile.dart';
 import '../widgets/quick_add_bar.dart';
 import '../widgets/shopping_item_tile.dart';
 import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
@@ -36,6 +37,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
   @override
   void initState() {
     super.initState();
+    _isCompletedExpanded = widget.controller.isCompletedExpanded;
     final ShoppingList? list = _getList();
     _titleController = TextEditingController(text: list?.title ?? '');
   }
@@ -92,6 +94,84 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
       if (mounted) {
         Navigator.of(context).pop();
       }
+    }
+  }
+
+  Future<void> _showAddSeparatorDialog() async {
+    final TextEditingController textCtrl = TextEditingController();
+    final String? label = await showDialog<String>(
+      context: context,
+      builder: (BuildContext ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        title: const Text('Nuevo Separador'),
+        content: TextField(
+          controller: textCtrl,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: 'Nombre opcional (ej: Frutas, Lácteos...)',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+          ),
+          onSubmitted: (String val) => Navigator.of(ctx).pop(val),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(null),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primaryMint,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+            ),
+            onPressed: () => Navigator.of(ctx).pop(textCtrl.text),
+            child: const Text('Agregar'),
+          ),
+        ],
+      ),
+    );
+
+    if (label != null) {
+      await widget.controller.addSeparator(widget.listId, label: label);
+    }
+  }
+
+  Future<void> _showRenameSeparatorDialog(ShoppingItem item) async {
+    final TextEditingController textCtrl = TextEditingController(text: item.name);
+    final String? newLabel = await showDialog<String>(
+      context: context,
+      builder: (BuildContext ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        title: const Text('Editar Separador'),
+        content: TextField(
+          controller: textCtrl,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: 'Nombre opcional',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+          ),
+          onSubmitted: (String val) => Navigator.of(ctx).pop(val),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(null),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primaryMint,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+            ),
+            onPressed: () => Navigator.of(ctx).pop(textCtrl.text),
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+
+    if (newLabel != null) {
+      await widget.controller.renameSeparator(widget.listId, item.id, newLabel);
     }
   }
 
@@ -157,6 +237,13 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                   color: list.isPinned ? accentColor : textColor,
                 ),
                 onPressed: () => widget.controller.togglePin(list.id),
+              ),
+
+              // Add Separator
+              IconButton(
+                tooltip: 'Agregar separador',
+                icon: const Icon(Icons.splitscreen_rounded),
+                onPressed: _showAddSeparatorDialog,
               ),
 
               // OCR Scanner
@@ -332,18 +419,29 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                         children: <Widget>[
-                          // Pending items
+                          // Pending items and separators
                           for (final ShoppingItem item in pendingItems)
-                            ShoppingItemTile(
-                              item: item,
-                              palette: palette,
-                              onToggleCompleted: (bool val) {
-                                widget.controller.toggleItem(list.id, item.id, val);
-                              },
-                              onDelete: () {
-                                widget.controller.deleteItem(list.id, item.id);
-                              },
-                            ),
+                            if (item.isSeparator)
+                              ListSeparatorTile(
+                                item: item,
+                                palette: palette,
+                                onRename: () => _showRenameSeparatorDialog(item),
+                                onDelete: () => widget.controller.deleteItem(list.id, item.id),
+                              )
+                            else
+                              ShoppingItemTile(
+                                item: item,
+                                palette: palette,
+                                onToggleCompleted: (bool val) {
+                                  widget.controller.toggleItem(list.id, item.id, val);
+                                },
+                                onAmountChanged: (int newAmount) {
+                                  widget.controller.setItemAmount(list.id, item.id, newAmount);
+                                },
+                                onDelete: () {
+                                  widget.controller.deleteItem(list.id, item.id);
+                                },
+                              ),
 
                           // Completed items section
                           if (completedItems.isNotEmpty) ...<Widget>[
@@ -353,6 +451,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                                 setState(() {
                                   _isCompletedExpanded = !_isCompletedExpanded;
                                 });
+                                widget.controller.toggleCompletedExpanded();
                               },
                               borderRadius: BorderRadius.circular(10.0),
                               child: Padding(
@@ -387,6 +486,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                                   palette: palette,
                                   onToggleCompleted: (bool val) {
                                     widget.controller.toggleItem(list.id, item.id, val);
+                                  },
+                                  onAmountChanged: (int newAmount) {
+                                    widget.controller.setItemAmount(list.id, item.id, newAmount);
                                   },
                                   onDelete: () {
                                     widget.controller.deleteItem(list.id, item.id);

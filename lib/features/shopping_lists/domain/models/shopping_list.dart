@@ -22,14 +22,17 @@ class ShoppingList {
     this.items = const <ShoppingItem>[],
   });
 
-  int get totalCount => items.length;
+  /// Real products only — separators are purely visual and never counted.
+  Iterable<ShoppingItem> get products => items.where((ShoppingItem item) => !item.isSeparator);
 
-  int get completedCount => items.where((ShoppingItem item) => item.isCompleted).length;
+  int get totalCount => products.length;
+
+  int get completedCount => products.where((ShoppingItem item) => item.isCompleted).length;
 
   int get pendingCount => totalCount - completedCount;
 
   double get progressPercentage {
-    if (items.isEmpty) return 0.0;
+    if (totalCount == 0) return 0.0;
     return completedCount / totalCount;
   }
 
