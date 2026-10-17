@@ -60,6 +60,15 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
     });
   }
 
+  String _formatIngredientName(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return trimmed;
+    return trimmed.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -239,7 +248,7 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                 Text(
                   'Ingredientes ($_selectedCount/${_ingredients.length})',
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -249,7 +258,7 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                     _selectedCount < _ingredients.length
                         ? 'Seleccionar todos'
                         : 'Deseleccionar',
-                    style: const TextStyle(fontSize: 13),
+                    style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -273,11 +282,12 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                   checkboxShape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
                   ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
                   title: Text(
-                    ingredient.name,
+                    _formatIngredientName(ingredient.name),
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 16.5,
+                      fontWeight: FontWeight.w700,
                       decoration: ingredient.isSelected
                           ? null
                           : TextDecoration.lineThrough,
@@ -291,13 +301,29 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                     ),
                   ),
                   subtitle: ingredient.measure.isNotEmpty
-                      ? Text(
-                          ingredient.measure,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight,
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 3.5),
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryMint.withValues(alpha: isDark ? 0.20 : 0.12),
+                                borderRadius: BorderRadius.circular(8.0),
+                                border: Border.all(
+                                  color: AppColors.primaryMint.withValues(alpha: isDark ? 0.35 : 0.25),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Text(
+                                'Cantidad: ${ingredient.measure}',
+                                style: const TextStyle(
+                                  fontSize: 13.0,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primaryMint,
+                                ),
+                              ),
+                            ),
                           ),
                         )
                       : null,
@@ -322,16 +348,16 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                       : null,
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primaryMint,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  icon: const Icon(Icons.playlist_add_rounded),
+                  icon: const Icon(Icons.playlist_add_rounded, size: 24),
                   label: Text(
                     'Añadir $_selectedCount ingredientes a una lista',
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

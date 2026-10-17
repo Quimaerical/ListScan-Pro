@@ -27,6 +27,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final TextEditingController _searchController = TextEditingController();
+  int _selectedNavIndex = 0;
 
   @override
   void initState() {
@@ -105,16 +106,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
             actions: <Widget>[
-              // Toggle Theme Mode (Light / Dark)
-              IconButton(
-                tooltip: isDark ? 'Modo Claro' : 'Modo Oscuro',
-                icon: Icon(
-                  isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-                  color: textColor,
-                ),
-                onPressed: widget.controller.toggleThemeMode,
-              ),
-
               // Toggle View Mode (List vs Grid)
               IconButton(
                 tooltip: widget.controller.isGridView
@@ -127,57 +118,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onPressed: widget.controller.toggleViewMode,
               ),
 
-              // OCR Scanner
+              // Toggle Theme Mode (Light / Dark)
               IconButton(
-                tooltip: 'Escanear con OCR',
+                tooltip: isDark ? 'Modo Claro' : 'Modo Oscuro',
                 icon: Icon(
-                  Icons.document_scanner_outlined,
+                  isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
                   color: textColor,
                 ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext ctx) => ScanListScreen(
-                        shoppingListsController: widget.controller,
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              // Recipes Search & Inspiration
-              IconButton(
-                tooltip: 'Buscar recetas e ideas',
-                icon: Icon(
-                  Icons.restaurant_menu_rounded,
-                  color: textColor,
-                ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext ctx) => RecipeSearchScreen(
-                        shoppingListsController: widget.controller,
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              // Interoperability / Import sheet
-              IconButton(
-                tooltip: 'Archivos e importación',
-                icon: Icon(
-                  Icons.folder_open_outlined,
-                  color: textColor,
-                ),
-                onPressed: () {
-                  ExportImportSheet.show(
-                    context: context,
-                    controller: widget.controller,
-                  );
-                },
+                onPressed: widget.controller.toggleThemeMode,
               ),
               const SizedBox(width: 8.0),
+            ],
+          ),
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: _selectedNavIndex,
+            onDestinationSelected: (int index) {
+              if (index == 0) {
+                setState(() => _selectedNavIndex = 0);
+              } else if (index == 1) {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext ctx) => ScanListScreen(
+                      shoppingListsController: widget.controller,
+                    ),
+                  ),
+                );
+              } else if (index == 2) {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext ctx) => RecipeSearchScreen(
+                      shoppingListsController: widget.controller,
+                    ),
+                  ),
+                );
+              } else if (index == 3) {
+                ExportImportSheet.show(
+                  context: context,
+                  controller: widget.controller,
+                );
+              }
+            },
+            destinations: const <NavigationDestination>[
+              NavigationDestination(
+                icon: Icon(Icons.format_list_bulleted_outlined, size: 26),
+                selectedIcon: Icon(Icons.format_list_bulleted_rounded, size: 26),
+                label: 'Mis Listas',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.document_scanner_outlined, size: 26),
+                selectedIcon: Icon(Icons.document_scanner_rounded, size: 26),
+                label: 'Escanear',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.restaurant_menu_outlined, size: 26),
+                selectedIcon: Icon(Icons.restaurant_menu_rounded, size: 26),
+                label: 'Recetas',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.folder_open_outlined, size: 26),
+                selectedIcon: Icon(Icons.folder_open_rounded, size: 26),
+                label: 'Archivos',
+              ),
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(
@@ -268,6 +269,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   )
                 else if (displayLists.isEmpty)
                   SliverFillRemaining(
+                    hasScrollBody: false,
                     child: _EmptyListsPlaceholder(
                       isSearching: widget.controller.searchQuery.isNotEmpty,
                       onCreateFirstList: _handleCreateNewList,
@@ -413,67 +415,69 @@ class _EmptyListsPlaceholder extends StatelessWidget {
     final Color secColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
 
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.all(22.0),
-              decoration: BoxDecoration(
-                color: AppColors.primaryMint.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.shopping_bag_outlined,
-                size: 52.0,
-                color: AppColors.primaryMint,
-              ),
-            ),
-            const SizedBox(height: 20.0),
-            Text(
-              isSearching ? 'No se encontraron resultados' : '¡Comienza tus listas de compras!',
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.w700,
-                color: textColor,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              isSearching
-                  ? 'Prueba con otro término de búsqueda o limpia el filtro.'
-                  : 'Crea listas ágiles, organízalas por colores pastel o importa notas en Markdown y CSV.',
-              style: TextStyle(
-                fontSize: 14.0,
-                color: secColor,
-                height: 1.4,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (!isSearching) ...<Widget>[
-              const SizedBox(height: 22.0),
-              OutlinedButton.icon(
-                onPressed: onCreateFirstList,
-                icon: const Icon(Icons.add, color: AppColors.primaryMint),
-                label: const Text(
-                  'Crear mi primera lista',
-                  style: TextStyle(
-                    color: AppColors.primaryMint,
-                    fontWeight: FontWeight.w600,
-                  ),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(18.0),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryMint.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
                 ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.primaryMint),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16.0),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                child: const Icon(
+                  Icons.shopping_bag_outlined,
+                  size: 44.0,
+                  color: AppColors.primaryMint,
                 ),
               ),
+              const SizedBox(height: 16.0),
+              Text(
+                isSearching ? 'No se encontraron resultados' : '¡Comienza tus listas de compras!',
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w700,
+                  color: textColor,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                isSearching
+                    ? 'Prueba con otro término de búsqueda o limpia el filtro.'
+                    : 'Crea listas ágiles, organízalas por colores pastel o importa notas en Markdown y CSV.',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: secColor,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              if (!isSearching) ...<Widget>[
+                const SizedBox(height: 18.0),
+                OutlinedButton.icon(
+                  onPressed: onCreateFirstList,
+                  icon: const Icon(Icons.add, color: AppColors.primaryMint),
+                  label: const Text(
+                    'Crear mi primera lista',
+                    style: TextStyle(
+                      color: AppColors.primaryMint,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: AppColors.primaryMint),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

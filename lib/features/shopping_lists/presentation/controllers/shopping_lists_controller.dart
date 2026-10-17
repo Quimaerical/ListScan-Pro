@@ -131,15 +131,25 @@ class ShoppingListsController extends ChangeNotifier {
     List<ShoppingItem>? initialItems,
   }) async {
     final DateTime now = DateTime.now();
+    final String listId = _uuid.v4();
+
+    int sortIdx = 0;
+    final List<ShoppingItem> boundItems = (initialItems ?? <ShoppingItem>[]).map((ShoppingItem item) {
+      return item.copyWith(
+        listId: listId,
+        sortOrder: item.sortOrder == 0 ? sortIdx++ : item.sortOrder,
+      );
+    }).toList();
+
     final ShoppingList newList = ShoppingList(
-      id: _uuid.v4(),
+      id: listId,
       title: title.trim().isEmpty ? 'Nueva Lista' : title.trim(),
       colorIndex: colorIndex,
       isPinned: false,
       isArchived: false,
       createdAt: now,
       updatedAt: now,
-      items: initialItems ?? <ShoppingItem>[],
+      items: boundItems,
     );
 
     await repository.saveList(newList);

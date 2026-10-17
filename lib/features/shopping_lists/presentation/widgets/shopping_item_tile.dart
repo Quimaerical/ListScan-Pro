@@ -59,7 +59,7 @@ class ShoppingItemTile extends StatelessWidget {
           children: <Widget>[
             // Smooth custom Checkbox
             Transform.scale(
-              scale: 1.05,
+              scale: 1.15,
               child: Checkbox(
                 value: item.isCompleted,
                 activeColor: accentColor,
@@ -88,8 +88,8 @@ class ShoppingItemTile extends StatelessWidget {
               child: Text(
                 item.name,
                 style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: item.isCompleted ? FontWeight.w400 : FontWeight.w500,
+                  fontSize: 16.5,
+                  fontWeight: item.isCompleted ? FontWeight.w500 : FontWeight.w700,
                   color: item.isCompleted
                       ? textColor.withValues(alpha: 0.45)
                       : textColor,
@@ -110,7 +110,7 @@ class ShoppingItemTile extends StatelessWidget {
             // Free-text Detail / Unit Chip if available (e.g. "kg", "paquetes")
             if (item.quantity != null && item.quantity!.isNotEmpty)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+                padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 4.0),
                 margin: const EdgeInsets.only(left: 6.0),
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
@@ -123,8 +123,8 @@ class ShoppingItemTile extends StatelessWidget {
                 child: Text(
                   item.quantity!,
                   style: TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.w700,
                     color: accentColor,
                   ),
                 ),
@@ -225,10 +225,10 @@ class _ItemAmountStepper extends StatelessWidget {
             onTap: canDecrease ? () => onAmountChanged?.call(item.amount - 1) : null,
             borderRadius: const BorderRadius.horizontal(left: Radius.circular(12.0)),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 5.0),
               child: Icon(
                 Icons.keyboard_arrow_down_rounded,
-                size: 19.0,
+                size: 22.0,
                 color: canDecrease ? accentColor : accentColor.withValues(alpha: 0.25),
               ),
             ),
@@ -239,11 +239,11 @@ class _ItemAmountStepper extends StatelessWidget {
             onTap: !item.isCompleted ? () => _showManualInputDialog(context) : null,
             borderRadius: BorderRadius.circular(6.0),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 3.0),
+              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
               child: Text(
                 '${item.amount}',
                 style: TextStyle(
-                  fontSize: 13.5,
+                  fontSize: 15.0,
                   fontWeight: FontWeight.w800,
                   color: item.isCompleted
                       ? accentColor.withValues(alpha: 0.45)
@@ -258,10 +258,10 @@ class _ItemAmountStepper extends StatelessWidget {
             onTap: canIncrease ? () => onAmountChanged?.call(item.amount + 1) : null,
             borderRadius: const BorderRadius.horizontal(right: Radius.circular(12.0)),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 5.0),
               child: Icon(
                 Icons.keyboard_arrow_up_rounded,
-                size: 19.0,
+                size: 22.0,
                 color: canIncrease ? accentColor : accentColor.withValues(alpha: 0.25),
               ),
             ),

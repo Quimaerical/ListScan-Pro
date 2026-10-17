@@ -182,26 +182,26 @@ class _PreviewItemRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.5),
+      padding: const EdgeInsets.symmetric(vertical: 3.0),
       child: Row(
         children: <Widget>[
           GestureDetector(
             onTap: onToggle != null ? () => onToggle!(!item.isCompleted) : null,
             child: Container(
-              width: 16.0,
-              height: 16.0,
+              width: 18.0,
+              height: 18.0,
               decoration: BoxDecoration(
                 color: item.isCompleted ? accentColor : Colors.transparent,
-                borderRadius: BorderRadius.circular(4.0),
+                borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: item.isCompleted ? accentColor : textColor.withValues(alpha: 0.35),
-                  width: 1.3,
+                  color: item.isCompleted ? accentColor : textColor.withValues(alpha: 0.40),
+                  width: 1.4,
                 ),
               ),
               child: item.isCompleted
                   ? const Icon(
                       Icons.check,
-                      size: 11.0,
+                      size: 12.5,
                       color: Colors.white,
                     )
                   : null,
@@ -214,7 +214,8 @@ class _PreviewItemRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 13.0,
+                fontSize: 14.0,
+                fontWeight: item.isCompleted ? FontWeight.w400 : FontWeight.w600,
                 color: item.isCompleted ? textColor.withValues(alpha: 0.45) : textColor,
                 decoration: item.isCompleted ? TextDecoration.lineThrough : null,
               ),

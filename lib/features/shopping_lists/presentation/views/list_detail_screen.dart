@@ -247,63 +247,73 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                 onPressed: _showAddSeparatorDialog,
               ),
 
-              // OCR Scanner
-              IconButton(
-                tooltip: 'Escanear productos con OCR',
-                icon: const Icon(Icons.document_scanner_outlined),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext ctx) => ScanListScreen(
-                        shoppingListsController: widget.controller,
-                        targetListId: list.id,
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              // Recipes Search & Import
-              IconButton(
-                tooltip: 'Buscar recetas e ingredientes',
-                icon: const Icon(Icons.restaurant_menu_rounded),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (BuildContext ctx) => RecipeSearchScreen(
-                        shoppingListsController: widget.controller,
-                        targetListId: list.id,
-                        targetListTitle: list.title,
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              // Export / Interoperability
-              IconButton(
-                tooltip: 'Exportar o compartir',
-                icon: const Icon(Icons.ios_share_rounded),
-                onPressed: () {
-                  ExportImportSheet.show(
-                    context: context,
-                    controller: widget.controller,
-                    activeList: list,
-                  );
-                },
-              ),
-
               // More options popup menu
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert_rounded),
                 onSelected: (String val) {
-                  if (val == 'archive') {
+                  if (val == 'scan') {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext ctx) => ScanListScreen(
+                          shoppingListsController: widget.controller,
+                          targetListId: list.id,
+                        ),
+                      ),
+                    );
+                  } else if (val == 'recipes') {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext ctx) => RecipeSearchScreen(
+                          shoppingListsController: widget.controller,
+                          targetListId: list.id,
+                          targetListTitle: list.title,
+                        ),
+                      ),
+                    );
+                  } else if (val == 'export') {
+                    ExportImportSheet.show(
+                      context: context,
+                      controller: widget.controller,
+                      activeList: list,
+                    );
+                  } else if (val == 'archive') {
                     widget.controller.toggleArchive(list.id, list.isArchived);
                   } else if (val == 'delete') {
                     _handleDeleteList();
                   }
                 },
                 itemBuilder: (BuildContext ctx) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: 'scan',
+                    child: Row(
+                      children: <Widget>[
+                        Icon(Icons.document_scanner_outlined, size: 20),
+                        SizedBox(width: 10),
+                        Text('Escanear con OCR'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'recipes',
+                    child: Row(
+                      children: <Widget>[
+                        Icon(Icons.restaurant_menu_rounded, size: 20),
+                        SizedBox(width: 10),
+                        Text('Buscar recetas'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem<String>(
+                    value: 'export',
+                    child: Row(
+                      children: <Widget>[
+                        Icon(Icons.ios_share_rounded, size: 20),
+                        SizedBox(width: 10),
+                        Text('Exportar o compartir'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
                   PopupMenuItem<String>(
                     value: 'archive',
                     child: Row(

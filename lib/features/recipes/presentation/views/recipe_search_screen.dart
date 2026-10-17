@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/constrained_scaffold.dart';
 import '../../../shopping_lists/domain/models/shopping_item.dart';
 import '../../../shopping_lists/presentation/controllers/shopping_lists_controller.dart';
+import '../../../shopping_lists/presentation/views/list_detail_screen.dart';
 import '../../data/repositories/recipe_repository_impl.dart';
 import '../../domain/models/recipe.dart';
 import '../../domain/models/recipe_ingredient.dart';
@@ -105,6 +106,15 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
     }
   }
 
+  String _formatIngredientName(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return trimmed;
+    return trimmed.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
   Future<void> _importIntoList(
     String listId,
     Recipe recipe,
@@ -119,7 +129,7 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
     for (final ing in ingredients) {
       await widget.shoppingListsController.addItem(
         listId,
-        ing.name,
+        _formatIngredientName(ing.name),
         quantity: ing.measure.isNotEmpty ? ing.measure : null,
       );
     }
@@ -199,8 +209,8 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark
-                      ? AppColors.textSecondaryDark
-                      : AppColors.textSecondaryLight,
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight,
                 ),
               ),
               shape: RoundedRectangleBorder(
@@ -216,7 +226,7 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
                   return ShoppingItem(
                     id: _uuid.v4(),
                     listId: '',
-                    name: ing.name,
+                    name: _formatIngredientName(ing.name),
                     quantity: ing.measure.isNotEmpty ? ing.measure : null,
                     amount: 1,
                     isCompleted: false,
@@ -224,7 +234,7 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
                   );
                 }).toList();
 
-                await widget.shoppingListsController.createList(
+                final createdList = await widget.shoppingListsController.createList(
                   title: '🍳 ${recipe.name}',
                   initialItems: items,
                 );
@@ -235,6 +245,16 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
                       content: Text('Lista "🍳 ${recipe.name}" creada con éxito'),
                       backgroundColor: AppColors.primaryMint,
                       behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+
+                  // Navigate directly to the newly created list so the user immediately sees all items
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext ctx) => ListDetailScreen(
+                        listId: createdList.id,
+                        controller: widget.shoppingListsController,
+                      ),
                     ),
                   );
                 }
