@@ -157,4 +157,19 @@ class ShoppingListLocalDataSource {
       whereArgs: <dynamic>[id],
     );
   }
+
+  Future<List<String>> getProductSuggestions(String query, {int limit = 10}) async {
+    final Database db = await _db;
+    final String clean = query.trim();
+    if (clean.isEmpty) return const [];
+
+    final List<Map<String, dynamic>> rows = await db.rawQuery('''
+      SELECT DISTINCT name FROM ${SqliteDbHelper.tableItems}
+      WHERE is_separator = 0 AND name LIKE ?
+      ORDER BY name ASC
+      LIMIT ?
+    ''', <dynamic>['%$clean%', limit]);
+
+    return rows.map((r) => r['name'] as String).toList();
+  }
 }

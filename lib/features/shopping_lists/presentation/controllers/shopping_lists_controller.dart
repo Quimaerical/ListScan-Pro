@@ -242,6 +242,11 @@ class ShoppingListsController extends ChangeNotifier {
     await repository.updateItemAmount(itemId, safeAmount);
   }
 
+  /// Queries SQLite for previously entered product names for autocomplete suggestions.
+  Future<List<String>> getProductSuggestions(String query, {int limit = 8}) async {
+    return repository.getProductSuggestions(query, limit: limit);
+  }
+
   int _nextSortOrder(String listId) {
     final int listIdx = _lists.indexWhere((ShoppingList l) => l.id == listId);
     if (listIdx == -1 || _lists[listIdx].items.isEmpty) return 0;

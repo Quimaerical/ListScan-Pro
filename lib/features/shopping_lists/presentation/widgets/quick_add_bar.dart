@@ -1,16 +1,20 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/glass_card.dart';
 
-/// Glassmorphic fixed bottom input bar for rapid item addition without losing focus.
+/// Glassmorphic fixed bottom input bar for rapid item addition without losing focus,
+/// with integrated local SQLite autocomplete suggestions.
 class QuickAddBar extends StatefulWidget {
   final PastelPalette palette;
   final void Function(String name, String? quantity) onAdd;
+  final Future<List<String>> Function(String query)? onFetchSuggestions;
 
   const QuickAddBar({
     super.key,
     required this.palette,
     required this.onAdd,
+    this.onFetchSuggestions,
   });
 
   @override
@@ -22,13 +26,45 @@ class _QuickAddBarState extends State<QuickAddBar> {
   final TextEditingController _qtyController = TextEditingController();
   final FocusNode _nameFocusNode = FocusNode();
   bool _showQuantityField = false;
+  List<String> _suggestions = <String>[];
+  Timer? _debounceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(_onNameChanged);
+  }
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    _nameController.removeListener(_onNameChanged);
     _nameController.dispose();
     _qtyController.dispose();
     _nameFocusNode.dispose();
     super.dispose();
+  }
+
+  void _onNameChanged() {
+    if (widget.onFetchSuggestions == null) return;
+
+    _debounceTimer?.cancel();
+    final query = _nameController.text.trim();
+
+    if (query.isEmpty) {
+      if (_suggestions.isNotEmpty) {
+        setState(() => _suggestions = <String>[]);
+      }
+      return;
+    }
+
+    _debounceTimer = Timer(const Duration(milliseconds: 250), () async {
+      final results = await widget.onFetchSuggestions!(query);
+      if (!mounted) return;
+      setState(() {
+        _suggestions = results.where((s) => s.toLowerCase() != query.toLowerCase()).toList();
+      });
+    });
   }
 
   void _handleSubmit() {
@@ -39,8 +75,10 @@ class _QuickAddBarState extends State<QuickAddBar> {
 
     widget.onAdd(name, qty.isNotEmpty ? qty : null);
 
+    _debounceTimer?.cancel();
     _nameController.clear();
     _qtyController.clear();
+    setState(() => _suggestions = <String>[]);
     _nameFocusNode.requestFocus();
   }
 
@@ -58,7 +96,54 @@ class _QuickAddBarState extends State<QuickAddBar> {
         borderColor: widget.palette.borderColor(isDark),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            // Autocomplete suggestions chips row
+            if (_suggestions.isNotEmpty) ...[
+              SizedBox(
+                height: 32,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _suggestions.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 6),
+                  itemBuilder: (context, index) {
+                    final suggestion = _suggestions[index];
+                    return ActionChip(
+                      padding: EdgeInsets.zero,
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+                      visualDensity: VisualDensity.compact,
+                      backgroundColor: Colors.white.withValues(
+                        alpha: isDark ? 0.12 : 0.65,
+                      ),
+                      side: BorderSide(
+                        color: accentColor.withValues(alpha: 0.35),
+                      ),
+                      avatar: Icon(
+                        Icons.history_rounded,
+                        size: 14,
+                        color: accentColor,
+                      ),
+                      label: Text(
+                        suggestion,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.textPrimaryDark
+                              : AppColors.textPrimaryLight,
+                        ),
+                      ),
+                      onPressed: () {
+                        _nameController.text = suggestion;
+                        _handleSubmit();
+                      },
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 6),
+            ],
+
             Row(
               children: <Widget>[
                 // Plus icon / Quantity expander toggle
@@ -88,9 +173,14 @@ class _QuickAddBarState extends State<QuickAddBar> {
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       filled: false,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 8.0,
+                      ),
                       hintStyle: TextStyle(
-                        color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
+                        color: (isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight)
                             .withValues(alpha: 0.65),
                         fontSize: 15.0,
                       ),
@@ -122,22 +212,34 @@ class _QuickAddBarState extends State<QuickAddBar> {
             // Optional Quantity Field Drawer
             if (_showQuantityField)
               Padding(
-                padding: const EdgeInsets.only(top: 6.0, left: 12.0, right: 12.0, bottom: 4.0),
+                padding: const EdgeInsets.only(
+                  top: 6.0,
+                  left: 12.0,
+                  right: 12.0,
+                  bottom: 4.0,
+                ),
                 child: TextField(
                   controller: _qtyController,
                   decoration: InputDecoration(
                     hintText: 'Cantidad opcional (ej: 2 kg, 1 docena, 500g)',
                     isDense: true,
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: isDark ? 0.08 : 0.6),
+                    fillColor: Colors.white.withValues(
+                      alpha: isDark ? 0.08 : 0.6,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 8.0,
+                    ),
                     hintStyle: TextStyle(
                       fontSize: 13.0,
-                      color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
+                      color: (isDark
+                              ? AppColors.textSecondaryDark
+                              : AppColors.textSecondaryLight)
                           .withValues(alpha: 0.6),
                     ),
                   ),

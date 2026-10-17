@@ -8,6 +8,7 @@ import '../widgets/export_import_sheet.dart';
 import '../widgets/note_card_widget.dart';
 import 'list_detail_screen.dart';
 import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
+import '../../../recipes/presentation/views/recipe_search_screen.dart';
 
 /// Main Dashboard view in the spirit of Google Keep, featuring appetizing pastel glassmorphism,
 /// structured vertical lists by default, with dynamic toggle to 2-column masonry grid,
@@ -137,6 +138,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (BuildContext ctx) => ScanListScreen(
+                        shoppingListsController: widget.controller,
+                      ),
+                    ),
+                  );
+                },
+              ),
+
+              // Recipes Search & Inspiration
+              IconButton(
+                tooltip: 'Buscar recetas e ideas',
+                icon: Icon(
+                  Icons.restaurant_menu_rounded,
+                  color: textColor,
+                ),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext ctx) => RecipeSearchScreen(
                         shoppingListsController: widget.controller,
                       ),
                     ),

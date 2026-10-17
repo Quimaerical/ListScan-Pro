@@ -11,6 +11,7 @@ import '../widgets/list_separator_tile.dart';
 import '../widgets/quick_add_bar.dart';
 import '../widgets/shopping_item_tile.dart';
 import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
+import '../../../recipes/presentation/views/recipe_search_screen.dart';
 
 /// Interactive detail screen for a shopping list with instant item checkoffs,
 /// live title editing, pastel palette selector, collapsible completed section,
@@ -262,6 +263,23 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                 },
               ),
 
+              // Recipes Search & Import
+              IconButton(
+                tooltip: 'Buscar recetas e ingredientes',
+                icon: const Icon(Icons.restaurant_menu_rounded),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext ctx) => RecipeSearchScreen(
+                        shoppingListsController: widget.controller,
+                        targetListId: list.id,
+                        targetListTitle: list.title,
+                      ),
+                    ),
+                  );
+                },
+              ),
+
               // Export / Interoperability
               IconButton(
                 tooltip: 'Exportar o compartir',
@@ -315,6 +333,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
           ),
           bottomNavigationBar: QuickAddBar(
             palette: palette,
+            onFetchSuggestions: widget.controller.getProductSuggestions,
             onAdd: (String name, String? quantity) {
               widget.controller.addItem(list.id, name, quantity: quantity);
             },

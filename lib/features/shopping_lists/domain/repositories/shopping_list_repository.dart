@@ -33,6 +33,9 @@ abstract class ShoppingListRepository {
   /// Persists the integer counter of an item (clamped to a valid range).
   Future<void> updateItemAmount(String id, int amount);
 
+  /// Returns distinct item names matching the given [query] for autocomplete.
+  Future<List<String>> getProductSuggestions(String query, {int limit = 10});
+
   /// Serializes a [ShoppingList] into standard GitHub / Obsidian checklist Markdown (.md).
   String exportToMarkdown(ShoppingList list);
 

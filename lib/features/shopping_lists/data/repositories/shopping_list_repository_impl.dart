@@ -66,6 +66,11 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   }
 
   @override
+  Future<List<String>> getProductSuggestions(String query, {int limit = 10}) {
+    return localDataSource.getProductSuggestions(query, limit: limit);
+  }
+
+  @override
   String exportToMarkdown(ShoppingList list) {
     return ListFileHandler.exportToMarkdown(list);
   }

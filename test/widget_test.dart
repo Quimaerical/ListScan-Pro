@@ -63,6 +63,9 @@ class MockShoppingListRepository implements ShoppingListRepository {
   Future<void> updateItemAmount(String id, int amount) async {}
 
   @override
+  Future<List<String>> getProductSuggestions(String query, {int limit = 10}) async => const [];
+
+  @override
   String exportToMarkdown(ShoppingList list) => '# ${list.title}\n';
 
   @override
