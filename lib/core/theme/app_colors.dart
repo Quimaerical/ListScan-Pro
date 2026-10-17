@@ -33,6 +33,11 @@ class AppColors {
   static const Color primaryMint = Color(0xFF2A9D8F);
   static const Color primaryBlue = Color(0xFF3B82F6);
 
+  // Brand ListScan PRO Identity
+  static const Color brandDarkForest = Color(0xFF142820);
+  static const Color brandMint = Color(0xFF4ADE80);
+  static const Color brandMintLight = Color(0xFF86EFAC);
+
   // Background foundations
   static const Color scaffoldLight = Color(0xFFF7F9FC);
   static const Color scaffoldDark = Color(0xFF101418);

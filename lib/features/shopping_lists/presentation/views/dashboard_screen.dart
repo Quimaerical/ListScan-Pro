@@ -6,6 +6,7 @@ import '../../domain/models/shopping_list.dart';
 import '../controllers/shopping_lists_controller.dart';
 import '../widgets/export_import_sheet.dart';
 import '../widgets/note_card_widget.dart';
+import '../../../../core/widgets/app_logo.dart';
 import 'list_detail_screen.dart';
 import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
 import '../../../recipes/presentation/views/recipe_search_screen.dart';
@@ -72,39 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         return ConstrainedScaffold(
           appBar: AppBar(
-            title: Row(
-              children: <Widget>[
-                Text(
-                  'ShopLiist',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    color: textColor,
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(width: 6.0),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 2.0),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryMint.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(8.0),
-                    border: Border.all(
-                      color: AppColors.primaryMint.withValues(alpha: 0.35),
-                      width: 0.8,
-                    ),
-                  ),
-                  child: const Text(
-                    'PRO',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.primaryMint,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            title: const AppLogo.horizontal(),
             actions: <Widget>[
               // Toggle View Mode (List vs Grid)
               IconButton(
@@ -422,16 +391,16 @@ class _EmptyListsPlaceholder extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
-                padding: const EdgeInsets.all(18.0),
+                padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryMint.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
+                  color: AppColors.brandDarkForest.withValues(alpha: isDark ? 0.35 : 0.08),
+                  borderRadius: BorderRadius.circular(20.0),
+                  border: Border.all(
+                    color: AppColors.brandMint.withValues(alpha: isDark ? 0.25 : 0.15),
+                    width: 1.0,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.shopping_bag_outlined,
-                  size: 44.0,
-                  color: AppColors.primaryMint,
-                ),
+                child: const AppLogo.iconOnly(size: 58.0),
               ),
               const SizedBox(height: 16.0),
               Text(

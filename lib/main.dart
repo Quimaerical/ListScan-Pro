@@ -23,15 +23,15 @@ void main() async {
   );
   await controller.loadSettings();
 
-  runApp(ShopLiistProApp(controller: controller));
+  runApp(ListScanProApp(controller: controller));
 }
 
 /// Root Application Widget configured with Material 3, light/dark themes
 /// and reactive theme switching via [ListenableBuilder].
-class ShopLiistProApp extends StatelessWidget {
+class ListScanProApp extends StatelessWidget {
   final ShoppingListsController controller;
 
-  const ShopLiistProApp({
+  const ListScanProApp({
     super.key,
     required this.controller,
   });
@@ -42,7 +42,7 @@ class ShopLiistProApp extends StatelessWidget {
       listenable: controller,
       builder: (BuildContext context, _) {
         return MaterialApp(
-          title: 'ShopLiist Pro',
+          title: 'ListScan PRO',
           debugShowCheckedModeBanner: false,
           themeMode: controller.themeMode,
           theme: AppTheme.lightTheme,
@@ -53,3 +53,6 @@ class ShopLiistProApp extends StatelessWidget {
     );
   }
 }
+
+/// Backward compatibility alias
+typedef ShopLiistProApp = ListScanProApp;

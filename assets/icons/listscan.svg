@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Fondo Minimalista -->
+  <rect width="512" height="512" rx="112" fill="#142820" />
+
+  <g transform="translate(0, -10)">
+    <!-- Mango y Canasta del Carrito -->
+    <path d="M 145 175 
+             H 178 
+             L 205 285 
+             H 332 
+             L 358 190 
+             H 188" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+
+    <!-- Iniciales LS contenidas en la canasta -->
+    <text x="270" y="262" font-family="system-ui, -apple-system, &#39;Segoe UI&#39;, Roboto, sans-serif" font-size="60" font-weight="800" fill="#FFFFFF" text-anchor="middle" letter-spacing="5">LS</text>
+
+    <!-- Soporte inferior y eje -->
+    <path d="M 215 285 
+             C 215 308, 228 316, 245 316 
+             H 322" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" />
+
+    <!-- Ruedas -->
+    <circle cx="245" cy="348" r="14" fill="none" stroke="#FFFFFF" stroke-width="10" />
+    <circle cx="312" cy="348" r="14" fill="none" stroke="#FFFFFF" stroke-width="10" />
+  </g>
+
+  <!-- Tipografía Principal: ListScan -->
+  <text x="256" y="420" font-family="system-ui, -apple-system, &#39;Segoe UI&#39;, Roboto, sans-serif" text-anchor="middle">
+    <tspan fill="#FFFFFF" font-size="46" font-weight="400">List</tspan>
+    <tspan fill="#4ADE80" font-size="46" font-weight="700">Scan</tspan>
+  </text>
+
+  <!-- Subtítulo: PRO -->
+  <text x="260" y="455" font-family="system-ui, -apple-system, &#39;Segoe UI&#39;, Roboto, sans-serif" font-size="18" font-weight="700" fill="#86EFAC" text-anchor="middle" letter-spacing="8">PRO</text>
+</svg>

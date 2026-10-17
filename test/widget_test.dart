@@ -83,15 +83,16 @@ class MockShoppingListRepository implements ShoppingListRepository {
 }
 
 void main() {
-  testWidgets('Renders ShopLiist Pro Dashboard and empty state smoothly', (WidgetTester tester) async {
+  testWidgets('Renders ListScan PRO Dashboard and empty state smoothly', (WidgetTester tester) async {
     final repository = MockShoppingListRepository();
     final controller = ShoppingListsController(repository: repository);
 
-    await tester.pumpWidget(ShopLiistProApp(controller: controller));
+    await tester.pumpWidget(ListScanProApp(controller: controller));
     await tester.pumpAndSettle();
 
     // Verify Title & Brand
-    expect(find.text('ShopLiist'), findsOneWidget);
+    expect(find.textContaining('List'), findsWidgets);
+    expect(find.textContaining('Scan'), findsWidgets);
     expect(find.text('PRO'), findsOneWidget);
 
     // Verify Empty state greeting
