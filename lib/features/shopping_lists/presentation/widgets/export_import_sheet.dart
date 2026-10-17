@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -75,20 +75,18 @@ class ExportImportSheet extends StatelessWidget {
   }
 
   Future<void> _handleImportFile(BuildContext context) async {
-    final FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: <String>['md', 'csv', 'txt'],
-      withData: true,
+    const XTypeGroup typeGroup = XTypeGroup(
+      label: 'Listas de compras (.md, .csv)',
+      extensions: <String>['md', 'csv', 'txt'],
     );
 
-    if (result == null || result.files.isEmpty) return;
+    final XFile? file = await openFile(
+      acceptedTypeGroups: const <XTypeGroup>[typeGroup],
+    );
 
-    final PlatformFile file = result.files.first;
-    String content = '';
+    if (file == null) return;
 
-    if (file.bytes != null) {
-      content = utf8.decode(file.bytes!);
-    }
+    final String content = await file.readAsString();
 
     if (content.trim().isEmpty) {
       if (context.mounted) {
