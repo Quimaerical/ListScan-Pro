@@ -1,13 +1,15 @@
-import 'dart:convert';
+import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/glass_card.dart';
 import '../../domain/models/shopping_list.dart';
 import '../controllers/shopping_lists_controller.dart';
 
-/// Modal bottom sheet for exporting lists to Markdown/CSV or importing files.
+/// Modal bottom sheet for exporting lists to Markdown/CSV, copying to clipboard,
+/// or importing local files without third-party sharing plugins.
 class ExportImportSheet extends StatelessWidget {
   final ShoppingListsController controller;
   final ShoppingList? activeList;
@@ -34,44 +36,88 @@ class ExportImportSheet extends StatelessWidget {
     );
   }
 
-  Future<void> _handleExportMarkdown(BuildContext context) async {
+  Future<void> _handleSaveMarkdown(BuildContext context) async {
     if (activeList == null) return;
     final String mdContent = controller.exportToMarkdown(activeList!);
     final String filename = '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.md';
 
-    Navigator.of(context).pop();
-
-    await Share.shareXFiles(
-      <XFile>[
-        XFile.fromData(
-          utf8.encode(mdContent),
-          name: filename,
-          mimeType: 'text/markdown',
-        ),
-      ],
-      subject: 'Lista de Compras: ${activeList!.title}',
-      text: mdContent,
+    await _saveContentToFile(
+      context: context,
+      filename: filename,
+      content: mdContent,
+      extension: 'md',
     );
   }
 
-  Future<void> _handleExportCsv(BuildContext context) async {
+  Future<void> _handleSaveCsv(BuildContext context) async {
     if (activeList == null) return;
     final String csvContent = controller.exportToCsv(activeList!);
     final String filename = '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.csv';
 
-    Navigator.of(context).pop();
-
-    await Share.shareXFiles(
-      <XFile>[
-        XFile.fromData(
-          utf8.encode(csvContent),
-          name: filename,
-          mimeType: 'text/csv',
-        ),
-      ],
-      subject: 'Lista de Compras CSV: ${activeList!.title}',
-      text: csvContent,
+    await _saveContentToFile(
+      context: context,
+      filename: filename,
+      content: csvContent,
+      extension: 'csv',
     );
+  }
+
+  Future<void> _saveContentToFile({
+    required BuildContext context,
+    required String filename,
+    required String content,
+    required String extension,
+  }) async {
+    try {
+      final FileSaveLocation? location = await getSaveLocation(
+        suggestedName: filename,
+        acceptedTypeGroups: <XTypeGroup>[
+          XTypeGroup(label: extension.toUpperCase(), extensions: <String>[extension]),
+        ],
+      );
+
+      String? targetPath = location?.path;
+      if (targetPath == null) {
+        // Fallback when system save dialog is cancelled or unavailable
+        final Directory dir = await getApplicationDocumentsDirectory();
+        targetPath = '${dir.path}/$filename';
+      }
+
+      final File file = File(targetPath);
+      await file.writeAsString(content, flush: true);
+
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Guardado con éxito en: $filename'),
+            backgroundColor: AppColors.primaryMint,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al guardar archivo: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleCopyToClipboard(BuildContext context) async {
+    if (activeList == null) return;
+    final String mdContent = controller.exportToMarkdown(activeList!);
+    await Clipboard.setData(ClipboardData(text: mdContent));
+
+    if (context.mounted) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('¡Lista copiada al portapapeles! Lista para pegar en cualquier app.'),
+          backgroundColor: AppColors.primaryMint,
+        ),
+      );
+    }
   }
 
   Future<void> _handleImportFile(BuildContext context) async {
@@ -154,7 +200,7 @@ class ExportImportSheet extends StatelessWidget {
             ),
             const SizedBox(height: 6.0),
             Text(
-              'Exporta e importa tus listas en formatos universales sin dependencia de servidores.',
+              'Guarda tus listas en el dispositivo, cópialas o importa archivos sin dependencias externas.',
               style: TextStyle(
                 fontSize: 13.0,
                 color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
@@ -163,23 +209,33 @@ class ExportImportSheet extends StatelessWidget {
             const SizedBox(height: 18.0),
 
             if (activeList != null) ...<Widget>[
-              // Export Markdown tile
+              // Copy to Clipboard tile
               _SheetActionTile(
-                icon: Icons.article_outlined,
-                iconColor: const Color(0xFF3B82F6),
-                title: 'Exportar a Markdown (.md)',
-                subtitle: 'Compatible con Obsidian, Notability y checklists estándar.',
-                onTap: () => _handleExportMarkdown(context),
+                icon: Icons.copy_all_rounded,
+                iconColor: const Color(0xFF8B5CF6),
+                title: 'Copiar al Portapapeles',
+                subtitle: 'Copia el checklist en Markdown para enviarlo por WhatsApp o Notas.',
+                onTap: () => _handleCopyToClipboard(context),
               ),
               const SizedBox(height: 10.0),
 
-              // Export CSV tile
+              // Save Markdown tile
+              _SheetActionTile(
+                icon: Icons.article_outlined,
+                iconColor: const Color(0xFF3B82F6),
+                title: 'Guardar archivo Markdown (.md)',
+                subtitle: 'Guarda la lista para abrirla en Obsidian, Notability o editores de texto.',
+                onTap: () => _handleSaveMarkdown(context),
+              ),
+              const SizedBox(height: 10.0),
+
+              // Save CSV tile
               _SheetActionTile(
                 icon: Icons.table_chart_outlined,
                 iconColor: const Color(0xFF10B981),
-                title: 'Exportar a CSV (.csv)',
-                subtitle: 'Compatible con Microsoft Excel, Hojas de cálculo y Notion.',
-                onTap: () => _handleExportCsv(context),
+                title: 'Guardar archivo CSV (.csv)',
+                subtitle: 'Guarda la lista para abrirla en Microsoft Excel, Hojas de cálculo o Notion.',
+                onTap: () => _handleSaveCsv(context),
               ),
               const SizedBox(height: 10.0),
             ],
