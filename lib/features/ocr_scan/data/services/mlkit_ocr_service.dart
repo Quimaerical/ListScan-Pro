@@ -44,6 +44,7 @@ class MlKitOcrService implements OcrService {
             cleanedName: cleanResult.name,
             quantity: cleanResult.quantity,
             isSelected: true,
+            boundingBox: line.boundingBox,
           ),
         );
       }

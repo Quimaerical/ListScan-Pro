@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../domain/models/ocr_recognized_item.dart';
@@ -15,11 +17,13 @@ class OcrScanController extends ChangeNotifier {
   }) : _imagePicker = imagePicker ?? ImagePicker();
 
   String? _imagePath;
+  ui.Size? _imageSize;
   bool _isProcessing = false;
   List<OcrRecognizedItem> _items = <OcrRecognizedItem>[];
   String? _errorMessage;
 
   String? get imagePath => _imagePath;
+  ui.Size? get imageSize => _imageSize;
   bool get isProcessing => _isProcessing;
   List<OcrRecognizedItem> get items => _items;
   String? get errorMessage => _errorMessage;
@@ -67,6 +71,20 @@ class OcrScanController extends ChangeNotifier {
     notifyListeners();
 
     try {
+      try {
+        final Uint8List bytes = await File(path).readAsBytes();
+        final ui.Codec codec = await ui.instantiateImageCodec(bytes);
+        final ui.FrameInfo frame = await codec.getNextFrame();
+        _imageSize = ui.Size(
+          frame.image.width.toDouble(),
+          frame.image.height.toDouble(),
+        );
+        frame.image.dispose();
+        codec.dispose();
+      } catch (_) {
+        _imageSize = null;
+      }
+
       _items = await ocrService.processImage(path);
       if (_items.isEmpty) {
         _errorMessage = 'No se detectó texto de compras legible en la imagen.';
@@ -109,6 +127,7 @@ class OcrScanController extends ChangeNotifier {
 
   void reset() {
     _imagePath = null;
+    _imageSize = null;
     _items = <OcrRecognizedItem>[];
     _errorMessage = null;
     _isProcessing = false;

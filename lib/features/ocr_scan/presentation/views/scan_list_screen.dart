@@ -10,6 +10,8 @@ import '../../data/services/mlkit_ocr_service.dart';
 import '../../domain/models/ocr_recognized_item.dart';
 import '../../domain/services/ocr_service.dart';
 import '../controllers/ocr_scan_controller.dart';
+import 'ocr_image_viewer_screen.dart';
+import '../widgets/ocr_interactive_image_viewer.dart';
 import '../widgets/ocr_item_card.dart';
 
 /// Screen for scanning lists and receipts using on-device OCR,
@@ -32,6 +34,7 @@ class ScanListScreen extends StatefulWidget {
 
 class _ScanListScreenState extends State<ScanListScreen> {
   late final OcrScanController _ocrController;
+  int _viewModeIndex = 0; // 0: Vista Imagen, 1: Vista Lista
 
   @override
   void initState() {
@@ -45,6 +48,17 @@ class _ScanListScreenState extends State<ScanListScreen> {
   void dispose() {
     _ocrController.dispose();
     super.dispose();
+  }
+
+  void _openFullscreenImageViewer() {
+    if (_ocrController.imagePath == null) return;
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => OcrImageViewerScreen(
+          controller: _ocrController,
+        ),
+      ),
+    );
   }
 
   Future<void> _handleCommitItems() async {
@@ -122,12 +136,18 @@ class _ScanListScreenState extends State<ScanListScreen> {
               onPressed: () => Navigator.of(context).pop(),
             ),
             actions: <Widget>[
-              if (_ocrController.imagePath != null)
+              if (_ocrController.imagePath != null) ...<Widget>[
+                IconButton(
+                  tooltip: 'Pantalla completa',
+                  icon: const Icon(Icons.fullscreen_rounded),
+                  onPressed: _openFullscreenImageViewer,
+                ),
                 IconButton(
                   tooltip: 'Reiniciar',
                   icon: const Icon(Icons.refresh_rounded),
                   onPressed: _ocrController.reset,
                 ),
+              ],
             ],
           ),
           bottomNavigationBar: _ocrController.items.isNotEmpty
@@ -270,10 +290,11 @@ class _ScanListScreenState extends State<ScanListScreen> {
     // 3. Results State (Recognized text items)
     return Column(
       children: <Widget>[
-        // Image preview bar
+        // Image preview bar - Tappable to open fullscreen
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: GlassCard(
+            onTap: _openFullscreenImageViewer,
             borderRadius: 16.0,
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
             child: Row(
@@ -301,14 +322,19 @@ class _ScanListScreenState extends State<ScanListScreen> {
                         ),
                       ),
                       Text(
-                        '${_ocrController.selectedCount} seleccionados para importar',
+                        '${_ocrController.selectedCount} seleccionados • Toca para abrir foto',
                         style: TextStyle(
-                          fontSize: 12.0,
+                          fontSize: 11.5,
                           color: secColor,
                         ),
                       ),
                     ],
                   ),
+                ),
+                IconButton(
+                  tooltip: 'Abrir pantalla completa',
+                  icon: const Icon(Icons.open_in_full_rounded, size: 20.0),
+                  onPressed: _openFullscreenImageViewer,
                 ),
                 TextButton(
                   onPressed: () => _ocrController.selectAll(!_ocrController.allSelected),
@@ -325,6 +351,37 @@ class _ScanListScreenState extends State<ScanListScreen> {
           ),
         ),
 
+        // Segmented control: Image view vs List view
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<int>(
+              segments: const <ButtonSegment<int>>[
+                ButtonSegment<int>(
+                  value: 0,
+                  icon: Icon(Icons.crop_free_rounded, size: 18.0),
+                  label: Text('En Imagen'),
+                ),
+                ButtonSegment<int>(
+                  value: 1,
+                  icon: Icon(Icons.format_list_bulleted_rounded, size: 18.0),
+                  label: Text('En Lista'),
+                ),
+              ],
+              selected: <int>{_viewModeIndex},
+              onSelectionChanged: (Set<int> newSelection) {
+                setState(() => _viewModeIndex = newSelection.first);
+              },
+              style: SegmentedButton.styleFrom(
+                selectedBackgroundColor: AppColors.primaryMint.withValues(alpha: 0.20),
+                selectedForegroundColor: AppColors.getPalette(0).accentColor(isDark),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
+              ),
+            ),
+          ),
+        ),
+
         // Error message if any
         if (_ocrController.errorMessage != null)
           Padding(
@@ -335,21 +392,73 @@ class _ScanListScreenState extends State<ScanListScreen> {
             ),
           ),
 
-        // Scrollable list of recognized lines
+        // Content: Interactive Image View OR Scrollable Cards
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
-            itemCount: _ocrController.items.length,
-            itemBuilder: (BuildContext ctx, int index) {
-              final OcrRecognizedItem item = _ocrController.items[index];
-              return OcrItemCard(
-                item: item,
-                onToggleSelect: (_) => _ocrController.toggleItemSelection(item.id),
-                onEditName: (String newName) => _ocrController.updateItemName(item.id, newName),
-                onRemove: () => _ocrController.removeItem(item.id),
-              );
-            },
-          ),
+          child: _viewModeIndex == 0
+              ? Stack(
+                  children: <Widget>[
+                    Positioned.fill(
+                      child: OcrInteractiveImageViewer(
+                        imagePath: _ocrController.imagePath!,
+                        items: _ocrController.items,
+                        onToggleItem: (String id) => _ocrController.toggleItemSelection(id),
+                        imageSize: _ocrController.imageSize,
+                      ),
+                    ),
+                    Positioned(
+                      top: 10.0,
+                      left: 16.0,
+                      right: 16.0,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
+                          decoration: BoxDecoration(
+                            color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.82),
+                            borderRadius: BorderRadius.circular(20.0),
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.15),
+                                blurRadius: 8.0,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              const Icon(
+                                Icons.touch_app_rounded,
+                                size: 16.0,
+                                color: AppColors.primaryMint,
+                              ),
+                              const SizedBox(width: 6.0),
+                              Text(
+                                'Toca una caja para seleccionarla o deseleccionarla',
+                                style: TextStyle(
+                                  fontSize: 12.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+                  itemCount: _ocrController.items.length,
+                  itemBuilder: (BuildContext ctx, int index) {
+                    final OcrRecognizedItem item = _ocrController.items[index];
+                    return OcrItemCard(
+                      item: item,
+                      onToggleSelect: (_) => _ocrController.toggleItemSelection(item.id),
+                      onEditName: (String newName) => _ocrController.updateItemName(item.id, newName),
+                      onRemove: () => _ocrController.removeItem(item.id),
+                    );
+                  },
+                ),
         ),
       ],
     );

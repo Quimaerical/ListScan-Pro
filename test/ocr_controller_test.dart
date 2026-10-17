@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shopliist_pro/features/ocr_scan/domain/models/ocr_recognized_item.dart';
 import 'package:shopliist_pro/features/ocr_scan/domain/services/ocr_service.dart';
@@ -59,6 +60,29 @@ void main() {
       // Dispose releases native resources
       controller.dispose();
       expect(mockService.isDisposed, isTrue);
+    });
+
+    test('preserves bounding boxes for interactive visual selection', () async {
+      final mockService = MockOcrService();
+      mockService.mockResult = <OcrRecognizedItem>[
+        const OcrRecognizedItem(
+          id: 'b1',
+          originalText: 'Pan',
+          cleanedName: 'Pan',
+          isSelected: true,
+          boundingBox: Rect.fromLTRB(10, 10, 80, 40),
+        ),
+      ];
+
+      final controller = OcrScanController(ocrService: mockService);
+      await controller.scanExistingPath('/dummy/receipt.jpg');
+
+      expect(controller.items.first.boundingBox, isNotNull);
+      expect(controller.items.first.boundingBox!.width, equals(70.0));
+
+      controller.toggleItemSelection('b1');
+      expect(controller.items.first.isSelected, isFalse);
+      expect(controller.items.first.boundingBox, equals(const Rect.fromLTRB(10, 10, 80, 40)));
     });
   });
 }
