@@ -7,6 +7,7 @@ import '../controllers/shopping_lists_controller.dart';
 import '../widgets/export_import_sheet.dart';
 import '../widgets/note_card_widget.dart';
 import 'list_detail_screen.dart';
+import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
 
 /// Main Dashboard view in the spirit of Google Keep, featuring appetizing pastel glassmorphism,
 /// structured vertical lists by default, with dynamic toggle to 2-column masonry grid,
@@ -123,6 +124,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   color: textColor,
                 ),
                 onPressed: widget.controller.toggleViewMode,
+              ),
+
+              // OCR Scanner
+              IconButton(
+                tooltip: 'Escanear con OCR',
+                icon: Icon(
+                  Icons.document_scanner_outlined,
+                  color: textColor,
+                ),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext ctx) => ScanListScreen(
+                        shoppingListsController: widget.controller,
+                      ),
+                    ),
+                  );
+                },
               ),
 
               // Interoperability / Import sheet

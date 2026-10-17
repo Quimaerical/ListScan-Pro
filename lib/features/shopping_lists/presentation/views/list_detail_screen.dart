@@ -9,6 +9,7 @@ import '../widgets/color_picker_palette.dart';
 import '../widgets/export_import_sheet.dart';
 import '../widgets/quick_add_bar.dart';
 import '../widgets/shopping_item_tile.dart';
+import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
 
 /// Interactive detail screen for a shopping list with instant item checkoffs,
 /// live title editing, pastel palette selector, collapsible completed section,
@@ -156,6 +157,22 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                   color: list.isPinned ? accentColor : textColor,
                 ),
                 onPressed: () => widget.controller.togglePin(list.id),
+              ),
+
+              // OCR Scanner
+              IconButton(
+                tooltip: 'Escanear productos con OCR',
+                icon: const Icon(Icons.document_scanner_outlined),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext ctx) => ScanListScreen(
+                        shoppingListsController: widget.controller,
+                        targetListId: list.id,
+                      ),
+                    ),
+                  );
+                },
               ),
 
               // Export / Interoperability
