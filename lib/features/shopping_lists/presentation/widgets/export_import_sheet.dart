@@ -1,0 +1,280 @@
+import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/glass_card.dart';
+import '../../domain/models/shopping_list.dart';
+import '../controllers/shopping_lists_controller.dart';
+
+/// Modal bottom sheet for exporting lists to Markdown/CSV or importing files.
+class ExportImportSheet extends StatelessWidget {
+  final ShoppingListsController controller;
+  final ShoppingList? activeList;
+
+  const ExportImportSheet({
+    super.key,
+    required this.controller,
+    this.activeList,
+  });
+
+  static Future<void> show({
+    required BuildContext context,
+    required ShoppingListsController controller,
+    ShoppingList? activeList,
+  }) {
+    return showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext ctx) => ExportImportSheet(
+        controller: controller,
+        activeList: activeList,
+      ),
+    );
+  }
+
+  Future<void> _handleExportMarkdown(BuildContext context) async {
+    if (activeList == null) return;
+    final String mdContent = controller.exportToMarkdown(activeList!);
+    final String filename = '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.md';
+
+    Navigator.of(context).pop();
+
+    await Share.shareXFiles(
+      <XFile>[
+        XFile.fromData(
+          utf8.encode(mdContent),
+          name: filename,
+          mimeType: 'text/markdown',
+        ),
+      ],
+      subject: 'Lista de Compras: ${activeList!.title}',
+      text: mdContent,
+    );
+  }
+
+  Future<void> _handleExportCsv(BuildContext context) async {
+    if (activeList == null) return;
+    final String csvContent = controller.exportToCsv(activeList!);
+    final String filename = '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.csv';
+
+    Navigator.of(context).pop();
+
+    await Share.shareXFiles(
+      <XFile>[
+        XFile.fromData(
+          utf8.encode(csvContent),
+          name: filename,
+          mimeType: 'text/csv',
+        ),
+      ],
+      subject: 'Lista de Compras CSV: ${activeList!.title}',
+      text: csvContent,
+    );
+  }
+
+  Future<void> _handleImportFile(BuildContext context) async {
+    final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: <String>['md', 'csv', 'txt'],
+      withData: true,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final PlatformFile file = result.files.first;
+    String content = '';
+
+    if (file.bytes != null) {
+      content = utf8.decode(file.bytes!);
+    }
+
+    if (content.trim().isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('El archivo seleccionado está vacío.')),
+        );
+      }
+      return;
+    }
+
+    final ShoppingList importedList = await controller.importFromContent(
+      filename: file.name,
+      content: content,
+    );
+
+    if (context.mounted) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('¡Lista "${importedList.title}" importada con éxito!'),
+          backgroundColor: AppColors.primaryMint,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24.0,
+      ),
+      child: GlassCard(
+        borderRadius: 24.0,
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            // Grabber handle
+            Center(
+              child: Container(
+                width: 40.0,
+                height: 4.5,
+                decoration: BoxDecoration(
+                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16.0),
+
+            Text(
+              'Interoperabilidad & Archivos',
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.w700,
+                color: textColor,
+              ),
+            ),
+            const SizedBox(height: 6.0),
+            Text(
+              'Exporta e importa tus listas en formatos universales sin dependencia de servidores.',
+              style: TextStyle(
+                fontSize: 13.0,
+                color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+              ),
+            ),
+            const SizedBox(height: 18.0),
+
+            if (activeList != null) ...<Widget>[
+              // Export Markdown tile
+              _SheetActionTile(
+                icon: Icons.article_outlined,
+                iconColor: const Color(0xFF3B82F6),
+                title: 'Exportar a Markdown (.md)',
+                subtitle: 'Compatible con Obsidian, Notability y checklists estándar.',
+                onTap: () => _handleExportMarkdown(context),
+              ),
+              const SizedBox(height: 10.0),
+
+              // Export CSV tile
+              _SheetActionTile(
+                icon: Icons.table_chart_outlined,
+                iconColor: const Color(0xFF10B981),
+                title: 'Exportar a CSV (.csv)',
+                subtitle: 'Compatible con Microsoft Excel, Hojas de cálculo y Notion.',
+                onTap: () => _handleExportCsv(context),
+              ),
+              const SizedBox(height: 10.0),
+            ],
+
+            // Import File tile
+            _SheetActionTile(
+              icon: Icons.file_upload_outlined,
+              iconColor: const Color(0xFFF59E0B),
+              title: 'Importar Archivo (.md o .csv)',
+              subtitle: 'Selecciona un archivo local del dispositivo para agregarlo como lista.',
+              onTap: () => _handleImportFile(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SheetActionTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _SheetActionTile({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final Color secColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.0),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.50),
+            borderRadius: BorderRadius.circular(16.0),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.40),
+            ),
+          ),
+          child: Row(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: iconColor.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor, size: 22.0),
+              ),
+              const SizedBox(width: 14.0),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 15.0,
+                        fontWeight: FontWeight.w600,
+                        color: textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2.0),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        color: secColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: secColor.withValues(alpha: 0.6)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
