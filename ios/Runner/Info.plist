@@ -64,7 +64,9 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>ShopLiist Pro necesita acceso a la cámara para escanear tickets y listas de compras físicas.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ShopLiist Pro necesita acceso a las fotos para seleccionar notas o tickets guardados.</string>
 </dict>
 </plist>
