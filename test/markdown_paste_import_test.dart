@@ -87,10 +87,12 @@ class MockShoppingListRepository implements ShoppingListRepository {
   Future<List<String>> getProductSuggestions(String query, {int limit = 10}) async => [];
 
   @override
-  String exportToMarkdown(ShoppingList list) => ListFileHandler.exportToMarkdown(list);
+  String exportToMarkdown(ShoppingList list, {bool includeNotes = false}) =>
+      ListFileHandler.exportToMarkdown(list, includeNotes: includeNotes);
 
   @override
-  String exportToCsv(ShoppingList list) => ListFileHandler.exportToCsv(list);
+  String exportToCsv(ShoppingList list, {bool includeNotes = false}) =>
+      ListFileHandler.exportToCsv(list, includeNotes: includeNotes);
 
   @override
   ShoppingList importFromContent({required String filename, required String content}) =>

@@ -201,5 +201,94 @@ Pan campesino,,0,Panadería,1,
       expect(parsed.items[2].amount, equals(1));
       expect(parsed.items[2].price, isNull);
     });
+
+    test('exports and parses CSV with recipe notes when includeNotes is true', () {
+      final now = DateTime.now();
+      final list = ShoppingList(
+        id: 'csv-notes-1',
+        title: 'Receta Salsa',
+        notes: 'Picar tomates y sofreír con ajo.',
+        createdAt: now,
+        updatedAt: now,
+        items: [
+          ShoppingItem(
+            id: 'item-1',
+            listId: 'csv-notes-1',
+            name: 'Tomates',
+            quantity: '1 kg',
+            createdAt: now,
+          ),
+        ],
+      );
+
+      final exportedWithNotes = ListFileHandler.exportToCsv(list, includeNotes: true);
+      expect(exportedWithNotes, contains('# notes:'));
+      expect(exportedWithNotes, contains('Picar tomates y sofreír con ajo.'));
+
+      final exportedWithoutNotes = ListFileHandler.exportToCsv(list, includeNotes: false);
+      expect(exportedWithoutNotes, isNot(contains('# notes:')));
+
+      final parsed = ListFileHandler.parseCsv(
+        content: exportedWithNotes,
+        defaultTitle: 'Receta Salsa',
+      );
+      expect(parsed.notes, equals('Picar tomates y sofreír con ajo.'));
+      expect(parsed.items.length, equals(1));
+      expect(parsed.items.first.name, equals('Tomates'));
+    });
+  });
+
+  group('ListFileHandler - Recipe Notes Selective Export', () {
+    test('exports Markdown with recipe notes block when includeNotes is true', () {
+      final now = DateTime.now();
+      final list = ShoppingList(
+        id: 'notes-md-1',
+        title: 'Spaghetti Bolognese',
+        notes: 'Cocinar la pasta al dente durante 8 minutos.\nServir con queso parmesano.',
+        createdAt: now,
+        updatedAt: now,
+        items: [
+          ShoppingItem(
+            id: 'item-1',
+            listId: 'notes-md-1',
+            name: 'Pasta',
+            quantity: '500 g',
+            createdAt: now,
+          ),
+        ],
+      );
+
+      final withNotes = ListFileHandler.exportToMarkdown(list, includeNotes: true);
+      expect(withNotes, contains('# Spaghetti Bolognese'));
+      expect(withNotes, contains('## 📖 Receta y Notas'));
+      expect(withNotes, contains('Cocinar la pasta al dente durante 8 minutos.'));
+      expect(withNotes, contains('- [ ] 500 g Pasta'));
+
+      final withoutNotes = ListFileHandler.exportToMarkdown(list, includeNotes: false);
+      expect(withoutNotes, contains('# Spaghetti Bolognese'));
+      expect(withoutNotes, isNot(contains('## 📖 Receta y Notas')));
+      expect(withoutNotes, contains('- [ ] 500 g Pasta'));
+    });
+
+    test('parses Markdown with notes block cleanly separating notes and items', () {
+      const markdown = '''# Guiso de Pollo
+
+## 📖 Receta y Notas
+Dorar las piezas de pollo y añadir las verduras cortadas en cubos pequeños.
+
+---
+
+- [ ] 1 kg Pollo en presas
+- [ ] 2 Papas
+''';
+
+      final parsed = ListFileHandler.parseMarkdown(content: markdown);
+      expect(parsed.title, equals('Guiso de Pollo'));
+      expect(parsed.notes, equals('Dorar las piezas de pollo y añadir las verduras cortadas en cubos pequeños.'));
+      expect(parsed.items.length, equals(2));
+      expect(parsed.items[0].name, equals('Pollo en presas'));
+      expect(parsed.items[0].quantity, equals('1 kg'));
+      expect(parsed.items[1].name, equals('Papas'));
+    });
   });
 }

@@ -81,13 +81,13 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   }
 
   @override
-  String exportToMarkdown(ShoppingList list) {
-    return ListFileHandler.exportToMarkdown(list);
+  String exportToMarkdown(ShoppingList list, {bool includeNotes = false}) {
+    return ListFileHandler.exportToMarkdown(list, includeNotes: includeNotes);
   }
 
   @override
-  String exportToCsv(ShoppingList list) {
-    return ListFileHandler.exportToCsv(list);
+  String exportToCsv(ShoppingList list, {bool includeNotes = false}) {
+    return ListFileHandler.exportToCsv(list, includeNotes: includeNotes);
   }
 
   @override

@@ -43,10 +43,10 @@ abstract class ShoppingListRepository {
   Future<List<String>> getProductSuggestions(String query, {int limit = 10});
 
   /// Serializes a [ShoppingList] into standard GitHub / Obsidian checklist Markdown (.md).
-  String exportToMarkdown(ShoppingList list);
+  String exportToMarkdown(ShoppingList list, {bool includeNotes = false});
 
   /// Serializes a [ShoppingList] into standard CSV (RFC 4180).
-  String exportToCsv(ShoppingList list);
+  String exportToCsv(ShoppingList list, {bool includeNotes = false});
 
   /// Parses file contents (.md or .csv) and returns a hydrated [ShoppingList] entity.
   ShoppingList importFromContent({

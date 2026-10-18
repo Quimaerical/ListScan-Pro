@@ -11,7 +11,7 @@ import '../controllers/shopping_lists_controller.dart';
 
 /// Modal bottom sheet for exporting lists to Markdown/CSV, copying to clipboard,
 /// sharing directly to other applications, or importing local files.
-class ExportImportSheet extends StatelessWidget {
+class ExportImportSheet extends StatefulWidget {
   final ShoppingListsController controller;
   final ShoppingList? activeList;
 
@@ -35,13 +35,29 @@ class ExportImportSheet extends StatelessWidget {
     );
   }
 
+  @override
+  State<ExportImportSheet> createState() => _ExportImportSheetState();
+}
+
+class _ExportImportSheetState extends State<ExportImportSheet> {
+  late bool _includeNotes;
+
+  @override
+  void initState() {
+    super.initState();
+    _includeNotes = widget.activeList?.hasNotes == true;
+  }
+
   Future<void> _handleShareDirectly(BuildContext context) async {
-    if (activeList == null) return;
-    final String mdContent = controller.exportToMarkdown(activeList!);
+    if (widget.activeList == null) return;
+    final String mdContent = widget.controller.exportToMarkdown(
+      widget.activeList!,
+      includeNotes: _includeNotes,
+    );
     Navigator.of(context).pop();
     final bool shared = await NativeShareService.shareText(
       text: mdContent,
-      title: activeList!.title,
+      title: widget.activeList!.title,
     );
     if (!shared && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,10 +70,13 @@ class ExportImportSheet extends StatelessWidget {
   }
 
   Future<void> _handleSaveMarkdown(BuildContext context) async {
-    if (activeList == null) return;
-    final String mdContent = controller.exportToMarkdown(activeList!);
+    if (widget.activeList == null) return;
+    final String mdContent = widget.controller.exportToMarkdown(
+      widget.activeList!,
+      includeNotes: _includeNotes,
+    );
     final String filename =
-        '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.md';
+        '${widget.activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.md';
 
     await _saveContentToFile(
       context: context,
@@ -68,10 +87,13 @@ class ExportImportSheet extends StatelessWidget {
   }
 
   Future<void> _handleSaveCsv(BuildContext context) async {
-    if (activeList == null) return;
-    final String csvContent = controller.exportToCsv(activeList!);
+    if (widget.activeList == null) return;
+    final String csvContent = widget.controller.exportToCsv(
+      widget.activeList!,
+      includeNotes: _includeNotes,
+    );
     final String filename =
-        '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.csv';
+        '${widget.activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.csv';
 
     await _saveContentToFile(
       context: context,
@@ -127,8 +149,11 @@ class ExportImportSheet extends StatelessWidget {
   }
 
   Future<void> _handleCopyToClipboard(BuildContext context) async {
-    if (activeList == null) return;
-    final String mdContent = controller.exportToMarkdown(activeList!);
+    if (widget.activeList == null) return;
+    final String mdContent = widget.controller.exportToMarkdown(
+      widget.activeList!,
+      includeNotes: _includeNotes,
+    );
     await Clipboard.setData(ClipboardData(text: mdContent));
 
     if (context.mounted) {
@@ -167,7 +192,7 @@ class ExportImportSheet extends StatelessWidget {
       return;
     }
 
-    final ShoppingList importedList = await controller.importFromContent(
+    final ShoppingList importedList = await widget.controller.importFromContent(
       filename: file.name,
       content: content,
     );
@@ -189,6 +214,9 @@ class ExportImportSheet extends StatelessWidget {
     final Color textColor = isDark
         ? AppColors.textPrimaryDark
         : AppColors.textPrimaryLight;
+    final Color secColor = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -238,7 +266,57 @@ class ExportImportSheet extends StatelessWidget {
             ),
             const SizedBox(height: 18.0),
 
-            if (activeList != null) ...<Widget>[
+            if (widget.activeList != null && widget.activeList!.hasNotes) ...<Widget>[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 4.0),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.50),
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: isDark ? 0.08 : 0.40),
+                  ),
+                ),
+                child: SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  value: _includeNotes,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _includeNotes = value;
+                    });
+                  },
+                  secondary: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.menu_book_rounded,
+                      color: Color(0xFF6366F1),
+                      size: 20.0,
+                    ),
+                  ),
+                  title: Text(
+                    'Incluir receta y notas',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                  ),
+                  subtitle: Text(
+                    _includeNotes
+                        ? 'Se exportarán las instrucciones y notas de la receta.'
+                        : 'Solo se exportará la lista de compras.',
+                    style: TextStyle(fontSize: 12.0, color: secColor),
+                  ),
+                  activeTrackColor: AppColors.primaryMint,
+                ),
+              ),
+              const SizedBox(height: 12.0),
+            ],
+
+            if (widget.activeList != null) ...<Widget>[
               // Direct Native Share tile
               _SheetActionTile(
                 icon: Icons.share_rounded,

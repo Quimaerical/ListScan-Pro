@@ -402,12 +402,12 @@ class ShoppingListsController extends ChangeNotifier {
   // INTEROPERABILITY (MARKDOWN & CSV)
   // ---------------------------------------------------------------------------
 
-  String exportToMarkdown(ShoppingList list) {
-    return repository.exportToMarkdown(list);
+  String exportToMarkdown(ShoppingList list, {bool includeNotes = false}) {
+    return repository.exportToMarkdown(list, includeNotes: includeNotes);
   }
 
-  String exportToCsv(ShoppingList list) {
-    return repository.exportToCsv(list);
+  String exportToCsv(ShoppingList list, {bool includeNotes = false}) {
+    return repository.exportToCsv(list, includeNotes: includeNotes);
   }
 
   Future<ShoppingList> importFromContent({

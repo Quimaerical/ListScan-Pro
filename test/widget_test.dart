@@ -83,10 +83,10 @@ class MockShoppingListRepository implements ShoppingListRepository {
   }) async => const [];
 
   @override
-  String exportToMarkdown(ShoppingList list) => '# ${list.title}\n';
+  String exportToMarkdown(ShoppingList list, {bool includeNotes = false}) => '# ${list.title}\n';
 
   @override
-  String exportToCsv(ShoppingList list) =>
+  String exportToCsv(ShoppingList list, {bool includeNotes = false}) =>
       'name,quantity,is_completed,category\n';
 
   @override

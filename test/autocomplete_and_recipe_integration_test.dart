@@ -74,10 +74,10 @@ class MockFullShoppingListRepository implements ShoppingListRepository {
   }
 
   @override
-  String exportToMarkdown(ShoppingList list) => '';
+  String exportToMarkdown(ShoppingList list, {bool includeNotes = false}) => '';
 
   @override
-  String exportToCsv(ShoppingList list) => '';
+  String exportToCsv(ShoppingList list, {bool includeNotes = false}) => '';
 
   @override
   ShoppingList importFromContent({

@@ -12,10 +12,21 @@ class ListFileHandler {
   // ---------------------------------------------------------------------------
 
   /// Exports a [ShoppingList] into standard Markdown with checklist syntax.
-  static String exportToMarkdown(ShoppingList list) {
+  static String exportToMarkdown(
+    ShoppingList list, {
+    bool includeNotes = false,
+  }) {
     final StringBuffer buffer = StringBuffer();
     buffer.writeln('# ${list.title}');
     buffer.writeln();
+
+    if (includeNotes && list.hasNotes) {
+      buffer.writeln('## 📖 Receta y Notas');
+      buffer.writeln(list.notes!.trim());
+      buffer.writeln();
+      buffer.writeln('---');
+      buffer.writeln();
+    }
 
     for (final ShoppingItem item in list.items) {
       if (item.isSeparator) {
@@ -59,6 +70,7 @@ class ListFileHandler {
     final String listId = _uuid.v4();
     final List<String> lines = content.split(RegExp(r'\r?\n'));
     String detectedTitle = defaultTitle;
+    String? detectedNotes;
 
     final RegExp titleRegex = RegExp(r'^#\s+(.+)$');
     for (final String rawLine in lines) {
@@ -73,8 +85,38 @@ class ListFileHandler {
       }
     }
 
+    // Extract notes section if present (between ## 📖 Receta y Notas and the items section)
+    final int notesHeaderIdx = lines.indexWhere(
+      (String l) =>
+          l.trim().startsWith('## 📖 Receta y Notas') ||
+          l.trim() == '## Receta y Notas' ||
+          l.trim() == '## Notas',
+    );
+
+    String itemsContent = content;
+    if (notesHeaderIdx != -1) {
+      final List<String> notesLines = <String>[];
+      int itemsStartIdx = lines.length;
+      for (int i = notesHeaderIdx + 1; i < lines.length; i++) {
+        final String l = lines[i].trim();
+        if (l.startsWith('---') ||
+            l.startsWith('- [') ||
+            l.startsWith('* [') ||
+            l.startsWith('• [')) {
+          itemsStartIdx = (l == '---' || l == '***' || l == '___') ? i + 1 : i;
+          break;
+        }
+        notesLines.add(lines[i]);
+      }
+      final String joined = notesLines.join('\n').trim();
+      if (joined.isNotEmpty) {
+        detectedNotes = joined;
+      }
+      itemsContent = lines.sublist(itemsStartIdx).join('\n');
+    }
+
     final List<ShoppingItem> items = parseMarkdownItems(
-      content: content,
+      content: itemsContent,
       listId: listId,
     );
 
@@ -85,6 +127,7 @@ class ListFileHandler {
       colorIndex: 0,
       isPinned: false,
       isArchived: false,
+      notes: detectedNotes,
       createdAt: now,
       updatedAt: now,
       items: items,
@@ -251,8 +294,15 @@ class ListFileHandler {
   // ---------------------------------------------------------------------------
 
   /// Exports a [ShoppingList] into standard CSV format.
-  static String exportToCsv(ShoppingList list) {
+  static String exportToCsv(
+    ShoppingList list, {
+    bool includeNotes = false,
+  }) {
     final StringBuffer buffer = StringBuffer();
+    if (includeNotes && list.hasNotes) {
+      final String safeNotes = list.notes!.replaceAll('\r\n', ' \n ').replaceAll('\n', ' \n ');
+      buffer.writeln('# notes: ${_escapeCsvField(safeNotes)}');
+    }
     buffer.writeln('name,quantity,is_completed,category,amount,price');
 
     for (final ShoppingItem item in list.items) {
@@ -280,12 +330,22 @@ class ListFileHandler {
     final String listId = _uuid.v4();
     final DateTime now = DateTime.now();
     final List<ShoppingItem> items = <ShoppingItem>[];
+    String? detectedNotes;
 
     int sortOrder = 0;
     bool isHeader = true;
 
     for (final List<String> cols in rows) {
       if (cols.isEmpty) continue;
+
+      // Handle comment lines with notes
+      if (cols[0].trim().startsWith('#')) {
+        final String commentLine = cols[0].trim();
+        if (commentLine.toLowerCase().startsWith('# notes:')) {
+          detectedNotes = commentLine.substring(8).trim();
+        }
+        continue;
+      }
 
       // Skip CSV header if present
       if (isHeader) {
@@ -335,6 +395,7 @@ class ListFileHandler {
       id: listId,
       title: defaultTitle,
       colorIndex: 1,
+      notes: detectedNotes,
       createdAt: now,
       updatedAt: now,
       items: items,
