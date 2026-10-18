@@ -464,31 +464,40 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
               ),
             ],
           ),
-          bottomNavigationBar: QuickAddBar(
-            palette: palette,
-            onFetchSuggestions: widget.controller.getProductSuggestions,
-            onAdd: (String name, String? quantity) {
-              widget.controller.addItem(list.id, name, quantity: quantity);
-            },
-            onImportLink: (String url) {
-              _handleSmartLinkImport(context, list, url);
-            },
-            onImportMarkdown: (String markdownContent) async {
-              final int count = await widget.controller.importMarkdownIntoList(
-                list.id,
-                markdownContent,
-              );
-              if (context.mounted && count > 0) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Se importaron $count elementos desde el texto.',
-                    ),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              }
-            },
+          bottomNavigationBar: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: 8.0,
+                right: 8.0,
+                bottom: 8.0,
+              ),
+              child: QuickAddBar(
+                palette: palette,
+                onFetchSuggestions: widget.controller.getProductSuggestions,
+                onAdd: (String name, String? quantity) {
+                  widget.controller.addItem(list.id, name, quantity: quantity);
+                },
+                onImportLink: (String url) {
+                  _handleSmartLinkImport(context, list, url);
+                },
+                onImportMarkdown: (String markdownContent) async {
+                  final int count = await widget.controller.importMarkdownIntoList(
+                    list.id,
+                    markdownContent,
+                  );
+                  if (context.mounted && count > 0) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Se importaron $count elementos desde el texto.',
+                        ),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
           ),
           body: Column(
             children: <Widget>[
@@ -626,9 +635,11 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                       )
                     : ListView(
                         physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8.0,
+                        padding: const EdgeInsets.fromLTRB(
+                          16.0,
+                          8.0,
+                          16.0,
+                          88.0,
                         ),
                         children: <Widget>[
                           // Pending items and separators

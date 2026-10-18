@@ -24,6 +24,35 @@ class NoteCardWidget extends StatelessWidget {
     this.onToggleItem,
   });
 
+  Future<void> _confirmDelete(BuildContext context) async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext ctx) => AlertDialog(
+        title: const Text('¿Eliminar lista?'),
+        content: Text(
+          '¿Estás seguro de que deseas eliminar la lista "${list.title}"?',
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      onDelete();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
@@ -52,7 +81,7 @@ class NoteCardWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          // Header: Title & Pin/Menu actions
+          // Header: Title & Pin/Delete actions
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -71,13 +100,28 @@ class NoteCardWidget extends StatelessWidget {
               ),
               if (list.isPinned)
                 Padding(
-                  padding: const EdgeInsets.only(left: 6.0),
+                  padding: const EdgeInsets.only(left: 4.0, right: 2.0),
                   child: Icon(
                     Icons.push_pin_rounded,
-                    size: 18.0,
+                    size: 17.0,
                     color: accentColor,
                   ),
                 ),
+              Tooltip(
+                message: 'Eliminar lista',
+                child: InkWell(
+                  onTap: () => _confirmDelete(context),
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(3.0),
+                    child: Icon(
+                      Icons.delete_outline_rounded,
+                      size: 19.0,
+                      color: secondaryTextColor.withValues(alpha: 0.65),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
 
@@ -138,7 +182,7 @@ class NoteCardWidget extends StatelessWidget {
 
           const SizedBox(height: 8.0),
 
-          // Footer: Item counter & Completion chip
+          // Footer: Item counter & Completion chip & Total price if present
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -146,7 +190,7 @@ class NoteCardWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
-                    '${list.completedCount}/${list.totalCount} completados',
+                    '${list.completedCount}/${list.totalCount}',
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w600,
@@ -162,14 +206,14 @@ class NoteCardWidget extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: accentColor.withValues(
-                          alpha: isDark ? 0.22 : 0.14,
+                          alpha: isDark ? 0.20 : 0.12,
                         ),
                         borderRadius: BorderRadius.circular(6.0),
                       ),
                       child: Text(
                         '\$${list.totalPrice.toStringAsFixed(2)}',
                         style: TextStyle(
-                          fontSize: 10.5,
+                          fontSize: 11.0,
                           fontWeight: FontWeight.w800,
                           color: accentColor,
                         ),

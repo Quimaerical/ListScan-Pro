@@ -277,6 +277,23 @@ class ShoppingItemTile extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Direct delete item button
+            IconButton(
+              icon: Icon(
+                Icons.close_rounded,
+                size: 17.0,
+                color: textColor.withValues(alpha: 0.35),
+              ),
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.only(left: 4.0),
+              constraints: const BoxConstraints(
+                minWidth: 26.0,
+                minHeight: 26.0,
+              ),
+              tooltip: 'Eliminar producto',
+              onPressed: onDelete,
+            ),
           ],
         ),
       ),
