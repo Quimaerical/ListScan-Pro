@@ -8,12 +8,14 @@ import '../../../../core/theme/glass_card.dart';
 class QuickAddBar extends StatefulWidget {
   final PastelPalette palette;
   final void Function(String name, String? quantity) onAdd;
+  final void Function(String markdownContent)? onImportMarkdown;
   final Future<List<String>> Function(String query)? onFetchSuggestions;
 
   const QuickAddBar({
     super.key,
     required this.palette,
     required this.onAdd,
+    this.onImportMarkdown,
     this.onFetchSuggestions,
   });
 
@@ -69,13 +71,33 @@ class _QuickAddBarState extends State<QuickAddBar> {
     });
   }
 
+  bool _isMarkdownOrMultiLine(String text) {
+    if (text.contains('\n')) return true;
+    final String trimmed = text.trim();
+    if (trimmed.startsWith('- [') ||
+        trimmed.startsWith('* [') ||
+        trimmed.startsWith('• [') ||
+        trimmed.startsWith('---') ||
+        trimmed.startsWith('# ') ||
+        trimmed.startsWith('## ') ||
+        trimmed.startsWith('### ')) {
+      return true;
+    }
+    return false;
+  }
+
   void _handleSubmit() {
-    final String name = _nameController.text.trim();
+    final String rawInput = _nameController.text;
+    final String name = rawInput.trim();
     final String qty = _qtyController.text.trim();
 
     if (name.isEmpty) return;
 
-    widget.onAdd(name, qty.isNotEmpty ? qty : null);
+    if (widget.onImportMarkdown != null && _isMarkdownOrMultiLine(rawInput)) {
+      widget.onImportMarkdown!(rawInput);
+    } else {
+      widget.onAdd(name, qty.isNotEmpty ? qty : null);
+    }
 
     _debounceTimer?.cancel();
     _nameController.clear();
@@ -170,9 +192,12 @@ class _QuickAddBarState extends State<QuickAddBar> {
                   child: TextField(
                     controller: _nameController,
                     focusNode: _nameFocusNode,
+                    minLines: 1,
+                    maxLines: 4,
+                    keyboardType: TextInputType.multiline,
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
-                      hintText: 'Agregar producto...',
+                      hintText: 'Agregar producto o pegar Markdown...',
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,

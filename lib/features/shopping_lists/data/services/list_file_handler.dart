@@ -48,81 +48,80 @@ class ListFileHandler {
     required String content,
     String defaultTitle = 'Lista Importada',
   }) {
+    final String listId = _uuid.v4();
     final List<String> lines = content.split(RegExp(r'\r?\n'));
     String detectedTitle = defaultTitle;
-    final List<ShoppingItem> items = <ShoppingItem>[];
-    final String listId = _uuid.v4();
-    final DateTime now = DateTime.now();
 
     final RegExp titleRegex = RegExp(r'^#\s+(.+)$');
-    final RegExp separatorRegex = RegExp(r'^(?:---|###)\s*(.*?)(?:\s*---)?$');
-    final RegExp itemRegex = RegExp(r'^[-*]\s+\[([ xX])\]\s*(.*)$');
+    for (final String rawLine in lines) {
+      final String line = rawLine.trim();
+      final Match? titleMatch = titleRegex.firstMatch(line);
+      if (titleMatch != null) {
+        final String parsedTitle = titleMatch.group(1)?.trim() ?? '';
+        if (parsedTitle.isNotEmpty) {
+          detectedTitle = parsedTitle;
+          break;
+        }
+      }
+    }
 
-    int sortOrder = 0;
+    final List<ShoppingItem> items = parseMarkdownItems(
+      content: content,
+      listId: listId,
+    );
+
+    final DateTime now = DateTime.now();
+    return ShoppingList(
+      id: listId,
+      title: detectedTitle,
+      colorIndex: 0,
+      isPinned: false,
+      isArchived: false,
+      createdAt: now,
+      updatedAt: now,
+      items: items,
+    );
+  }
+
+  /// Parses Markdown content or multiline text into a list of [ShoppingItem]s bound to [listId].
+  static List<ShoppingItem> parseMarkdownItems({
+    required String content,
+    required String listId,
+    int startingSortOrder = 0,
+  }) {
+    final List<String> lines = content.split(RegExp(r'\r?\n'));
+    final List<ShoppingItem> items = <ShoppingItem>[];
+    final DateTime now = DateTime.now();
+
+    final RegExp headerRegex = RegExp(r'^#+\s+(.+)$');
+    final RegExp separatorRegex = RegExp(
+      r'^(?:---|###|___|\*\*\*)\s*(.*?)(?:\s*(?:---|###|___|\*\*\*))?$',
+    );
+    final RegExp checklistRegex = RegExp(r'^[-*•]\s+\[([ xX])\]\s*(.*)$');
+    final RegExp bulletRegex = RegExp(r'^[-*•]\s+(.*)$');
+    final RegExp numberedRegex = RegExp(r'^\d+[\.\)\-]\s+(.*)$');
+    final RegExp multMatcher = RegExp(r'^(\d+)\s*[xX]\s+(.+)$');
+    final RegExp prefixQtyMatcher = RegExp(
+      r'^(\d+(?:[.,]\d+)?\s*(?:kg|g|gr|l|lt|litro|litros|ml|oz|lb|unid|pza|pzas|uds|ud|botellas|paquetes|latas|cajas)?(?:\s+de)?)\s+(.+)$',
+      caseSensitive: false,
+    );
+    final RegExp suffixQtyMatcher = RegExp(
+      r'^(.+?)\s+(\d+(?:[.,]\d+)?\s*(?:kg|g|gr|l|lt|litro|litros|ml|oz|lb|unid|pza|pzas|uds|ud|botellas|paquetes|latas|cajas)?)$',
+      caseSensitive: false,
+    );
+
+    int sortOrder = startingSortOrder;
 
     for (final String rawLine in lines) {
       final String line = rawLine.trim();
       if (line.isEmpty) continue;
 
-      // Extract list title from the first Markdown header
-      final Match? titleMatch = titleRegex.firstMatch(line);
-      if (titleMatch != null && detectedTitle == defaultTitle) {
-        final String parsedTitle = titleMatch.group(1)?.trim() ?? '';
-        if (parsedTitle.isNotEmpty) {
-          detectedTitle = parsedTitle;
-        }
+      // Ignore the primary list title header "# Title" if at the very beginning
+      if (line.startsWith('# ') && items.isEmpty) {
         continue;
       }
 
-      // Extract checklist items
-      final Match? itemMatch = itemRegex.firstMatch(line);
-      if (itemMatch != null) {
-        final String mark = itemMatch.group(1) ?? ' ';
-        final bool isCompleted = mark.toLowerCase() == 'x';
-        final String rawText = itemMatch.group(2)?.trim() ?? '';
-
-        if (rawText.isEmpty) continue;
-
-        // Check multiplier prefix e.g. "3x Cervezas"
-        int amount = 1;
-        String fullText = rawText;
-        final RegExp multMatcher = RegExp(r'^(\d+)\s*[xX]\s+(.+)$');
-        final Match? matchMult = multMatcher.firstMatch(rawText);
-        if (matchMult != null) {
-          amount = int.tryParse(matchMult.group(1) ?? '1') ?? 1;
-          fullText = matchMult.group(2)?.trim() ?? rawText;
-        }
-
-        // Try extracting quantity if starting with digit e.g. "2 kg Manzanas"
-        String? quantity;
-        String name = fullText;
-
-        final RegExp qtyMatcher = RegExp(
-          r'^(\d+(?:[.,]\d+)?\s*(?:kg|g|l|ml|oz|lb|unid|pza|uds|botellas|paquetes|latas|cajas)?)\s+(.+)$',
-          caseSensitive: false,
-        );
-        final Match? matchQty = qtyMatcher.firstMatch(fullText);
-        if (matchQty != null) {
-          quantity = matchQty.group(1)?.trim();
-          name = matchQty.group(2)?.trim() ?? fullText;
-        }
-
-        items.add(
-          ShoppingItem(
-            id: _uuid.v4(),
-            listId: listId,
-            name: name,
-            quantity: quantity,
-            amount: ShoppingItem.clampAmount(amount),
-            isCompleted: isCompleted,
-            sortOrder: sortOrder++,
-            createdAt: now,
-          ),
-        );
-        continue;
-      }
-
-      // Extract visual separators
+      // Extract visual separators (e.g. "--- Separador ---" or "---" or "### Frutas")
       final Match? sepMatch = separatorRegex.firstMatch(line);
       if (sepMatch != null) {
         final String label = sepMatch.group(1)?.trim() ?? '';
@@ -136,17 +135,94 @@ class ListFileHandler {
             createdAt: now,
           ),
         );
+        continue;
       }
+
+      // Sub-headings like "## Bebidas" also act as labelled separators
+      final Match? headerMatch = headerRegex.firstMatch(line);
+      if (headerMatch != null) {
+        final String label = headerMatch.group(1)?.trim() ?? '';
+        items.add(
+          ShoppingItem(
+            id: _uuid.v4(),
+            listId: listId,
+            name: label,
+            isSeparator: true,
+            sortOrder: sortOrder++,
+            createdAt: now,
+          ),
+        );
+        continue;
+      }
+
+      // Match checklist item "- [ ] item" or "- [x] item"
+      final Match? checkMatch = checklistRegex.firstMatch(line);
+      bool isCompleted = false;
+      String rawText = '';
+
+      if (checkMatch != null) {
+        final String mark = checkMatch.group(1) ?? ' ';
+        isCompleted = mark.toLowerCase() == 'x';
+        rawText = checkMatch.group(2)?.trim() ?? '';
+      } else {
+        // Match bullet item "- item", "* item", "• item"
+        final Match? bulletMatch = bulletRegex.firstMatch(line);
+        if (bulletMatch != null) {
+          rawText = bulletMatch.group(1)?.trim() ?? '';
+        } else {
+          // Match numbered item "1. item", "2) item"
+          final Match? numMatch = numberedRegex.firstMatch(line);
+          if (numMatch != null) {
+            rawText = numMatch.group(1)?.trim() ?? '';
+          } else {
+            // Plain line of text
+            rawText = line;
+          }
+        }
+      }
+
+      if (rawText.isEmpty) continue;
+
+      // Check multiplier prefix e.g. "3x Cervezas" or "2X Leche"
+      int amount = 1;
+      String fullText = rawText;
+      final Match? matchMult = multMatcher.firstMatch(rawText);
+      if (matchMult != null) {
+        amount = int.tryParse(matchMult.group(1) ?? '1') ?? 1;
+        fullText = matchMult.group(2)?.trim() ?? rawText;
+      }
+
+      // Try extracting quantity prefix ("2 kg Manzanas") or suffix ("Harina 1 kg")
+      String? quantity;
+      String name = fullText;
+
+      final Match? prefixMatch = prefixQtyMatcher.firstMatch(fullText);
+      if (prefixMatch != null) {
+        quantity = prefixMatch.group(1)?.trim();
+        name = prefixMatch.group(2)?.trim() ?? fullText;
+      } else {
+        final Match? suffixMatch = suffixQtyMatcher.firstMatch(fullText);
+        if (suffixMatch != null) {
+          name = suffixMatch.group(1)?.trim() ?? fullText;
+          quantity = suffixMatch.group(2)?.trim();
+        }
+      }
+
+      items.add(
+        ShoppingItem(
+          id: _uuid.v4(),
+          listId: listId,
+          name: name,
+          quantity: quantity,
+          amount: ShoppingItem.clampAmount(amount),
+          isCompleted: isCompleted,
+          sortOrder: sortOrder++,
+          createdAt: now,
+        ),
+      );
     }
 
-    return ShoppingList(
-      id: listId,
-      title: detectedTitle,
-      colorIndex: 0,
-      createdAt: now,
-      updatedAt: now,
-      items: items,
-    );
+    return items;
   }
 
   // ---------------------------------------------------------------------------

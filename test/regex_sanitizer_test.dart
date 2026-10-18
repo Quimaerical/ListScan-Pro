@@ -73,5 +73,47 @@ void main() {
       expect(line2.isValid, isTrue);
       expect(line2.name, equals('Aguacates Hass'));
     });
+
+    test('preserves grocery products containing "caja" or "importado"', () {
+      final line1 = RegexSanitizer.cleanLine('Caja de galletas');
+      expect(line1.isValid, isTrue);
+      expect(line1.name, equals('Caja de galletas'));
+
+      final line2 = RegexSanitizer.cleanLine('Cerveza importada');
+      expect(line2.isValid, isTrue);
+      expect(line2.name, equals('Cerveza importada'));
+
+      final line3 = RegexSanitizer.cleanLine('1 caja de leche 1,20');
+      expect(line3.isValid, isTrue);
+      expect(line3.name, equals('Leche'));
+      expect(line3.quantity, equals('1 caja de'));
+    });
+
+    test('strips trailing receipt prices without currency symbol', () {
+      final line1 = RegexSanitizer.cleanLine('LECHE ENTERA 1.25');
+      expect(line1.isValid, isTrue);
+      expect(line1.name, equals('Leche entera'));
+
+      final line2 = RegexSanitizer.cleanLine('PAN DE MOLDE 0,85 A');
+      expect(line2.isValid, isTrue);
+      expect(line2.name, equals('Pan de molde'));
+    });
+
+    test('strips list numbering prefixes', () {
+      final line1 = RegexSanitizer.cleanLine('1. Manzanas rojas');
+      expect(line1.isValid, isTrue);
+      expect(line1.name, equals('Manzanas rojas'));
+
+      final line2 = RegexSanitizer.cleanLine('2) Plátanos de Canarias');
+      expect(line2.isValid, isTrue);
+      expect(line2.name, equals('Plátanos de Canarias'));
+    });
+
+    test('extracts multiplier prefix e.g. 2x', () {
+      final line = RegexSanitizer.cleanLine('2x Aceite de oliva');
+      expect(line.isValid, isTrue);
+      expect(line.name, equals('Aceite de oliva'));
+      expect(line.quantity, equals('2x'));
+    });
   });
 }

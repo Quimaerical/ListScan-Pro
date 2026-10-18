@@ -27,13 +27,20 @@ class OcrInteractiveImageViewer extends StatelessWidget {
 
     OcrRecognizedItem? bestMatch;
     double minDistance = double.infinity;
+    final double marginX = 24.0 / scaleX;
+    final double marginY = 24.0 / scaleY;
 
     for (final OcrRecognizedItem item in items) {
       final Rect? box = item.boundingBox;
       if (box == null) continue;
 
-      // Inflate by 14px in image coordinate space to ensure generous touch targets
-      final Rect hitBox = box.inflate(14.0);
+      // Inflate by ~24 screen pixels in each direction to ensure effortless tapping
+      final Rect hitBox = Rect.fromLTRB(
+        box.left - marginX,
+        box.top - marginY,
+        box.right + marginX,
+        box.bottom + marginY,
+      );
       if (hitBox.contains(imageTap)) {
         final double dist = (imageTap - box.center).distance;
         if (dist < minDistance) {

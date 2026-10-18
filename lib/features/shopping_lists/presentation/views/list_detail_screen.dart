@@ -384,6 +384,22 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
             onAdd: (String name, String? quantity) {
               widget.controller.addItem(list.id, name, quantity: quantity);
             },
+            onImportMarkdown: (String markdownContent) async {
+              final int count = await widget.controller.importMarkdownIntoList(
+                list.id,
+                markdownContent,
+              );
+              if (context.mounted && count > 0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Se importaron $count elementos desde el texto.',
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            },
           ),
           body: Column(
             children: <Widget>[

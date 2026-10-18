@@ -18,10 +18,12 @@ class RegexSanitizer {
 
   // Common receipt noise keywords (case-insensitive)
   static final RegExp _receiptNoiseRegex = RegExp(
-    r'\b(?:TOTAL|SUBTOTAL|TICKET|FACTURA|BOLETA|RECIBO|IVA|TAX|IMPUESTO|CAJA|CAJERO|'
+    r'\b(?:TOTAL|SUBTOTAL|TICKET|FACTURA|BOLETA|RECIBO|IVA|TAX|IMPUESTO|'
+    r'CAJERO|CAJERA|CAJA\s*#?\d+|NUMERO\s+CAJA|N[ºo]\s*CAJA|'
     r'VISA|MASTERCARD|AMERICAN\s*EXPRESS|DEBITO|CREDITO|EFECTIVO|CASH|CAMBIO|CHANGE|'
     r'DESCUENTO|DISCOUNT|AHORRO|GRACIAS|VUELVA|NIF|CIF|RUC|RUT|TERMINAL|FECHA|HORA|'
-    r'AUTORIZACION|CODIGO|ITEMS?|PRECIO|UNITARIO|CANTIDAD|IMPORT)\b',
+    r'AUTORIZACION|CODIGO|ITEMS?|PRECIO\s+UNITARIO|P\.?\s*UNITARIO|CANTIDAD\s+PRECIO|'
+    r'IMPORTE(?:\s+(?:TOTAL|NETO))?)\b',
     caseSensitive: false,
   );
 
@@ -39,9 +41,9 @@ class RegexSanitizer {
   // Barcode / long numeric string pattern
   static final RegExp _barcodeRegex = RegExp(r'^\d{8,20}$');
 
-  // Prefix quantity pattern: "2 kg Manzanas", "1.5 L Leche", "3 pzas Jabón"
+  // Prefix quantity pattern: "2 kg Manzanas", "1.5 L Leche", "3 pzas Jabón", "2x Leche", "1 caja de galletas"
   static final RegExp _prefixQtyRegex = RegExp(
-    r'^(\d+(?:[.,]\d+)?\s*(?:kg|g|gr|l|lt|litro|litros|ml|oz|lb|unid|uds|ud|pza|pzas|paquete|paquetes|botellas?|latas?|cajas?)?)\s+(.+)$',
+    r'^(\d+(?:[.,]\d+)?\s*(?:kg|g|gr|l|lt|litro|litros|ml|oz|lb|unid|uds|ud|pza|pzas|paquete|paquetes|botellas?|latas?|cajas?)(?:\s+de)?|\d+(?:[.,]\d+)?\s*[xX]?)\s+(.+)$',
     caseSensitive: false,
   );
 
@@ -75,8 +77,11 @@ class RegexSanitizer {
       return const OcrCleanResult(name: '', isValid: false);
     }
 
-    // Strip currency / prices
+    // Strip currency / prices with symbols
     text = text.replaceAll(_priceRegex, '').trim();
+
+    // Strip trailing receipt prices without currency symbol (e.g., "LECHE ENTERA 1.25" or "PAN 0,85 A")
+    text = text.replaceAll(RegExp(r'\s+\d+[.,]\d{2}(?:\s+[A-Za-z])?$'), '').trim();
 
     // Strip leading checklist brackets e.g. "- [ ] ", "[x] ", "• [ ] "
     text = text
@@ -89,6 +94,9 @@ class RegexSanitizer {
     // Strip leading bullets, asterisks, brackets, or OCR artifacts (with interior spaces)
     text = text.replaceAll(RegExp(r'^(?:[-*•_=|#~>\[\]\(\)]|\s)+'), '').trim();
     text = text.replaceAll(RegExp(r'(?:[-*•_=|#~>\[\]\(\)]|\s)+$'), '').trim();
+
+    // Strip list numbering prefixes: "1. Manzanas", "2) Leche", "01 Pan"
+    text = text.replaceAll(RegExp(r'^\d+[\.\)\-]\s+'), '').trim();
 
     // Collapse multiple internal spaces
     text = text.replaceAll(RegExp(r'\s{2,}'), ' ');
@@ -126,8 +134,12 @@ class RegexSanitizer {
       }
     }
 
-    // Capitalize first letter cleanly
+    // Capitalize first letter cleanly; normalize ALL-CAPS lines from receipts into sentence case
     if (cleanName.isNotEmpty) {
+      if (cleanName == cleanName.toUpperCase() &&
+          cleanName != cleanName.toLowerCase()) {
+        cleanName = cleanName.toLowerCase();
+      }
       cleanName =
           cleanName[0].toUpperCase() +
           (cleanName.length > 1 ? cleanName.substring(1) : '');

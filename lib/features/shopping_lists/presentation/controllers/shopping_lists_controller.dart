@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../../settings/data/repositories/settings_repository_impl.dart';
 import '../../../settings/domain/repositories/settings_repository.dart';
+import '../../data/services/list_file_handler.dart';
 import '../../domain/models/shopping_item.dart';
 import '../../domain/models/shopping_list.dart';
 import '../../domain/repositories/shopping_list_repository.dart';
@@ -223,6 +224,23 @@ class ShoppingListsController extends ChangeNotifier {
 
     await repository.saveItem(newItem);
     await loadLists();
+  }
+
+  /// Imports multiple items and visual separators parsed from Markdown or multiline text directly into an existing list.
+  Future<int> importMarkdownIntoList(String listId, String content) async {
+    final int startSort = _nextSortOrder(listId);
+    final List<ShoppingItem> parsedItems = ListFileHandler.parseMarkdownItems(
+      content: content,
+      listId: listId,
+      startingSortOrder: startSort,
+    );
+    if (parsedItems.isEmpty) return 0;
+
+    for (final ShoppingItem item in parsedItems) {
+      await repository.saveItem(item);
+    }
+    await loadLists();
+    return parsedItems.length;
   }
 
   /// Appends a visual separator (optionally labelled) at the end of the list.

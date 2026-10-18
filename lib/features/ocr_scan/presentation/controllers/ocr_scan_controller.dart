@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../domain/models/ocr_recognized_item.dart';
 import '../../domain/services/ocr_service.dart';
@@ -70,19 +72,7 @@ class OcrScanController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      try {
-        final Uint8List bytes = await File(path).readAsBytes();
-        final ui.Codec codec = await ui.instantiateImageCodec(bytes);
-        final ui.FrameInfo frame = await codec.getNextFrame();
-        _imageSize = ui.Size(
-          frame.image.width.toDouble(),
-          frame.image.height.toDouble(),
-        );
-        frame.image.dispose();
-        codec.dispose();
-      } catch (_) {
-        _imageSize = null;
-      }
+      _imageSize = await _resolveImageDimensions(path);
 
       _items = await ocrService.processImage(path);
       if (_items.isEmpty) {
@@ -137,6 +127,50 @@ class OcrScanController extends ChangeNotifier {
     _errorMessage = null;
     _isProcessing = false;
     notifyListeners();
+  }
+
+  Future<ui.Size?> _resolveImageDimensions(String path) async {
+    try {
+      final Completer<ui.Size> completer = Completer<ui.Size>();
+      final FileImage fileImage = FileImage(File(path));
+      final ImageStream stream = fileImage.resolve(ImageConfiguration.empty);
+      late final ImageStreamListener listener;
+      listener = ImageStreamListener(
+        (ImageInfo info, bool synchronousCall) {
+          final ui.Size size = ui.Size(
+            info.image.width.toDouble(),
+            info.image.height.toDouble(),
+          );
+          if (!completer.isCompleted) {
+            completer.complete(size);
+          }
+          stream.removeListener(listener);
+        },
+        onError: (dynamic error, StackTrace? stackTrace) {
+          if (!completer.isCompleted) {
+            completer.completeError(error, stackTrace);
+          }
+          stream.removeListener(listener);
+        },
+      );
+      stream.addListener(listener);
+      return await completer.future;
+    } catch (_) {
+      try {
+        final Uint8List bytes = await File(path).readAsBytes();
+        final ui.Codec codec = await ui.instantiateImageCodec(bytes);
+        final ui.FrameInfo frame = await codec.getNextFrame();
+        final ui.Size size = ui.Size(
+          frame.image.width.toDouble(),
+          frame.image.height.toDouble(),
+        );
+        frame.image.dispose();
+        codec.dispose();
+        return size;
+      } catch (_) {
+        return null;
+      }
+    }
   }
 
   @override
