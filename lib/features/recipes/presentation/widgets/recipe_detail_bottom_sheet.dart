@@ -78,24 +78,23 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final maxSheetHeight = MediaQuery.of(context).size.height * 0.85;
 
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        constraints: BoxConstraints(maxHeight: maxSheetHeight),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+    return Container(
+      constraints: BoxConstraints(maxHeight: maxSheetHeight),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: Column(
+          children: [
           // Drag handle
           Center(
             child: Container(
@@ -180,68 +179,68 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
             ),
           ),
 
-          // Instructions Accordion (if available)
-          if (widget.recipe.instructions != null &&
-              widget.recipe.instructions!.trim().isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () => setState(() {
-                  _instructionsExpanded = !_instructionsExpanded;
-                }),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? Colors.white.withValues(alpha: 0.05)
-                        : Colors.black.withValues(alpha: 0.03),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.menu_book_rounded,
-                            size: 18,
-                            color: AppColors.primaryMint,
-                          ),
-                          const SizedBox(width: 8),
-                          const Expanded(
-                            child: Text(
-                              'Instrucciones de preparación',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
+          // Middle Scrollable Section: Instructions + Selection Controls + Ingredients
+          Expanded(
+            child: ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.zero,
+              children: [
+                // Instructions Accordion (if available)
+                if (widget.recipe.instructions != null &&
+                    widget.recipe.instructions!.trim().isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 4,
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => setState(() {
+                        _instructionsExpanded = !_instructionsExpanded;
+                      }),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.black.withValues(alpha: 0.03),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.menu_book_rounded,
+                                  size: 18,
+                                  color: AppColors.primaryMint,
+                                ),
+                                const SizedBox(width: 8),
+                                const Expanded(
+                                  child: Text(
+                                    'Instrucciones de preparación',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  _instructionsExpanded
+                                      ? Icons.keyboard_arrow_up_rounded
+                                      : Icons.keyboard_arrow_down_rounded,
+                                  size: 20,
+                                ),
+                              ],
                             ),
-                          ),
-                          Icon(
-                            _instructionsExpanded
-                                ? Icons.keyboard_arrow_up_rounded
-                                : Icons.keyboard_arrow_down_rounded,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                      if (_instructionsExpanded) ...[
-                        const SizedBox(height: 8),
-                        ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxHeight: MediaQuery.sizeOf(context).height * 0.5,
-                          ),
-                          child: Scrollbar(
-                            thumbVisibility: true,
-                            child: SingleChildScrollView(
-                              primary: false,
-                              physics: const BouncingScrollPhysics(),
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 6.0),
+                            if (_instructionsExpanded) ...[
+                              const SizedBox(height: 8),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
                                 child: Text(
                                   widget.recipe.instructions!.trim(),
                                   style: TextStyle(
@@ -253,125 +252,121 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                                   ),
                                 ),
                               ),
-                            ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                // Selection controls bar
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Ingredientes ($_selectedCount/${_ingredients.length})',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            _toggleAll(_selectedCount < _ingredients.length),
+                        child: Text(
+                          _selectedCount < _ingredients.length
+                              ? 'Seleccionar todos'
+                              : 'Deseleccionar',
+                          style: const TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                      ],
+                      ),
                     ],
                   ),
                 ),
-              ),
-            ),
 
-          // Selection controls bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Ingredientes ($_selectedCount/${_ingredients.length})',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () =>
-                      _toggleAll(_selectedCount < _ingredients.length),
-                  child: Text(
-                    _selectedCount < _ingredients.length
-                        ? 'Seleccionar todos'
-                        : 'Deseleccionar',
-                    style: const TextStyle(
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+                const Divider(height: 1),
 
-          const Divider(height: 1),
-
-          // Scrollable list of ingredients
-          Flexible(
-            child: ListView.builder(
-              primary: false,
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              itemCount: _ingredients.length,
-              itemBuilder: (context, index) {
-                final ingredient = _ingredients[index];
-                return CheckboxListTile(
-                  value: ingredient.isSelected,
-                  onChanged: (_) => _toggleIndex(index),
-                  activeColor: AppColors.primaryMint,
-                  checkboxShape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 2,
-                  ),
-                  title: Text(
-                    _formatIngredientName(ingredient.name),
-                    style: TextStyle(
-                      fontSize: 16.5,
-                      fontWeight: FontWeight.w700,
-                      decoration: ingredient.isSelected
-                          ? null
-                          : TextDecoration.lineThrough,
-                      color: ingredient.isSelected
-                          ? (isDark
-                                ? AppColors.textPrimaryDark
-                                : AppColors.textPrimaryLight)
-                          : (isDark
-                                ? AppColors.textSecondaryDark.withValues(
-                                    alpha: 0.6,
-                                  )
-                                : AppColors.textSecondaryLight.withValues(
-                                    alpha: 0.6,
-                                  )),
-                    ),
-                  ),
-                  subtitle: ingredient.measure.isNotEmpty
-                      ? Padding(
-                          padding: const EdgeInsets.only(top: 4.0),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 9.0,
-                                vertical: 3.5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryMint.withValues(
-                                  alpha: isDark ? 0.20 : 0.12,
-                                ),
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: AppColors.primaryMint.withValues(
-                                    alpha: isDark ? 0.35 : 0.25,
-                                  ),
-                                  width: 0.8,
-                                ),
-                              ),
-                              child: Text(
-                                'Cantidad: ${ingredient.measure}',
-                                style: const TextStyle(
-                                  fontSize: 13.0,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primaryMint,
-                                ),
-                              ),
-                            ),
+                // Ingredients list
+                for (int index = 0; index < _ingredients.length; index++) ...[
+                  Builder(
+                    builder: (context) {
+                      final ingredient = _ingredients[index];
+                      return CheckboxListTile(
+                        value: ingredient.isSelected,
+                        onChanged: (_) => _toggleIndex(index),
+                        activeColor: AppColors.primaryMint,
+                        checkboxShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 2,
+                        ),
+                        title: Text(
+                          _formatIngredientName(ingredient.name),
+                          style: TextStyle(
+                            fontSize: 16.5,
+                            fontWeight: FontWeight.w700,
+                            decoration: ingredient.isSelected
+                                ? null
+                                : TextDecoration.lineThrough,
+                            color: ingredient.isSelected
+                                ? (isDark
+                                      ? AppColors.textPrimaryDark
+                                      : AppColors.textPrimaryLight)
+                                : (isDark
+                                      ? AppColors.textSecondaryDark.withValues(
+                                          alpha: 0.6,
+                                        )
+                                      : AppColors.textSecondaryLight.withValues(
+                                          alpha: 0.6,
+                                        )),
                           ),
-                        )
-                      : null,
-                );
-              },
+                        ),
+                        subtitle: ingredient.measure.isNotEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 9.0,
+                                      vertical: 3.5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryMint.withValues(
+                                        alpha: isDark ? 0.20 : 0.12,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      border: Border.all(
+                                        color: AppColors.primaryMint.withValues(
+                                          alpha: isDark ? 0.35 : 0.25,
+                                        ),
+                                        width: 0.8,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Cantidad: ${ingredient.measure}',
+                                      style: const TextStyle(
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.primaryMint,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : null,
+                      );
+                    },
+                  ),
+                ],
+              ],
             ),
           ),
 
