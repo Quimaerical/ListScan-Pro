@@ -9,6 +9,7 @@ import '../widgets/color_picker_palette.dart';
 import '../widgets/export_import_sheet.dart';
 import '../widgets/list_separator_tile.dart';
 import '../widgets/quick_add_bar.dart';
+import '../widgets/recipe_notes_card.dart';
 import '../widgets/shopping_item_tile.dart';
 import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
 import '../../../recipes/data/services/web_recipe_extractor_service.dart';
@@ -225,11 +226,47 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
             added++;
           }
         }
-        if (context.mounted && added > 0) {
+
+        // Format and attach recipe plain text to list notes
+        final StringBuffer sb = StringBuffer();
+        sb.writeln('### ${recipe.name}');
+        if (recipe.category != null && recipe.category!.isNotEmpty) {
+          sb.writeln('Categoría: ${recipe.category}');
+        }
+        if (recipe.area != null && recipe.area!.isNotEmpty) {
+          sb.writeln('Origen: ${recipe.area}');
+        }
+        if (recipe.ingredients.isNotEmpty) {
+          sb.writeln('\nIngredientes:');
+          for (final RecipeIngredient ing in recipe.ingredients) {
+            final String measure =
+                ing.measure.isNotEmpty ? ' (${ing.measure})' : '';
+            sb.writeln('• ${ing.name}$measure');
+          }
+        }
+        if (recipe.instructions != null &&
+            recipe.instructions!.trim().isNotEmpty) {
+          sb.writeln('\nInstrucciones:');
+          sb.writeln(recipe.instructions!.trim());
+        }
+
+        final String recipeNotes = sb.toString().trim();
+        if (recipeNotes.isNotEmpty) {
+          if (list.notes == null || list.notes!.trim().isEmpty) {
+            await widget.controller.updateListNotes(list.id, recipeNotes);
+          } else {
+            await widget.controller.updateListNotes(
+              list.id,
+              '${list.notes}\n\n---\n\n$recipeNotes',
+            );
+          }
+        }
+
+        if (context.mounted && (added > 0 || recipeNotes.isNotEmpty)) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Se importaron $added ingredientes de "${recipe.name}".',
+                'Se importó la receta "${recipe.name}" ($added ingredientes añadidos).',
               ),
               behavior: SnackBarBehavior.floating,
             ),
@@ -596,6 +633,15 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                     ],
                   ),
                 ),
+              ),
+
+              // Recipe and Plain Notes Section (Collapsible & Editable)
+              RecipeNotesCard(
+                notes: list.notes,
+                palette: palette,
+                onNotesChanged: (String? newNotes) {
+                  widget.controller.updateListNotes(list.id, newNotes);
+                },
               ),
 
               // Items Scrollable List
