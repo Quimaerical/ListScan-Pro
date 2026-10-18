@@ -9,11 +9,7 @@ class RecipeIngredient {
     this.isSelected = true,
   });
 
-  RecipeIngredient copyWith({
-    String? name,
-    String? measure,
-    bool? isSelected,
-  }) {
+  RecipeIngredient copyWith({String? name, String? measure, bool? isSelected}) {
     return RecipeIngredient(
       name: name ?? this.name,
       measure: measure ?? this.measure,
@@ -22,11 +18,7 @@ class RecipeIngredient {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'measure': measure,
-      'isSelected': isSelected ? 1 : 0,
-    };
+    return {'name': name, 'measure': measure, 'isSelected': isSelected ? 1 : 0};
   }
 
   factory RecipeIngredient.fromMap(Map<String, dynamic> map) {
@@ -50,5 +42,6 @@ class RecipeIngredient {
   int get hashCode => name.hashCode ^ measure.hashCode ^ isSelected.hashCode;
 
   @override
-  String toString() => 'RecipeIngredient(name: $name, measure: $measure, isSelected: $isSelected)';
+  String toString() =>
+      'RecipeIngredient(name: $name, measure: $measure, isSelected: $isSelected)';
 }

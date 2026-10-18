@@ -70,7 +70,8 @@ class RegexSanitizer {
     }
 
     // Discard lines that are solely dates or times
-    if (_dateTimeRegex.hasMatch(text) && text.replaceAll(_dateTimeRegex, '').trim().isEmpty) {
+    if (_dateTimeRegex.hasMatch(text) &&
+        text.replaceAll(_dateTimeRegex, '').trim().isEmpty) {
       return const OcrCleanResult(name: '', isValid: false);
     }
 
@@ -78,7 +79,12 @@ class RegexSanitizer {
     text = text.replaceAll(_priceRegex, '').trim();
 
     // Strip leading checklist brackets e.g. "- [ ] ", "[x] ", "• [ ] "
-    text = text.replaceAll(RegExp(r'^(?:[-*•_=|#~>\[\]\(\)]|\s)*\[\s*[xX]?\s*\]\s*'), '').trim();
+    text = text
+        .replaceAll(
+          RegExp(r'^(?:[-*•_=|#~>\[\]\(\)]|\s)*\[\s*[xX]?\s*\]\s*'),
+          '',
+        )
+        .trim();
 
     // Strip leading bullets, asterisks, brackets, or OCR artifacts (with interior spaces)
     text = text.replaceAll(RegExp(r'^(?:[-*•_=|#~>\[\]\(\)]|\s)+'), '').trim();
@@ -101,7 +107,8 @@ class RegexSanitizer {
       final String nameCandidate = prefixMatch.group(2)?.trim() ?? '';
 
       // Ensure the remaining candidate is not empty and has letters
-      if (nameCandidate.length >= 2 && RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]').hasMatch(nameCandidate)) {
+      if (nameCandidate.length >= 2 &&
+          RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]').hasMatch(nameCandidate)) {
         detectedQty = qtyCandidate;
         cleanName = nameCandidate;
       }
@@ -111,7 +118,8 @@ class RegexSanitizer {
         final String nameCandidate = suffixMatch.group(1)?.trim() ?? '';
         final String qtyCandidate = suffixMatch.group(2)?.trim() ?? '';
 
-        if (nameCandidate.length >= 2 && RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]').hasMatch(nameCandidate)) {
+        if (nameCandidate.length >= 2 &&
+            RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]').hasMatch(nameCandidate)) {
           detectedQty = qtyCandidate;
           cleanName = nameCandidate;
         }
@@ -120,13 +128,17 @@ class RegexSanitizer {
 
     // Capitalize first letter cleanly
     if (cleanName.isNotEmpty) {
-      cleanName = cleanName[0].toUpperCase() + (cleanName.length > 1 ? cleanName.substring(1) : '');
+      cleanName =
+          cleanName[0].toUpperCase() +
+          (cleanName.length > 1 ? cleanName.substring(1) : '');
     }
 
     return OcrCleanResult(
       name: cleanName,
       quantity: detectedQty,
-      isValid: cleanName.length >= 2 && RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]').hasMatch(cleanName),
+      isValid:
+          cleanName.length >= 2 &&
+          RegExp(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]').hasMatch(cleanName),
     );
   }
 }

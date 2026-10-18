@@ -14,10 +14,16 @@ import 'package:shopliist_pro/features/shopping_lists/presentation/widgets/quick
 
 class MockFullShoppingListRepository implements ShoppingListRepository {
   final List<ShoppingList> _lists = [];
-  final List<String> suggestions = ['Manzanas Rojas', 'Mantequilla', 'Mandarinas'];
+  final List<String> suggestions = [
+    'Manzanas Rojas',
+    'Mantequilla',
+    'Mandarinas',
+  ];
 
   @override
-  Future<List<ShoppingList>> getAllLists({bool includeArchived = false}) async => _lists;
+  Future<List<ShoppingList>> getAllLists({
+    bool includeArchived = false,
+  }) async => _lists;
 
   @override
   Future<ShoppingList?> getListById(String id) async =>
@@ -53,7 +59,10 @@ class MockFullShoppingListRepository implements ShoppingListRepository {
   Future<void> updateItemAmount(String id, int amount) async {}
 
   @override
-  Future<List<String>> getProductSuggestions(String query, {int limit = 10}) async {
+  Future<List<String>> getProductSuggestions(
+    String query, {
+    int limit = 10,
+  }) async {
     final clean = query.toLowerCase();
     return suggestions.where((s) => s.toLowerCase().contains(clean)).toList();
   }
@@ -65,7 +74,10 @@ class MockFullShoppingListRepository implements ShoppingListRepository {
   String exportToCsv(ShoppingList list) => '';
 
   @override
-  ShoppingList importFromContent({required String filename, required String content}) {
+  ShoppingList importFromContent({
+    required String filename,
+    required String content,
+  }) {
     return ShoppingList(
       id: 'mock-1',
       title: 'Mock',
@@ -102,7 +114,9 @@ class MockFullRecipeRepository implements RecipeRepository {
 
 void main() {
   group('QuickAddBar Autocomplete Tests', () {
-    testWidgets('shows autocomplete chips when typing and adds on chip tap', (tester) async {
+    testWidgets('shows autocomplete chips when typing and adds on chip tap', (
+      tester,
+    ) async {
       String? addedName;
       String? addedQty;
 
@@ -148,9 +162,13 @@ void main() {
   });
 
   group('RecipeSearchScreen Widget Tests', () {
-    testWidgets('renders search field, category chips, and performs search', (tester) async {
+    testWidgets('renders search field, category chips, and performs search', (
+      tester,
+    ) async {
       final shoppingRepo = MockFullShoppingListRepository();
-      final shoppingController = ShoppingListsController(repository: shoppingRepo);
+      final shoppingController = ShoppingListsController(
+        repository: shoppingRepo,
+      );
       final recipeRepo = MockFullRecipeRepository();
       final recipeController = RecipeSearchController(repository: recipeRepo);
 
@@ -168,6 +186,7 @@ void main() {
       expect(find.text('Pasta'), findsOneWidget);
 
       // Tap "Pasta" chip to trigger search
+      await tester.ensureVisible(find.text('Pasta'));
       await tester.tap(find.text('Pasta'));
       await tester.pump();
       await tester.pumpAndSettle();

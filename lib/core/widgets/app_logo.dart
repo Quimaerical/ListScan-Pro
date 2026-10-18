@@ -20,13 +20,11 @@ class AppLogo extends StatelessWidget {
   });
 
   /// Factory constructor for just the icon mark
-  const AppLogo.iconOnly({
-    super.key,
-    this.size = 32.0,
-  })  : showText = false,
-        showBadge = false,
-        fontSize = 20.0,
-        textColor = null;
+  const AppLogo.iconOnly({super.key, this.size = 32.0})
+    : showText = false,
+      showBadge = false,
+      fontSize = 20.0,
+      textColor = null;
 
   /// Factory constructor for the horizontal navbar brand
   const AppLogo.horizontal({
@@ -35,12 +33,13 @@ class AppLogo extends StatelessWidget {
     this.fontSize = 20.0,
     this.showBadge = true,
     this.textColor,
-  })  : showText = true;
+  }) : showText = true;
 
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color effectiveTextColor = textColor ??
+    final Color effectiveTextColor =
+        textColor ??
         (isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight);
 
     return Row(
@@ -62,10 +61,7 @@ class AppLogo extends StatelessWidget {
           const SizedBox(width: 9.0),
           Text.rich(
             TextSpan(
-              style: TextStyle(
-                fontSize: fontSize,
-                letterSpacing: -0.5,
-              ),
+              style: TextStyle(fontSize: fontSize, letterSpacing: -0.5),
               children: <TextSpan>[
                 TextSpan(
                   text: 'List',

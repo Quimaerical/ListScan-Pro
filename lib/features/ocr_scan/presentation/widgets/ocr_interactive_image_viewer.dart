@@ -20,17 +20,10 @@ class OcrInteractiveImageViewer extends StatelessWidget {
     this.imageSize,
   });
 
-  void _handleTap(
-    Offset localTap,
-    double scaleX,
-    double scaleY,
-  ) {
+  void _handleTap(Offset localTap, double scaleX, double scaleY) {
     if (scaleX <= 0 || scaleY <= 0) return;
 
-    final Offset imageTap = Offset(
-      localTap.dx / scaleX,
-      localTap.dy / scaleY,
-    );
+    final Offset imageTap = Offset(localTap.dx / scaleX, localTap.dy / scaleY);
 
     OcrRecognizedItem? bestMatch;
     double minDistance = double.infinity;
@@ -64,7 +57,8 @@ class OcrInteractiveImageViewer extends StatelessWidget {
         final double maxW = constraints.maxWidth;
         final double maxH = constraints.maxHeight;
 
-        final Size naturalSize = (imageSize != null && imageSize!.width > 0 && imageSize!.height > 0)
+        final Size naturalSize =
+            (imageSize != null && imageSize!.width > 0 && imageSize!.height > 0)
             ? imageSize!
             : Size(maxW, maxH);
 

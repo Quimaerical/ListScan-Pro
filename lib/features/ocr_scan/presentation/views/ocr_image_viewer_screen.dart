@@ -23,8 +23,12 @@ class OcrImageViewerScreen extends StatelessWidget {
       listenable: controller,
       builder: (BuildContext context, _) {
         final bool isDark = Theme.of(context).brightness == Brightness.dark;
-        final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-        final Color secColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+        final Color textColor = isDark
+            ? AppColors.textPrimaryDark
+            : AppColors.textPrimaryLight;
+        final Color secColor = isDark
+            ? AppColors.textSecondaryDark
+            : AppColors.textSecondaryLight;
 
         if (controller.imagePath == null) {
           return const ConstrainedScaffold(
@@ -54,10 +58,16 @@ class OcrImageViewerScreen extends StatelessWidget {
           ),
           bottomNavigationBar: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 10.0,
+              ),
               child: GlassCard(
                 borderRadius: 18.0,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 12.0,
+                ),
                 child: Row(
                   children: <Widget>[
                     Expanded(
@@ -75,10 +85,7 @@ class OcrImageViewerScreen extends StatelessWidget {
                           ),
                           Text(
                             'Toca una caja sobre la imagen para cambiarla',
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              color: secColor,
-                            ),
+                            style: TextStyle(fontSize: 11.5, color: secColor),
                           ),
                         ],
                       ),
@@ -90,7 +97,10 @@ class OcrImageViewerScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14.0),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 12.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18.0,
+                          vertical: 12.0,
+                        ),
                       ),
                       onPressed: () => Navigator.of(context).pop(),
                       child: const Text(

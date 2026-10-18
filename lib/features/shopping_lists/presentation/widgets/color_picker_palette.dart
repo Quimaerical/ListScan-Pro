@@ -68,7 +68,9 @@ class _ColorSwatchItem extends StatelessWidget {
             color: bgColor,
             shape: BoxShape.circle,
             border: Border.all(
-              color: isSelected ? accentColor : Colors.white.withValues(alpha: isDark ? 0.20 : 0.60),
+              color: isSelected
+                  ? accentColor
+                  : Colors.white.withValues(alpha: isDark ? 0.20 : 0.60),
               width: isSelected ? 2.5 : 1.2,
             ),
             boxShadow: <BoxShadow>[
@@ -81,11 +83,7 @@ class _ColorSwatchItem extends StatelessWidget {
             ],
           ),
           child: isSelected
-              ? Icon(
-                  Icons.check,
-                  size: 20,
-                  color: accentColor,
-                )
+              ? Icon(Icons.check, size: 20, color: accentColor)
               : null,
         ),
       ),

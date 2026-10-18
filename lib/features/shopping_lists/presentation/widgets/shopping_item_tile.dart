@@ -25,7 +25,9 @@ class ShoppingItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color accentColor = palette.accentColor(isDark);
-    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
 
     return Dismissible(
       key: Key('item_${item.id}'),
@@ -70,8 +72,10 @@ class ShoppingItemTile extends StatelessWidget {
                 side: BorderSide(
                   color: item.isCompleted
                       ? accentColor
-                      : (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
-                          .withValues(alpha: 0.5),
+                      : (isDark
+                                ? AppColors.textSecondaryDark
+                                : AppColors.textSecondaryLight)
+                            .withValues(alpha: 0.5),
                   width: 1.5,
                 ),
                 onChanged: (bool? value) {
@@ -89,11 +93,15 @@ class ShoppingItemTile extends StatelessWidget {
                 item.name,
                 style: TextStyle(
                   fontSize: 16.5,
-                  fontWeight: item.isCompleted ? FontWeight.w500 : FontWeight.w700,
+                  fontWeight: item.isCompleted
+                      ? FontWeight.w500
+                      : FontWeight.w700,
                   color: item.isCompleted
                       ? textColor.withValues(alpha: 0.45)
                       : textColor,
-                  decoration: item.isCompleted ? TextDecoration.lineThrough : null,
+                  decoration: item.isCompleted
+                      ? TextDecoration.lineThrough
+                      : null,
                   decorationColor: textColor.withValues(alpha: 0.45),
                 ),
               ),
@@ -110,7 +118,10 @@ class ShoppingItemTile extends StatelessWidget {
             // Free-text Detail / Unit Chip if available (e.g. "kg", "paquetes")
             if (item.quantity != null && item.quantity!.isNotEmpty)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 9.0,
+                  vertical: 4.0,
+                ),
                 margin: const EdgeInsets.only(left: 6.0),
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
@@ -151,14 +162,17 @@ class _ItemAmountStepper extends StatelessWidget {
   });
 
   Future<void> _showManualInputDialog(BuildContext context) async {
-    final TextEditingController textController =
-        TextEditingController(text: '${item.amount}');
+    final TextEditingController textController = TextEditingController(
+      text: '${item.amount}',
+    );
 
     final int? result = await showDialog<int>(
       context: context,
       builder: (BuildContext ctx) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
           title: Text(
             'Cantidad para "${item.name}"',
             style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w700),
@@ -170,11 +184,15 @@ class _ItemAmountStepper extends StatelessWidget {
             decoration: InputDecoration(
               labelText: 'Cantidad entera',
               hintText: 'Ej: 1, 3, 12',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
             ),
             onSubmitted: (String val) {
               final int? parsed = int.tryParse(val.trim());
-              Navigator.of(ctx).pop(parsed != null ? ShoppingItem.clampAmount(parsed) : null);
+              Navigator.of(
+                ctx,
+              ).pop(parsed != null ? ShoppingItem.clampAmount(parsed) : null);
             },
           ),
           actions: <Widget>[
@@ -185,11 +203,15 @@ class _ItemAmountStepper extends StatelessWidget {
             FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: accentColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
               ),
               onPressed: () {
                 final int? parsed = int.tryParse(textController.text.trim());
-                Navigator.of(ctx).pop(parsed != null ? ShoppingItem.clampAmount(parsed) : null);
+                Navigator.of(
+                  ctx,
+                ).pop(parsed != null ? ShoppingItem.clampAmount(parsed) : null);
               },
               child: const Text('Guardar'),
             ),
@@ -205,8 +227,10 @@ class _ItemAmountStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool canDecrease = item.amount > ShoppingItem.minAmount && !item.isCompleted;
-    final bool canIncrease = item.amount < ShoppingItem.maxAmount && !item.isCompleted;
+    final bool canDecrease =
+        item.amount > ShoppingItem.minAmount && !item.isCompleted;
+    final bool canIncrease =
+        item.amount < ShoppingItem.maxAmount && !item.isCompleted;
 
     return Container(
       decoration: BoxDecoration(
@@ -222,24 +246,38 @@ class _ItemAmountStepper extends StatelessWidget {
         children: <Widget>[
           // Down arrow (decrease amount)
           InkWell(
-            onTap: canDecrease ? () => onAmountChanged?.call(item.amount - 1) : null,
-            borderRadius: const BorderRadius.horizontal(left: Radius.circular(12.0)),
+            onTap: canDecrease
+                ? () => onAmountChanged?.call(item.amount - 1)
+                : null,
+            borderRadius: const BorderRadius.horizontal(
+              left: Radius.circular(12.0),
+            ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 5.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 7.0,
+                vertical: 5.0,
+              ),
               child: Icon(
                 Icons.keyboard_arrow_down_rounded,
                 size: 22.0,
-                color: canDecrease ? accentColor : accentColor.withValues(alpha: 0.25),
+                color: canDecrease
+                    ? accentColor
+                    : accentColor.withValues(alpha: 0.25),
               ),
             ),
           ),
 
           // Tappable count (opens direct number keyboard input)
           InkWell(
-            onTap: !item.isCompleted ? () => _showManualInputDialog(context) : null,
+            onTap: !item.isCompleted
+                ? () => _showManualInputDialog(context)
+                : null,
             borderRadius: BorderRadius.circular(6.0),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 6.0,
+                vertical: 4.0,
+              ),
               child: Text(
                 '${item.amount}',
                 style: TextStyle(
@@ -255,14 +293,23 @@ class _ItemAmountStepper extends StatelessWidget {
 
           // Up arrow (increase amount)
           InkWell(
-            onTap: canIncrease ? () => onAmountChanged?.call(item.amount + 1) : null,
-            borderRadius: const BorderRadius.horizontal(right: Radius.circular(12.0)),
+            onTap: canIncrease
+                ? () => onAmountChanged?.call(item.amount + 1)
+                : null,
+            borderRadius: const BorderRadius.horizontal(
+              right: Radius.circular(12.0),
+            ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 5.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 7.0,
+                vertical: 5.0,
+              ),
               child: Icon(
                 Icons.keyboard_arrow_up_rounded,
                 size: 22.0,
-                color: canIncrease ? accentColor : accentColor.withValues(alpha: 0.25),
+                color: canIncrease
+                    ? accentColor
+                    : accentColor.withValues(alpha: 0.25),
               ),
             ),
           ),

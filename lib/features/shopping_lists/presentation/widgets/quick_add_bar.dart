@@ -62,7 +62,9 @@ class _QuickAddBarState extends State<QuickAddBar> {
       final results = await widget.onFetchSuggestions!(query);
       if (!mounted) return;
       setState(() {
-        _suggestions = results.where((s) => s.toLowerCase() != query.toLowerCase()).toList();
+        _suggestions = results
+            .where((s) => s.toLowerCase() != query.toLowerCase())
+            .toList();
       });
     });
   }
@@ -148,7 +150,9 @@ class _QuickAddBarState extends State<QuickAddBar> {
               children: <Widget>[
                 // Plus icon / Quantity expander toggle
                 IconButton(
-                  tooltip: _showQuantityField ? 'Ocultar cantidad' : 'Añadir cantidad',
+                  tooltip: _showQuantityField
+                      ? 'Ocultar cantidad'
+                      : 'Añadir cantidad',
                   icon: Icon(
                     _showQuantityField ? Icons.tune : Icons.add_circle_outline,
                     color: accentColor,
@@ -178,10 +182,11 @@ class _QuickAddBarState extends State<QuickAddBar> {
                         vertical: 8.0,
                       ),
                       hintStyle: TextStyle(
-                        color: (isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight)
-                            .withValues(alpha: 0.65),
+                        color:
+                            (isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight)
+                                .withValues(alpha: 0.65),
                         fontSize: 15.0,
                       ),
                     ),
@@ -237,10 +242,11 @@ class _QuickAddBarState extends State<QuickAddBar> {
                     ),
                     hintStyle: TextStyle(
                       fontSize: 13.0,
-                      color: (isDark
-                              ? AppColors.textSecondaryDark
-                              : AppColors.textSecondaryLight)
-                          .withValues(alpha: 0.6),
+                      color:
+                          (isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondaryLight)
+                              .withValues(alpha: 0.6),
                     ),
                   ),
                   onSubmitted: (_) => _handleSubmit(),

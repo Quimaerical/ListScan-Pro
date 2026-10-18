@@ -26,13 +26,7 @@ class ApiClient {
 
     try {
       final response = await _client
-          .get(
-            uri,
-            headers: {
-              'Accept': 'application/json',
-              ...?headers,
-            },
-          )
+          .get(uri, headers: {'Accept': 'application/json', ...?headers})
           .timeout(timeout);
 
       return _handleResponse(response);
@@ -51,16 +45,19 @@ class ApiClient {
 
   Uri _buildUri(String endpoint, [Map<String, dynamic>? queryParameters]) {
     final base = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
-    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    final cleanEndpoint = endpoint.startsWith('/')
+        ? endpoint.substring(1)
+        : endpoint;
     final fullUrl = '$base$cleanEndpoint';
 
     final uri = Uri.parse(fullUrl);
     if (queryParameters != null && queryParameters.isNotEmpty) {
-      final stringParams = queryParameters.map((k, v) => MapEntry(k, v.toString()));
-      return uri.replace(queryParameters: {
-        ...uri.queryParameters,
-        ...stringParams,
-      });
+      final stringParams = queryParameters.map(
+        (k, v) => MapEntry(k, v.toString()),
+      );
+      return uri.replace(
+        queryParameters: {...uri.queryParameters, ...stringParams},
+      );
     }
     return uri;
   }
@@ -73,7 +70,10 @@ class ApiClient {
       try {
         return jsonDecode(response.body);
       } catch (e) {
-        throw ApiException('Formato de respuesta JSON inválido: $e', statusCode);
+        throw ApiException(
+          'Formato de respuesta JSON inválido: $e',
+          statusCode,
+        );
       }
     }
 
@@ -97,7 +97,9 @@ class ApiClient {
       if (errorBody is Map && errorBody['errors'] is Map) {
         (errorBody['errors'] as Map).forEach((key, val) {
           if (val is List) {
-            validationErrors[key.toString()] = val.map((e) => e.toString()).toList();
+            validationErrors[key.toString()] = val
+                .map((e) => e.toString())
+                .toList();
           }
         });
       }

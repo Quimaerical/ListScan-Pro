@@ -29,11 +29,17 @@ class NoteCardWidget extends StatelessWidget {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final PastelPalette palette = AppColors.getPalette(list.colorIndex);
     final Color accentColor = palette.accentColor(isDark);
-    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final Color secondaryTextColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color secondaryTextColor = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
 
     final int maxPreviewItems = isGrid ? 3 : 5;
-    final List<ShoppingItem> previewItems = list.items.take(maxPreviewItems).toList();
+    final List<ShoppingItem> previewItems = list.items
+        .take(maxPreviewItems)
+        .toList();
     final int remainingItems = list.items.length - maxPreviewItems;
 
     return GlassCard(
@@ -122,7 +128,9 @@ class NoteCardWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(4.0),
             child: LinearProgressIndicator(
               value: list.progressPercentage,
-              backgroundColor: Colors.white.withValues(alpha: isDark ? 0.08 : 0.4),
+              backgroundColor: Colors.white.withValues(
+                alpha: isDark ? 0.08 : 0.4,
+              ),
               valueColor: AlwaysStoppedAnimation<Color>(accentColor),
               minHeight: 3.5,
             ),
@@ -144,7 +152,10 @@ class NoteCardWidget extends StatelessWidget {
               ),
               if (list.totalCount > 0 && list.completedCount == list.totalCount)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7.0, vertical: 2.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7.0,
+                    vertical: 2.0,
+                  ),
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8.0),
@@ -194,16 +205,14 @@ class _PreviewItemRow extends StatelessWidget {
                 color: item.isCompleted ? accentColor : Colors.transparent,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
-                  color: item.isCompleted ? accentColor : textColor.withValues(alpha: 0.40),
+                  color: item.isCompleted
+                      ? accentColor
+                      : textColor.withValues(alpha: 0.40),
                   width: 1.4,
                 ),
               ),
               child: item.isCompleted
-                  ? const Icon(
-                      Icons.check,
-                      size: 12.5,
-                      color: Colors.white,
-                    )
+                  ? const Icon(Icons.check, size: 12.5, color: Colors.white)
                   : null,
             ),
           ),
@@ -215,9 +224,15 @@ class _PreviewItemRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14.0,
-                fontWeight: item.isCompleted ? FontWeight.w400 : FontWeight.w600,
-                color: item.isCompleted ? textColor.withValues(alpha: 0.45) : textColor,
-                decoration: item.isCompleted ? TextDecoration.lineThrough : null,
+                fontWeight: item.isCompleted
+                    ? FontWeight.w400
+                    : FontWeight.w600,
+                color: item.isCompleted
+                    ? textColor.withValues(alpha: 0.45)
+                    : textColor,
+                decoration: item.isCompleted
+                    ? TextDecoration.lineThrough
+                    : null,
               ),
             ),
           ),

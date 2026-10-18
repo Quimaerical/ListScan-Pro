@@ -12,17 +12,21 @@ class MlKitOcrService implements OcrService {
   bool _isDisposed = false;
 
   MlKitOcrService({TextRecognizer? textRecognizer})
-      : _textRecognizer = textRecognizer ??
-            TextRecognizer(script: TextRecognitionScript.latin);
+    : _textRecognizer =
+          textRecognizer ?? TextRecognizer(script: TextRecognitionScript.latin);
 
   @override
   Future<List<OcrRecognizedItem>> processImage(String imagePath) async {
     if (_isDisposed) {
-      throw StateError('Cannot process image after MlKitOcrService has been disposed.');
+      throw StateError(
+        'Cannot process image after MlKitOcrService has been disposed.',
+      );
     }
 
     final InputImage inputImage = InputImage.fromFilePath(imagePath);
-    final RecognizedText recognizedText = await _textRecognizer.processImage(inputImage);
+    final RecognizedText recognizedText = await _textRecognizer.processImage(
+      inputImage,
+    );
 
     final List<OcrRecognizedItem> items = <OcrRecognizedItem>[];
     final Set<String> seenNames = <String>{};

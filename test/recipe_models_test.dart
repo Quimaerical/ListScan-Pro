@@ -27,7 +27,10 @@ void main() {
 
     test('Recipe copyWith and serialization', () {
       const ingredient1 = RecipeIngredient(name: 'Eggs', measure: '3');
-      const ingredient2 = RecipeIngredient(name: 'Pecorino Romano', measure: '100g');
+      const ingredient2 = RecipeIngredient(
+        name: 'Pecorino Romano',
+        measure: '100g',
+      );
 
       const recipe = Recipe(
         id: '52772',
@@ -41,9 +44,7 @@ void main() {
 
       expect(recipe.ingredients.length, 2);
 
-      final modified = recipe.copyWith(
-        name: 'Spaghetti Carbonara Traditional',
-      );
+      final modified = recipe.copyWith(name: 'Spaghetti Carbonara Traditional');
       expect(modified.id, '52772');
       expect(modified.name, 'Spaghetti Carbonara Traditional');
       expect(modified.ingredients.length, 2);

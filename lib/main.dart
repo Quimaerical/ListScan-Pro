@@ -10,11 +10,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize data layer dependencies
-  final ShoppingListLocalDataSource localDataSource = ShoppingListLocalDataSource();
+  final ShoppingListLocalDataSource localDataSource =
+      ShoppingListLocalDataSource();
   final ShoppingListRepositoryImpl repository = ShoppingListRepositoryImpl(
     localDataSource: localDataSource,
   );
-  final SqliteSettingsRepository settingsRepository = SqliteSettingsRepository();
+  final SqliteSettingsRepository settingsRepository =
+      SqliteSettingsRepository();
 
   // Initialize reactive controller with persisted settings
   final ShoppingListsController controller = ShoppingListsController(
@@ -31,10 +33,7 @@ void main() async {
 class ListScanProApp extends StatelessWidget {
   final ShoppingListsController controller;
 
-  const ListScanProApp({
-    super.key,
-    required this.controller,
-  });
+  const ListScanProApp({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {

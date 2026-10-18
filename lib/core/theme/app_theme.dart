@@ -33,9 +33,7 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         color: Colors.transparent,
       ),
       checkboxTheme: CheckboxThemeData(
@@ -58,13 +56,19 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.primaryMint, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppColors.primaryMint,
+            width: 1.5,
+          ),
         ),
         hintStyle: TextStyle(
           color: AppColors.textSecondaryLight.withValues(alpha: 0.7),
           fontSize: 15,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }
@@ -97,9 +101,7 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         color: Colors.transparent,
       ),
       checkboxTheme: CheckboxThemeData(
@@ -122,13 +124,19 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: AppColors.primaryMint, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppColors.primaryMint,
+            width: 1.5,
+          ),
         ),
         hintStyle: TextStyle(
           color: AppColors.textSecondaryDark.withValues(alpha: 0.7),
           fontSize: 15,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
       ),
     );
   }

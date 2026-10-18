@@ -24,8 +24,18 @@ void main() {
     test('toggles selection, selects all and edits items smoothly', () async {
       final mockService = MockOcrService();
       mockService.mockResult = <OcrRecognizedItem>[
-        const OcrRecognizedItem(id: '1', originalText: 'Arroz', cleanedName: 'Arroz', isSelected: true),
-        const OcrRecognizedItem(id: '2', originalText: 'Frijoles', cleanedName: 'Frijoles', isSelected: true),
+        const OcrRecognizedItem(
+          id: '1',
+          originalText: 'Arroz',
+          cleanedName: 'Arroz',
+          isSelected: true,
+        ),
+        const OcrRecognizedItem(
+          id: '2',
+          originalText: 'Frijoles',
+          cleanedName: 'Frijoles',
+          isSelected: true,
+        ),
       ];
 
       final controller = OcrScanController(ocrService: mockService);
@@ -82,7 +92,10 @@ void main() {
 
       controller.toggleItemSelection('b1');
       expect(controller.items.first.isSelected, isFalse);
-      expect(controller.items.first.boundingBox, equals(const Rect.fromLTRB(10, 10, 80, 40)));
+      expect(
+        controller.items.first.boundingBox,
+        equals(const Rect.fromLTRB(10, 10, 80, 40)),
+      );
     });
   });
 }

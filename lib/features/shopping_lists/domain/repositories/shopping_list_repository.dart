@@ -43,5 +43,8 @@ abstract class ShoppingListRepository {
   String exportToCsv(ShoppingList list);
 
   /// Parses file contents (.md or .csv) and returns a hydrated [ShoppingList] entity.
-  ShoppingList importFromContent({required String filename, required String content});
+  ShoppingList importFromContent({
+    required String filename,
+    required String content,
+  });
 }

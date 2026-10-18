@@ -8,7 +8,7 @@ class ShoppingListLocalDataSource {
   final SqliteDbHelper dbHelper;
 
   ShoppingListLocalDataSource({SqliteDbHelper? dbHelper})
-      : dbHelper = dbHelper ?? SqliteDbHelper.instance;
+    : dbHelper = dbHelper ?? SqliteDbHelper.instance;
 
   Future<Database> get _db => dbHelper.database;
 
@@ -33,7 +33,9 @@ class ShoppingListLocalDataSource {
         orderBy: 'is_completed ASC, sort_order ASC, created_at ASC',
       );
 
-      final List<ShoppingItem> items = itemRows.map(ShoppingItem.fromMap).toList();
+      final List<ShoppingItem> items = itemRows
+          .map(ShoppingItem.fromMap)
+          .toList();
       result.add(ShoppingList.fromMap(row, items));
     }
 
@@ -59,7 +61,9 @@ class ShoppingListLocalDataSource {
       orderBy: 'is_completed ASC, sort_order ASC, created_at ASC',
     );
 
-    final List<ShoppingItem> items = itemRows.map(ShoppingItem.fromMap).toList();
+    final List<ShoppingItem> items = itemRows
+        .map(ShoppingItem.fromMap)
+        .toList();
     return ShoppingList.fromMap(listRows.first, items);
   }
 
@@ -83,12 +87,15 @@ class ShoppingListLocalDataSource {
 
   Future<void> togglePinList(String id) async {
     final Database db = await _db;
-    await db.rawUpdate('''
+    await db.rawUpdate(
+      '''
       UPDATE ${SqliteDbHelper.tableLists}
       SET is_pinned = CASE WHEN is_pinned = 1 THEN 0 ELSE 1 END,
           updated_at = ?
       WHERE id = ?
-    ''', <dynamic>[DateTime.now().toIso8601String(), id]);
+    ''',
+      <dynamic>[DateTime.now().toIso8601String(), id],
+    );
   }
 
   Future<void> setArchived(String id, bool isArchived) async {
@@ -116,9 +123,7 @@ class ShoppingListLocalDataSource {
       // Touch the parent list's updated_at timestamp
       await txn.update(
         SqliteDbHelper.tableLists,
-        <String, dynamic>{
-          'updated_at': DateTime.now().toIso8601String(),
-        },
+        <String, dynamic>{'updated_at': DateTime.now().toIso8601String()},
         where: 'id = ?',
         whereArgs: <dynamic>[item.listId],
       );
@@ -138,9 +143,7 @@ class ShoppingListLocalDataSource {
     final Database db = await _db;
     await db.update(
       SqliteDbHelper.tableItems,
-      <String, dynamic>{
-        'is_completed': isCompleted ? 1 : 0,
-      },
+      <String, dynamic>{'is_completed': isCompleted ? 1 : 0},
       where: 'id = ?',
       whereArgs: <dynamic>[id],
     );
@@ -150,25 +153,29 @@ class ShoppingListLocalDataSource {
     final Database db = await _db;
     await db.update(
       SqliteDbHelper.tableItems,
-      <String, dynamic>{
-        'amount': ShoppingItem.clampAmount(amount),
-      },
+      <String, dynamic>{'amount': ShoppingItem.clampAmount(amount)},
       where: 'id = ?',
       whereArgs: <dynamic>[id],
     );
   }
 
-  Future<List<String>> getProductSuggestions(String query, {int limit = 10}) async {
+  Future<List<String>> getProductSuggestions(
+    String query, {
+    int limit = 10,
+  }) async {
     final Database db = await _db;
     final String clean = query.trim();
     if (clean.isEmpty) return const [];
 
-    final List<Map<String, dynamic>> rows = await db.rawQuery('''
+    final List<Map<String, dynamic>> rows = await db.rawQuery(
+      '''
       SELECT DISTINCT name FROM ${SqliteDbHelper.tableItems}
       WHERE is_separator = 0 AND name LIKE ?
       ORDER BY name ASC
       LIMIT ?
-    ''', <dynamic>['%$clean%', limit]);
+    ''',
+      <dynamic>['%$clean%', limit],
+    );
 
     return rows.map((r) => r['name'] as String).toList();
   }

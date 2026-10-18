@@ -11,13 +11,15 @@ class ApiException implements Exception {
 }
 
 class NetworkException extends ApiException {
-  const NetworkException([String message = 'Sin conexión a internet. Revisa tu conectividad.'])
-      : super(message, 0);
+  const NetworkException([
+    String message = 'Sin conexión a internet. Revisa tu conectividad.',
+  ]) : super(message, 0);
 }
 
 class TimeoutApiException extends ApiException {
-  const TimeoutApiException([String message = 'El tiempo de espera de la solicitud ha expirado.'])
-      : super(message, 408);
+  const TimeoutApiException([
+    String message = 'El tiempo de espera de la solicitud ha expirado.',
+  ]) : super(message, 408);
 }
 
 class ValidationException extends ApiException {
@@ -27,21 +29,23 @@ class ValidationException extends ApiException {
 }
 
 class RateLimitException extends ApiException {
-  const RateLimitException([String message = 'Demasiadas solicitudes. Inténtalo más tarde.'])
-      : super(message, 429);
+  const RateLimitException([
+    String message = 'Demasiadas solicitudes. Inténtalo más tarde.',
+  ]) : super(message, 429);
 }
 
 class UnauthorizedException extends ApiException {
   const UnauthorizedException([String message = 'Acceso no autorizado.'])
-      : super(message, 401);
+    : super(message, 401);
 }
 
 class NotFoundException extends ApiException {
   const NotFoundException([String message = 'Recurso no encontrado.'])
-      : super(message, 404);
+    : super(message, 404);
 }
 
 class ServerException extends ApiException {
-  const ServerException([String message = 'Error interno en el servidor remoto.'])
-      : super(message, 500);
+  const ServerException([
+    String message = 'Error interno en el servidor remoto.',
+  ]) : super(message, 500);
 }

@@ -8,26 +8,28 @@ class SqliteSettingsRepository implements SettingsRepository {
   final SqliteDbHelper dbHelper;
 
   SqliteSettingsRepository({SqliteDbHelper? dbHelper})
-      : dbHelper = dbHelper ?? SqliteDbHelper.instance;
+    : dbHelper = dbHelper ?? SqliteDbHelper.instance;
 
   @override
   Future<Map<String, String>> loadAll() async {
     final Database db = await dbHelper.database;
-    final List<Map<String, dynamic>> rows = await db.query(SqliteDbHelper.tableSettings);
+    final List<Map<String, dynamic>> rows = await db.query(
+      SqliteDbHelper.tableSettings,
+    );
 
     return <String, String>{
-      for (final Map<String, dynamic> row in rows) row['key'] as String: row['value'] as String,
+      for (final Map<String, dynamic> row in rows)
+        row['key'] as String: row['value'] as String,
     };
   }
 
   @override
   Future<void> setValue(String key, String value) async {
     final Database db = await dbHelper.database;
-    await db.insert(
-      SqliteDbHelper.tableSettings,
-      <String, dynamic>{'key': key, 'value': value},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await db.insert(SqliteDbHelper.tableSettings, <String, dynamic>{
+      'key': key,
+      'value': value,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 }
 
@@ -36,10 +38,11 @@ class InMemorySettingsRepository implements SettingsRepository {
   final Map<String, String> _store;
 
   InMemorySettingsRepository([Map<String, String>? initial])
-      : _store = <String, String>{...?initial};
+    : _store = <String, String>{...?initial};
 
   @override
-  Future<Map<String, String>> loadAll() async => Map<String, String>.unmodifiable(_store);
+  Future<Map<String, String>> loadAll() async =>
+      Map<String, String>.unmodifiable(_store);
 
   @override
   Future<void> setValue(String key, String value) async => _store[key] = value;

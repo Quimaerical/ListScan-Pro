@@ -10,6 +10,8 @@ import '../../../../core/widgets/app_logo.dart';
 import 'list_detail_screen.dart';
 import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
 import '../../../recipes/presentation/views/recipe_search_screen.dart';
+import '../../../settings/presentation/controllers/settings_controller.dart';
+import '../../../settings/presentation/views/settings_screen.dart';
 
 /// Main Dashboard view in the spirit of Google Keep, featuring appetizing pastel glassmorphism,
 /// structured vertical lists by default, with dynamic toggle to 2-column masonry grid,
@@ -17,10 +19,7 @@ import '../../../recipes/presentation/views/recipe_search_screen.dart';
 class DashboardScreen extends StatefulWidget {
   final ShoppingListsController controller;
 
-  const DashboardScreen({
-    super.key,
-    required this.controller,
-  });
+  const DashboardScreen({super.key, required this.controller});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -68,7 +67,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       listenable: widget.controller,
       builder: (BuildContext context, _) {
         final bool isDark = Theme.of(context).brightness == Brightness.dark;
-        final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+        final Color textColor = isDark
+            ? AppColors.textPrimaryDark
+            : AppColors.textPrimaryLight;
         final List<ShoppingList> displayLists = widget.controller.filteredLists;
 
         return ConstrainedScaffold(
@@ -81,7 +82,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ? 'Ver como lista vertical'
                     : 'Ver como cuadrícula',
                 icon: Icon(
-                  widget.controller.isGridView ? Icons.view_agenda_outlined : Icons.grid_view_rounded,
+                  widget.controller.isGridView
+                      ? Icons.view_agenda_outlined
+                      : Icons.grid_view_rounded,
                   color: textColor,
                 ),
                 onPressed: widget.controller.toggleViewMode,
@@ -125,12 +128,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   context: context,
                   controller: widget.controller,
                 );
+              } else if (index == 4) {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext ctx) => SettingsScreen(
+                      controller: SettingsController(
+                        settingsRepository:
+                            widget.controller.settingsRepository,
+                        shoppingListsController: widget.controller,
+                      ),
+                    ),
+                  ),
+                );
               }
             },
             destinations: const <NavigationDestination>[
               NavigationDestination(
                 icon: Icon(Icons.format_list_bulleted_outlined, size: 26),
-                selectedIcon: Icon(Icons.format_list_bulleted_rounded, size: 26),
+                selectedIcon: Icon(
+                  Icons.format_list_bulleted_rounded,
+                  size: 26,
+                ),
                 label: 'Mis Listas',
               ),
               NavigationDestination(
@@ -148,13 +166,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 selectedIcon: Icon(Icons.folder_open_rounded, size: 26),
                 label: 'Archivos',
               ),
+              NavigationDestination(
+                icon: Icon(Icons.settings_outlined, size: 26),
+                selectedIcon: Icon(Icons.settings_rounded, size: 26),
+                label: 'Ajustes',
+              ),
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: _handleCreateNewList,
             backgroundColor: AppColors.primaryMint,
             elevation: 3.0,
-            icon: const Icon(Icons.add_rounded, color: Colors.white, size: 24.0),
+            icon: const Icon(
+              Icons.add_rounded,
+              color: Colors.white,
+              size: 24.0,
+            ),
             label: const Text(
               'Nueva Lista',
               style: TextStyle(
@@ -168,21 +195,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
             onRefresh: widget.controller.loadLists,
             color: AppColors.primaryMint,
             child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
               slivers: <Widget>[
                 // Search Bar Section
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0,
+                    ),
                     child: GlassCard(
                       borderRadius: 18.0,
-                      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 2.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14.0,
+                        vertical: 2.0,
+                      ),
                       child: Row(
                         children: <Widget>[
                           Icon(
                             Icons.search_rounded,
-                            color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
-                                .withValues(alpha: 0.7),
+                            color:
+                                (isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight)
+                                    .withValues(alpha: 0.7),
                           ),
                           const SizedBox(width: 10.0),
                           Expanded(
@@ -194,10 +232,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 enabledBorder: InputBorder.none,
                                 focusedBorder: InputBorder.none,
                                 filled: false,
-                                contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 12.0,
+                                ),
                                 hintStyle: TextStyle(
-                                  color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight)
-                                      .withValues(alpha: 0.65),
+                                  color:
+                                      (isDark
+                                              ? AppColors.textSecondaryDark
+                                              : AppColors.textSecondaryLight)
+                                          .withValues(alpha: 0.65),
                                   fontSize: 14.5,
                                 ),
                               ),
@@ -221,7 +264,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // Filter Tabs Section
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 6.0,
+                    ),
                     child: _FilterTabsRow(
                       selectedIndex: widget.controller.selectedFilterIndex,
                       onFilterChanged: widget.controller.setFilterIndex,
@@ -233,7 +279,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 if (widget.controller.isLoading)
                   const SliverFillRemaining(
                     child: Center(
-                      child: CircularProgressIndicator(color: AppColors.primaryMint),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primaryMint,
+                      ),
                     ),
                   )
                 else if (displayLists.isEmpty)
@@ -247,55 +295,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 else if (!widget.controller.isGridView)
                   // Structured Vertical List (Default)
                   SliverPadding(
-                    padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 8.0, bottom: 90.0),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (BuildContext ctx, int index) {
-                          final ShoppingList list = displayLists[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12.0),
-                            child: NoteCardWidget(
-                              list: list,
-                              isGrid: false,
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                    builder: (BuildContext c) => ListDetailScreen(
-                                      listId: list.id,
-                                      controller: widget.controller,
-                                    ),
-                                  ),
-                                );
-                              },
-                              onTogglePin: () => widget.controller.togglePin(list.id),
-                              onDelete: () => widget.controller.deleteList(list.id),
-                              onToggleItem: (String itemId, bool isCompleted) {
-                                widget.controller.toggleItem(list.id, itemId, isCompleted);
-                              },
-                            ),
-                          );
-                        },
-                        childCount: displayLists.length,
-                      ),
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      right: 16.0,
+                      top: 8.0,
+                      bottom: 90.0,
                     ),
-                  )
-                else
-                  // 2-Column Responsive Grid View (Toggleable)
-                  SliverPadding(
-                    padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 8.0, bottom: 90.0),
-                    sliver: SliverGrid(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12.0,
-                        mainAxisSpacing: 12.0,
-                        childAspectRatio: 0.85,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (BuildContext ctx, int index) {
-                          final ShoppingList list = displayLists[index];
-                          return NoteCardWidget(
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((
+                        BuildContext ctx,
+                        int index,
+                      ) {
+                        final ShoppingList list = displayLists[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: NoteCardWidget(
                             list: list,
-                            isGrid: true,
+                            isGrid: false,
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute<void>(
@@ -306,15 +322,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                               );
                             },
-                            onTogglePin: () => widget.controller.togglePin(list.id),
-                            onDelete: () => widget.controller.deleteList(list.id),
+                            onTogglePin: () =>
+                                widget.controller.togglePin(list.id),
+                            onDelete: () =>
+                                widget.controller.deleteList(list.id),
                             onToggleItem: (String itemId, bool isCompleted) {
-                              widget.controller.toggleItem(list.id, itemId, isCompleted);
+                              widget.controller.toggleItem(
+                                list.id,
+                                itemId,
+                                isCompleted,
+                              );
                             },
-                          );
-                        },
-                        childCount: displayLists.length,
-                      ),
+                          ),
+                        );
+                      }, childCount: displayLists.length),
+                    ),
+                  )
+                else
+                  // 2-Column Responsive Grid View (Toggleable)
+                  SliverPadding(
+                    padding: const EdgeInsets.only(
+                      left: 16.0,
+                      right: 16.0,
+                      top: 8.0,
+                      bottom: 90.0,
+                    ),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12.0,
+                            mainAxisSpacing: 12.0,
+                            childAspectRatio: 0.85,
+                          ),
+                      delegate: SliverChildBuilderDelegate((
+                        BuildContext ctx,
+                        int index,
+                      ) {
+                        final ShoppingList list = displayLists[index];
+                        return NoteCardWidget(
+                          list: list,
+                          isGrid: true,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (BuildContext c) => ListDetailScreen(
+                                  listId: list.id,
+                                  controller: widget.controller,
+                                ),
+                              ),
+                            );
+                          },
+                          onTogglePin: () =>
+                              widget.controller.togglePin(list.id),
+                          onDelete: () => widget.controller.deleteList(list.id),
+                          onToggleItem: (String itemId, bool isCompleted) {
+                            widget.controller.toggleItem(
+                              list.id,
+                              itemId,
+                              isCompleted,
+                            );
+                          },
+                        );
+                      }, childCount: displayLists.length),
                     ),
                   ),
               ],
@@ -358,7 +428,9 @@ class _FilterTabsRow extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14.0),
               side: BorderSide(
-                color: isSelected ? AppColors.primaryMint : Colors.grey.withValues(alpha: 0.3),
+                color: isSelected
+                    ? AppColors.primaryMint
+                    : Colors.grey.withValues(alpha: 0.3),
               ),
             ),
           ),
@@ -380,8 +452,12 @@ class _EmptyListsPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final Color secColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color secColor = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
 
     return Center(
       child: SingleChildScrollView(
@@ -393,10 +469,14 @@ class _EmptyListsPlaceholder extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12.0),
                 decoration: BoxDecoration(
-                  color: AppColors.brandDarkForest.withValues(alpha: isDark ? 0.35 : 0.08),
+                  color: AppColors.brandDarkForest.withValues(
+                    alpha: isDark ? 0.35 : 0.08,
+                  ),
                   borderRadius: BorderRadius.circular(20.0),
                   border: Border.all(
-                    color: AppColors.brandMint.withValues(alpha: isDark ? 0.25 : 0.15),
+                    color: AppColors.brandMint.withValues(
+                      alpha: isDark ? 0.25 : 0.15,
+                    ),
                     width: 1.0,
                   ),
                 ),
@@ -404,7 +484,9 @@ class _EmptyListsPlaceholder extends StatelessWidget {
               ),
               const SizedBox(height: 16.0),
               Text(
-                isSearching ? 'No se encontraron resultados' : '¡Comienza tus listas de compras!',
+                isSearching
+                    ? 'No se encontraron resultados'
+                    : '¡Comienza tus listas de compras!',
                 style: TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.w700,
@@ -417,11 +499,7 @@ class _EmptyListsPlaceholder extends StatelessWidget {
                 isSearching
                     ? 'Prueba con otro término de búsqueda o limpia el filtro.'
                     : 'Crea listas ágiles, organízalas por colores pastel o importa notas en Markdown y CSV.',
-                style: TextStyle(
-                  fontSize: 14.0,
-                  color: secColor,
-                  height: 1.4,
-                ),
+                style: TextStyle(fontSize: 14.0, color: secColor, height: 1.4),
                 textAlign: TextAlign.center,
               ),
               if (!isSearching) ...<Widget>[
@@ -441,7 +519,10 @@ class _EmptyListsPlaceholder extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 12.0,
+                    ),
                   ),
                 ),
               ],

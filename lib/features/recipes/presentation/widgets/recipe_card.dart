@@ -6,11 +6,7 @@ class RecipeCard extends StatelessWidget {
   final Recipe recipe;
   final VoidCallback onTap;
 
-  const RecipeCard({
-    super.key,
-    required this.recipe,
-    required this.onTap,
-  });
+  const RecipeCard({super.key, required this.recipe, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -46,24 +42,27 @@ class RecipeCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
-                  child: recipe.thumbnailUrl != null && recipe.thumbnailUrl!.isNotEmpty
+                  child:
+                      recipe.thumbnailUrl != null &&
+                          recipe.thumbnailUrl!.isNotEmpty
                       ? Image.network(
                           recipe.thumbnailUrl!,
                           width: 76,
                           height: 76,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 76,
-                            height: 76,
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.05)
-                                : Colors.black.withValues(alpha: 0.04),
-                            child: const Icon(
-                              Icons.restaurant_rounded,
-                              size: 32,
-                              color: AppColors.primaryMint,
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                width: 76,
+                                height: 76,
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.05)
+                                    : Colors.black.withValues(alpha: 0.04),
+                                child: const Icon(
+                                  Icons.restaurant_rounded,
+                                  size: 32,
+                                  color: AppColors.primaryMint,
+                                ),
+                              ),
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
                             return Container(
@@ -119,7 +118,8 @@ class RecipeCard extends StatelessWidget {
                         spacing: 6,
                         runSpacing: 4,
                         children: [
-                          if (recipe.category != null && recipe.category!.isNotEmpty)
+                          if (recipe.category != null &&
+                              recipe.category!.isNotEmpty)
                             _buildTag(
                               context,
                               label: recipe.category!,

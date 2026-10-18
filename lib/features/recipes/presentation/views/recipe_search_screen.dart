@@ -8,9 +8,11 @@ import '../../../shopping_lists/presentation/views/list_detail_screen.dart';
 import '../../data/repositories/recipe_repository_impl.dart';
 import '../../domain/models/recipe.dart';
 import '../../domain/models/recipe_ingredient.dart';
+import '../../data/services/web_recipe_extractor_service.dart';
 import '../controllers/recipe_search_controller.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/recipe_detail_bottom_sheet.dart';
+import '../widgets/web_recipe_import_sheet.dart';
 
 class RecipeSearchScreen extends StatefulWidget {
   final ShoppingListsController shoppingListsController;
@@ -33,24 +35,34 @@ class RecipeSearchScreen extends StatefulWidget {
 class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
   late final RecipeSearchController _controller;
   late final TextEditingController _textController;
+  late final WebRecipeExtractorService _extractorService;
   static const Uuid _uuid = Uuid();
 
-  static const List<String> _popularCategories = [
+  static const List<String> _popularCategories = <String>[
     'Pasta',
-    'Chicken',
-    'Salad',
-    'Beef',
-    'Soup',
-    'Dessert',
-    'Fish',
-    'Vegetarian',
+    'Pollo',
+    'Arroz',
+    'Ramen',
+    'Curry',
+    'Sushi',
+    'Ensalada',
+    'Tacos',
+    'Postres',
+    'Pescado',
   ];
 
   @override
   void initState() {
     super.initState();
-    _controller = widget.recipeSearchController ??
-        RecipeSearchController(repository: RecipeRepositoryImpl());
+    _extractorService = WebRecipeExtractorService();
+    _controller =
+        widget.recipeSearchController ??
+        RecipeSearchController(
+          repository: RecipeRepositoryImpl(
+            settingsRepository:
+                widget.shoppingListsController.settingsRepository,
+          ),
+        );
     _textController = TextEditingController();
   }
 
@@ -72,12 +84,44 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
     _controller.search(category);
   }
 
-  void _openRecipeDetail(Recipe recipe) {
+  Future<void> _openRecipeDetail(Recipe recipe) async {
+    Recipe detailed = recipe;
+    if (detailed.ingredients.isEmpty) {
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext ctx) => const Center(
+          child: CircularProgressIndicator(color: AppColors.primaryMint),
+        ),
+      );
+      try {
+        final Recipe? fetched = await _controller.repository.getRecipeById(
+          recipe.id,
+        );
+        if (fetched != null) {
+          detailed = fetched;
+        }
+      } catch (_) {}
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
+    }
+    if (!mounted) return;
     RecipeDetailBottomSheet.show(
       context: context,
-      recipe: recipe,
-      onImport: (selectedIngredients) =>
-          _handleImport(recipe, selectedIngredients),
+      recipe: detailed,
+      onImport: (List<RecipeIngredient> selectedIngredients) =>
+          _handleImport(detailed, selectedIngredients),
+    );
+  }
+
+  void _openWebImportSheet() {
+    WebRecipeImportSheet.show(
+      context: context,
+      extractorService: _extractorService,
+      onRecipeExtracted: (Recipe recipe) {
+        _openRecipeDetail(recipe);
+      },
     );
   }
 
@@ -109,10 +153,13 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
   String _formatIngredientName(String name) {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return trimmed;
-    return trimmed.split(' ').map((word) {
-      if (word.isEmpty) return word;
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    }).join(' ');
+    return trimmed
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
 
   Future<void> _importIntoList(
@@ -172,10 +219,7 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
             ),
             Text(
               'Importar ${ingredients.length} ingredientes',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             Text(
@@ -209,8 +253,8 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark
-                    ? AppColors.textSecondaryDark
-                    : AppColors.textSecondaryLight,
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondaryLight,
                 ),
               ),
               shape: RoundedRectangleBorder(
@@ -234,15 +278,18 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
                   );
                 }).toList();
 
-                final createdList = await widget.shoppingListsController.createList(
-                  title: '🍳 ${recipe.name}',
-                  initialItems: items,
-                );
+                final createdList = await widget.shoppingListsController
+                    .createList(
+                      title: '🍳 ${recipe.name}',
+                      initialItems: items,
+                    );
 
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Lista "🍳 ${recipe.name}" creada con éxito'),
+                      content: Text(
+                        'Lista "🍳 ${recipe.name}" creada con éxito',
+                      ),
                       backgroundColor: AppColors.primaryMint,
                       behavior: SnackBarBehavior.floating,
                     ),
@@ -266,10 +313,7 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 child: Text(
                   'O agregar a una lista existente:',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                 ),
               ),
               ConstrainedBox(
@@ -336,6 +380,14 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
               : 'Explorar Recetas',
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
+        actions: <Widget>[
+          IconButton(
+            tooltip: 'Importar desde Web o Texto',
+            icon: const Icon(Icons.add_link_rounded),
+            onPressed: _openWebImportSheet,
+          ),
+          const SizedBox(width: 8.0),
+        ],
       ),
       body: Column(
         children: [
@@ -374,10 +426,32 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
             child: ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               scrollDirection: Axis.horizontal,
-              itemCount: _popularCategories.length,
+              itemCount: _popularCategories.length + 1,
               separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
-                final cat = _popularCategories[index];
+                if (index == 0) {
+                  return ActionChip(
+                    avatar: const Icon(
+                      Icons.auto_awesome_rounded,
+                      size: 16,
+                      color: AppColors.primaryMint,
+                    ),
+                    label: const Text(
+                      'Importar Web / Texto',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primaryMint,
+                      ),
+                    ),
+                    backgroundColor: isDark
+                        ? AppColors.primaryMint.withValues(alpha: 0.15)
+                        : AppColors.primaryMint.withValues(alpha: 0.1),
+                    side: const BorderSide(color: AppColors.primaryMint),
+                    onPressed: _openWebImportSheet,
+                  );
+                }
+
+                final cat = _popularCategories[index - 1];
                 final isSelected =
                     _textController.text.toLowerCase() == cat.toLowerCase();
 
@@ -393,8 +467,8 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
                     color: isSelected
                         ? AppColors.primaryMint
                         : (isDark
-                            ? AppColors.borderDark
-                            : AppColors.borderLight),
+                              ? AppColors.borderDark
+                              : AppColors.borderLight),
                   ),
                   onSelected: (_) => _onQuickChipSelected(cat),
                 );
@@ -466,10 +540,7 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
             const SizedBox(height: 16),
             const Text(
               'Encuentra inspiración culinaria',
-              style: TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             Text(
@@ -506,10 +577,7 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
             Text(
               'No encontramos recetas para "${_controller.query}"',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             Text(
@@ -543,10 +611,7 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
             const SizedBox(height: 14),
             const Text(
               'Error al consultar recetas',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             Text(

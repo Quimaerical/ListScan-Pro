@@ -70,7 +70,9 @@ class SqliteDbHelper {
     ''');
 
     await db.execute('CREATE INDEX idx_items_list_id ON $tableItems(list_id)');
-    await db.execute('CREATE INDEX idx_items_completed ON $tableItems(is_completed)');
+    await db.execute(
+      'CREATE INDEX idx_items_completed ON $tableItems(is_completed)',
+    );
 
     await _createSettingsTable(db);
   }

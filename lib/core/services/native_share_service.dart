@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 class NativeShareService {
   const NativeShareService._();
 
-  static const MethodChannel _channel = MethodChannel('shopliist_pro/native_share');
+  static const MethodChannel _channel = MethodChannel(
+    'shopliist_pro/native_share',
+  );
 
   /// Shares [text] directly to other applications via the operating system's
   /// native share sheet (Android Intent.ACTION_SEND / iOS UIActivityViewController).
@@ -19,14 +21,13 @@ class NativeShareService {
     try {
       final bool? success = await _channel.invokeMethod<bool>(
         'shareText',
-        <String, dynamic>{
-          'text': text,
-          'title': title,
-        },
+        <String, dynamic>{'text': text, 'title': title},
       );
       return success ?? true;
     } catch (e) {
-      debugPrint('NativeShareService: Platform channel unavailable ($e). Fallback to clipboard.');
+      debugPrint(
+        'NativeShareService: Platform channel unavailable ($e). Fallback to clipboard.',
+      );
       await Clipboard.setData(ClipboardData(text: text));
       return false;
     }

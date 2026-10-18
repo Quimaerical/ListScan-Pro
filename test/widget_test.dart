@@ -16,7 +16,10 @@ class MockShoppingListRepository implements ShoppingListRepository {
 
   @override
   Future<ShoppingList?> getListById(String id) async {
-    return _lists.cast<ShoppingList?>().firstWhere((l) => l?.id == id, orElse: () => null);
+    return _lists.cast<ShoppingList?>().firstWhere(
+      (l) => l?.id == id,
+      orElse: () => null,
+    );
   }
 
   @override
@@ -63,16 +66,23 @@ class MockShoppingListRepository implements ShoppingListRepository {
   Future<void> updateItemAmount(String id, int amount) async {}
 
   @override
-  Future<List<String>> getProductSuggestions(String query, {int limit = 10}) async => const [];
+  Future<List<String>> getProductSuggestions(
+    String query, {
+    int limit = 10,
+  }) async => const [];
 
   @override
   String exportToMarkdown(ShoppingList list) => '# ${list.title}\n';
 
   @override
-  String exportToCsv(ShoppingList list) => 'name,quantity,is_completed,category\n';
+  String exportToCsv(ShoppingList list) =>
+      'name,quantity,is_completed,category\n';
 
   @override
-  ShoppingList importFromContent({required String filename, required String content}) {
+  ShoppingList importFromContent({
+    required String filename,
+    required String content,
+  }) {
     return ShoppingList(
       id: 'mock-1',
       title: 'Importada',
@@ -83,7 +93,9 @@ class MockShoppingListRepository implements ShoppingListRepository {
 }
 
 void main() {
-  testWidgets('Renders ListScan PRO Dashboard and empty state smoothly', (WidgetTester tester) async {
+  testWidgets('Renders ListScan PRO Dashboard and empty state smoothly', (
+    WidgetTester tester,
+  ) async {
     final repository = MockShoppingListRepository();
     final controller = ShoppingListsController(repository: repository);
 

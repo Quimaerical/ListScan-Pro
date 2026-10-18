@@ -94,7 +94,9 @@ class ShoppingItem {
       isSeparator: (map['is_separator'] as int? ?? 0) == 1,
       isCompleted: (map['is_completed'] as int? ?? 0) == 1,
       sortOrder: map['sort_order'] as int? ?? 0,
-      createdAt: DateTime.tryParse(map['created_at'] as String? ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(map['created_at'] as String? ?? '') ??
+          DateTime.now(),
     );
   }
 
@@ -116,15 +118,15 @@ class ShoppingItem {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        listId,
-        name,
-        quantity,
-        category,
-        amount,
-        isSeparator,
-        isCompleted,
-        sortOrder,
-        createdAt,
-      );
+    id,
+    listId,
+    name,
+    quantity,
+    category,
+    amount,
+    isSeparator,
+    isCompleted,
+    sortOrder,
+    createdAt,
+  );
 }

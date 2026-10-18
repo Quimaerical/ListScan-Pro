@@ -15,11 +15,14 @@ class _FakeShoppingListRepository implements ShoppingListRepository {
   final List<ShoppingList> _lists = <ShoppingList>[];
 
   @override
-  Future<List<ShoppingList>> getAllLists({bool includeArchived = false}) async => _lists;
+  Future<List<ShoppingList>> getAllLists({
+    bool includeArchived = false,
+  }) async => _lists;
 
   @override
-  Future<ShoppingList?> getListById(String id) async =>
-      _lists.cast<ShoppingList?>().firstWhere((ShoppingList? l) => l?.id == id, orElse: () => null);
+  Future<ShoppingList?> getListById(String id) async => _lists
+      .cast<ShoppingList?>()
+      .firstWhere((ShoppingList? l) => l?.id == id, orElse: () => null);
 
   @override
   Future<void> saveList(ShoppingList list) async {
@@ -50,56 +53,67 @@ class _FakeShoppingListRepository implements ShoppingListRepository {
   Future<void> updateItemAmount(String id, int amount) async {}
 
   @override
-  Future<List<String>> getProductSuggestions(String query, {int limit = 10}) async => const [];
+  Future<List<String>> getProductSuggestions(
+    String query, {
+    int limit = 10,
+  }) async => const [];
 
   @override
-  String exportToMarkdown(ShoppingList list) => ListFileHandler.exportToMarkdown(list);
+  String exportToMarkdown(ShoppingList list) =>
+      ListFileHandler.exportToMarkdown(list);
 
   @override
   String exportToCsv(ShoppingList list) => ListFileHandler.exportToCsv(list);
 
   @override
-  ShoppingList importFromContent({required String filename, required String content}) =>
-      ListFileHandler.importFromContent(filename: filename, content: content);
+  ShoppingList importFromContent({
+    required String filename,
+    required String content,
+  }) => ListFileHandler.importFromContent(filename: filename, content: content);
 }
 
 void main() {
   group('Settings Persistence Tests', () {
-    test('loads persisted theme mode, view mode, and completed expanded state', () async {
-      final inMemorySettings = InMemorySettingsRepository(<String, String>{
-        SettingsKeys.themeMode: 'dark',
-        SettingsKeys.isGridView: '1',
-        SettingsKeys.completedExpanded: '0',
-      });
+    test(
+      'loads persisted theme mode, view mode, and completed expanded state',
+      () async {
+        final inMemorySettings = InMemorySettingsRepository(<String, String>{
+          SettingsKeys.themeMode: 'dark',
+          SettingsKeys.isGridView: '1',
+          SettingsKeys.completedExpanded: '0',
+        });
 
-      final controller = ShoppingListsController(
-        repository: _FakeShoppingListRepository(),
-        settingsRepository: inMemorySettings,
-      );
+        final controller = ShoppingListsController(
+          repository: _FakeShoppingListRepository(),
+          settingsRepository: inMemorySettings,
+        );
 
-      await controller.loadSettings();
+        await controller.loadSettings();
 
-      expect(controller.themeMode, equals(ThemeMode.dark));
-      expect(controller.isGridView, isTrue);
-      expect(controller.isCompletedExpanded, isFalse);
+        expect(controller.themeMode, equals(ThemeMode.dark));
+        expect(controller.isGridView, isTrue);
+        expect(controller.isCompletedExpanded, isFalse);
 
-      // Toggle theme mode to light and verify persisted value
-      controller.toggleThemeMode();
-      expect(controller.themeMode, equals(ThemeMode.light));
+        // Toggle theme mode to light and verify persisted value
+        controller.toggleThemeMode();
+        expect(controller.themeMode, equals(ThemeMode.light));
 
-      final values = await inMemorySettings.loadAll();
-      expect(values[SettingsKeys.themeMode], equals('light'));
+        final values = await inMemorySettings.loadAll();
+        expect(values[SettingsKeys.themeMode], equals('light'));
 
-      // Toggle grid view
-      controller.toggleViewMode();
-      expect(controller.isGridView, isFalse);
-      final updatedValues = await inMemorySettings.loadAll();
-      expect(updatedValues[SettingsKeys.isGridView], equals('0'));
-    });
+        // Toggle grid view
+        controller.toggleViewMode();
+        expect(controller.isGridView, isFalse);
+        final updatedValues = await inMemorySettings.loadAll();
+        expect(updatedValues[SettingsKeys.isGridView], equals('0'));
+      },
+    );
   });
 
   group('ShoppingItemTile with Stepper Tests', () {
-    testWidgets('increments and decrements amount via stepper arrows', (WidgetTester tester) async {
+    testWidgets('increments and decrements amount via stepper arrows', (
+      WidgetTester tester,
+    ) async {
       int updatedAmount = 1;
 
       final item = ShoppingItem(
@@ -140,52 +154,56 @@ void main() {
       expect(updatedAmount, equals(1));
     });
 
-    testWidgets('opens manual input dialog when tapping count and saves parsed integer',
-        (WidgetTester tester) async {
-      int updatedAmount = 1;
+    testWidgets(
+      'opens manual input dialog when tapping count and saves parsed integer',
+      (WidgetTester tester) async {
+        int updatedAmount = 1;
 
-      final item = ShoppingItem(
-        id: 'item-1',
-        listId: 'list-1',
-        name: 'Leche',
-        amount: 1,
-        createdAt: DateTime.now(),
-      );
+        final item = ShoppingItem(
+          id: 'item-1',
+          listId: 'list-1',
+          name: 'Leche',
+          amount: 1,
+          createdAt: DateTime.now(),
+        );
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ShoppingItemTile(
-              item: item,
-              palette: AppColors.getPalette(0),
-              onToggleCompleted: (_) {},
-              onAmountChanged: (int newAmount) {
-                updatedAmount = newAmount;
-              },
-              onDelete: () {},
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ShoppingItemTile(
+                item: item,
+                palette: AppColors.getPalette(0),
+                onToggleCompleted: (_) {},
+                onAmountChanged: (int newAmount) {
+                  updatedAmount = newAmount;
+                },
+                onDelete: () {},
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Tap number to open dialog
-      await tester.tap(find.text('1'));
-      await tester.pumpAndSettle();
+        // Tap number to open dialog
+        await tester.tap(find.text('1'));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.text('Cantidad para "Leche"'), findsOneWidget);
+        expect(find.byType(AlertDialog), findsOneWidget);
+        expect(find.text('Cantidad para "Leche"'), findsOneWidget);
 
-      // Enter new amount '5'
-      await tester.enterText(find.byType(TextField), '5');
-      await tester.tap(find.text('Guardar'));
-      await tester.pumpAndSettle();
+        // Enter new amount '5'
+        await tester.enterText(find.byType(TextField), '5');
+        await tester.tap(find.text('Guardar'));
+        await tester.pumpAndSettle();
 
-      expect(updatedAmount, equals(5));
-    });
+        expect(updatedAmount, equals(5));
+      },
+    );
   });
 
   group('ListSeparatorTile Tests', () {
-    testWidgets('renders separator label and triggers rename on tap', (WidgetTester tester) async {
+    testWidgets('renders separator label and triggers rename on tap', (
+      WidgetTester tester,
+    ) async {
       bool renameCalled = false;
 
       final separator = ShoppingItem(
@@ -229,9 +247,27 @@ void main() {
         createdAt: now,
         updatedAt: now,
         items: <ShoppingItem>[
-          ShoppingItem(id: 's1', listId: 'list-10', name: 'Bebidas', isSeparator: true, createdAt: now),
-          ShoppingItem(id: 'i1', listId: 'list-10', name: 'Cervezas', amount: 6, createdAt: now),
-          ShoppingItem(id: 'i2', listId: 'list-10', name: 'Hielo', quantity: '2 bolsas', createdAt: now),
+          ShoppingItem(
+            id: 's1',
+            listId: 'list-10',
+            name: 'Bebidas',
+            isSeparator: true,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: 'i1',
+            listId: 'list-10',
+            name: 'Cervezas',
+            amount: 6,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: 'i2',
+            listId: 'list-10',
+            name: 'Hielo',
+            quantity: '2 bolsas',
+            createdAt: now,
+          ),
         ],
       );
 

@@ -54,9 +54,8 @@ class _ScanListScreenState extends State<ScanListScreen> {
     if (_ocrController.imagePath == null) return;
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => OcrImageViewerScreen(
-          controller: _ocrController,
-        ),
+        builder: (BuildContext context) =>
+            OcrImageViewerScreen(controller: _ocrController),
       ),
     );
   }
@@ -65,7 +64,9 @@ class _ScanListScreenState extends State<ScanListScreen> {
     final List<OcrRecognizedItem> selected = _ocrController.selectedItems;
     if (selected.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona al menos un producto para continuar.')),
+        const SnackBar(
+          content: Text('Selecciona al menos un producto para continuar.'),
+        ),
       );
       return;
     }
@@ -84,7 +85,9 @@ class _ScanListScreenState extends State<ScanListScreen> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('¡${selected.length} productos agregados a la lista!'),
+            content: Text(
+              '¡${selected.length} productos agregados a la lista!',
+            ),
             backgroundColor: AppColors.primaryMint,
           ),
         );
@@ -94,10 +97,8 @@ class _ScanListScreenState extends State<ScanListScreen> {
       final DateTime now = DateTime.now();
       final String listTitle = 'Lista Escaneada ${now.day}/${now.month}';
 
-      final ShoppingList created = await widget.shoppingListsController.createList(
-        title: listTitle,
-        colorIndex: 0,
-      );
+      final ShoppingList created = await widget.shoppingListsController
+          .createList(title: listTitle, colorIndex: 0);
 
       for (final OcrRecognizedItem item in selected) {
         await widget.shoppingListsController.addItem(
@@ -125,8 +126,12 @@ class _ScanListScreenState extends State<ScanListScreen> {
       listenable: _ocrController,
       builder: (BuildContext context, _) {
         final bool isDark = Theme.of(context).brightness == Brightness.dark;
-        final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-        final Color secColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+        final Color textColor = isDark
+            ? AppColors.textPrimaryDark
+            : AppColors.textPrimaryLight;
+        final Color secColor = isDark
+            ? AppColors.textSecondaryDark
+            : AppColors.textSecondaryLight;
 
         return ConstrainedScaffold(
           appBar: AppBar(
@@ -153,7 +158,10 @@ class _ScanListScreenState extends State<ScanListScreen> {
           bottomNavigationBar: _ocrController.items.isNotEmpty
               ? SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 10.0,
+                    ),
                     child: FilledButton.icon(
                       style: FilledButton.styleFrom(
                         backgroundColor: AppColors.primaryMint,
@@ -162,8 +170,13 @@ class _ScanListScreenState extends State<ScanListScreen> {
                           borderRadius: BorderRadius.circular(16.0),
                         ),
                       ),
-                      onPressed: _ocrController.selectedCount > 0 ? _handleCommitItems : null,
-                      icon: const Icon(Icons.playlist_add_check_rounded, size: 22.0),
+                      onPressed: _ocrController.selectedCount > 0
+                          ? _handleCommitItems
+                          : null,
+                      icon: const Icon(
+                        Icons.playlist_add_check_rounded,
+                        size: 22.0,
+                      ),
                       label: Text(
                         widget.targetListId != null
                             ? 'Agregar (${_ocrController.selectedCount}) a la lista'
@@ -183,7 +196,12 @@ class _ScanListScreenState extends State<ScanListScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, bool isDark, Color textColor, Color secColor) {
+  Widget _buildBody(
+    BuildContext context,
+    bool isDark,
+    Color textColor,
+    Color secColor,
+  ) {
     // 1. Initial State: Capture prompt (Camera or Gallery)
     if (_ocrController.imagePath == null && !_ocrController.isProcessing) {
       return Padding(
@@ -216,11 +234,7 @@ class _ScanListScreenState extends State<ScanListScreen> {
             Text(
               'Toma una fotografía o selecciona una imagen de tus notas de compras o tickets físicos para extraer los productos automáticamente.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.0,
-                color: secColor,
-                height: 1.4,
-              ),
+              style: TextStyle(fontSize: 14.0, color: secColor, height: 1.4),
             ),
             const SizedBox(height: 32.0),
 
@@ -231,7 +245,8 @@ class _ScanListScreenState extends State<ScanListScreen> {
                     icon: Icons.camera_alt_rounded,
                     title: 'Cámara',
                     subtitle: 'Tomar fotografía',
-                    onTap: () => _ocrController.pickAndScanImage(ImageSource.camera),
+                    onTap: () =>
+                        _ocrController.pickAndScanImage(ImageSource.camera),
                   ),
                 ),
                 const SizedBox(width: 14.0),
@@ -240,7 +255,8 @@ class _ScanListScreenState extends State<ScanListScreen> {
                     icon: Icons.photo_library_rounded,
                     title: 'Galería',
                     subtitle: 'Elegir imagen',
-                    onTap: () => _ocrController.pickAndScanImage(ImageSource.gallery),
+                    onTap: () =>
+                        _ocrController.pickAndScanImage(ImageSource.gallery),
                   ),
                 ),
               ],
@@ -257,7 +273,10 @@ class _ScanListScreenState extends State<ScanListScreen> {
           padding: const EdgeInsets.all(32.0),
           child: GlassCard(
             borderRadius: 24.0,
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 32.0,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -274,10 +293,7 @@ class _ScanListScreenState extends State<ScanListScreen> {
                 const SizedBox(height: 6.0),
                 Text(
                   'Google ML Kit está analizando las líneas de texto.',
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: secColor,
-                  ),
+                  style: TextStyle(fontSize: 12.5, color: secColor),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -296,7 +312,10 @@ class _ScanListScreenState extends State<ScanListScreen> {
           child: GlassCard(
             onTap: _openFullscreenImageViewer,
             borderRadius: 16.0,
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12.0,
+              vertical: 8.0,
+            ),
             child: Row(
               children: <Widget>[
                 ClipRRect(
@@ -323,10 +342,7 @@ class _ScanListScreenState extends State<ScanListScreen> {
                       ),
                       Text(
                         '${_ocrController.selectedCount} seleccionados • Toca para abrir foto',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: secColor,
-                        ),
+                        style: TextStyle(fontSize: 11.5, color: secColor),
                       ),
                     ],
                   ),
@@ -337,7 +353,8 @@ class _ScanListScreenState extends State<ScanListScreen> {
                   onPressed: _openFullscreenImageViewer,
                 ),
                 TextButton(
-                  onPressed: () => _ocrController.selectAll(!_ocrController.allSelected),
+                  onPressed: () =>
+                      _ocrController.selectAll(!_ocrController.allSelected),
                   child: Text(
                     _ocrController.allSelected ? 'Desmarcar' : 'Todos',
                     style: const TextStyle(
@@ -374,9 +391,15 @@ class _ScanListScreenState extends State<ScanListScreen> {
                 setState(() => _viewModeIndex = newSelection.first);
               },
               style: SegmentedButton.styleFrom(
-                selectedBackgroundColor: AppColors.primaryMint.withValues(alpha: 0.20),
-                selectedForegroundColor: AppColors.getPalette(0).accentColor(isDark),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.0)),
+                selectedBackgroundColor: AppColors.primaryMint.withValues(
+                  alpha: 0.20,
+                ),
+                selectedForegroundColor: AppColors.getPalette(
+                  0,
+                ).accentColor(isDark),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.0),
+                ),
               ),
             ),
           ),
@@ -385,7 +408,10 @@ class _ScanListScreenState extends State<ScanListScreen> {
         // Error message if any
         if (_ocrController.errorMessage != null)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 6.0,
+            ),
             child: Text(
               _ocrController.errorMessage!,
               style: const TextStyle(color: Color(0xFFEF4444), fontSize: 13.0),
@@ -401,7 +427,8 @@ class _ScanListScreenState extends State<ScanListScreen> {
                       child: OcrInteractiveImageViewer(
                         imagePath: _ocrController.imagePath!,
                         items: _ocrController.items,
-                        onToggleItem: (String id) => _ocrController.toggleItemSelection(id),
+                        onToggleItem: (String id) =>
+                            _ocrController.toggleItemSelection(id),
                         imageSize: _ocrController.imageSize,
                       ),
                     ),
@@ -411,9 +438,13 @@ class _ScanListScreenState extends State<ScanListScreen> {
                       right: 16.0,
                       child: Center(
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 6.0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14.0,
+                            vertical: 6.0,
+                          ),
                           decoration: BoxDecoration(
-                            color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.82),
+                            color: (isDark ? Colors.black : Colors.white)
+                                .withValues(alpha: 0.82),
                             borderRadius: BorderRadius.circular(20.0),
                             boxShadow: <BoxShadow>[
                               BoxShadow(
@@ -447,14 +478,19 @@ class _ScanListScreenState extends State<ScanListScreen> {
                   ],
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 6.0,
+                  ),
                   itemCount: _ocrController.items.length,
                   itemBuilder: (BuildContext ctx, int index) {
                     final OcrRecognizedItem item = _ocrController.items[index];
                     return OcrItemCard(
                       item: item,
-                      onToggleSelect: (_) => _ocrController.toggleItemSelection(item.id),
-                      onEditName: (String newName) => _ocrController.updateItemName(item.id, newName),
+                      onToggleSelect: (_) =>
+                          _ocrController.toggleItemSelection(item.id),
+                      onEditName: (String newName) =>
+                          _ocrController.updateItemName(item.id, newName),
                       onRemove: () => _ocrController.removeItem(item.id),
                     );
                   },
@@ -481,8 +517,12 @@ class _CaptureOptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final Color secColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color secColor = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
 
     return GlassCard(
       onTap: onTap,
@@ -508,13 +548,7 @@ class _CaptureOptionCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 3.0),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 12.0,
-              color: secColor,
-            ),
-          ),
+          Text(subtitle, style: TextStyle(fontSize: 12.0, color: secColor)),
         ],
       ),
     );

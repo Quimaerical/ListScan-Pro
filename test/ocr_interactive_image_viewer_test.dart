@@ -19,7 +19,9 @@ void main() {
       }
     });
 
-    testWidgets('renders interactive bounding boxes and handles box tap', (WidgetTester tester) async {
+    testWidgets('renders interactive bounding boxes and handles box tap', (
+      WidgetTester tester,
+    ) async {
       String? toggledId;
 
       const List<OcrRecognizedItem> items = <OcrRecognizedItem>[

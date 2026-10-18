@@ -20,7 +20,8 @@ class PastelPalette {
     required this.darkCardBorder,
   });
 
-  Color backgroundColor(bool isDark) => isDark ? darkBackground : lightBackground;
+  Color backgroundColor(bool isDark) =>
+      isDark ? darkBackground : lightBackground;
   Color accentColor(bool isDark) => isDark ? darkAccent : lightAccent;
   Color borderColor(bool isDark) => isDark ? darkCardBorder : lightCardBorder;
 }

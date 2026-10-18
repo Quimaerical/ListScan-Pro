@@ -51,14 +51,18 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
   }
 
   ShoppingList? _getList() {
-    final int idx = widget.controller.lists.indexWhere((ShoppingList l) => l.id == widget.listId);
+    final int idx = widget.controller.lists.indexWhere(
+      (ShoppingList l) => l.id == widget.listId,
+    );
     if (idx != -1) return widget.controller.lists[idx];
     return null;
   }
 
   void _handleTitleChange(String newTitle) {
     final ShoppingList? list = _getList();
-    if (list != null && newTitle.trim().isNotEmpty && newTitle.trim() != list.title) {
+    if (list != null &&
+        newTitle.trim().isNotEmpty &&
+        newTitle.trim() != list.title) {
       widget.controller.updateList(list.copyWith(title: newTitle.trim()));
     }
   }
@@ -75,14 +79,18 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
       context: context,
       builder: (BuildContext ctx) => AlertDialog(
         title: const Text('¿Eliminar lista?'),
-        content: const Text('Esta acción eliminará la lista y todos sus productos de forma permanente.'),
+        content: const Text(
+          'Esta acción eliminará la lista y todos sus productos de forma permanente.',
+        ),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: const Text('Cancelar'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: const Text('Eliminar'),
           ),
@@ -103,7 +111,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
     final String? label = await showDialog<String>(
       context: context,
       builder: (BuildContext ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
         title: const Text('Nuevo Separador'),
         content: TextField(
           controller: textCtrl,
@@ -111,7 +121,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
             hintText: 'Nombre opcional (ej: Frutas, Lácteos...)',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
           ),
           onSubmitted: (String val) => Navigator.of(ctx).pop(val),
         ),
@@ -123,7 +135,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.primaryMint,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
             ),
             onPressed: () => Navigator.of(ctx).pop(textCtrl.text),
             child: const Text('Agregar'),
@@ -138,11 +152,15 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
   }
 
   Future<void> _showRenameSeparatorDialog(ShoppingItem item) async {
-    final TextEditingController textCtrl = TextEditingController(text: item.name);
+    final TextEditingController textCtrl = TextEditingController(
+      text: item.name,
+    );
     final String? newLabel = await showDialog<String>(
       context: context,
       builder: (BuildContext ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
         title: const Text('Editar Separador'),
         content: TextField(
           controller: textCtrl,
@@ -150,7 +168,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
             hintText: 'Nombre opcional',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
           ),
           onSubmitted: (String val) => Navigator.of(ctx).pop(val),
         ),
@@ -162,7 +182,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: AppColors.primaryMint,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
             ),
             onPressed: () => Navigator.of(ctx).pop(textCtrl.text),
             child: const Text('Guardar'),
@@ -192,13 +214,19 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
         final bool isDark = Theme.of(context).brightness == Brightness.dark;
         final PastelPalette palette = AppColors.getPalette(list.colorIndex);
         final Color accentColor = palette.accentColor(isDark);
-        final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-        final Color secColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+        final Color textColor = isDark
+            ? AppColors.textPrimaryDark
+            : AppColors.textPrimaryLight;
+        final Color secColor = isDark
+            ? AppColors.textSecondaryDark
+            : AppColors.textSecondaryLight;
 
-        final List<ShoppingItem> pendingItems =
-            list.items.where((ShoppingItem item) => !item.isCompleted).toList();
-        final List<ShoppingItem> completedItems =
-            list.items.where((ShoppingItem item) => item.isCompleted).toList();
+        final List<ShoppingItem> pendingItems = list.items
+            .where((ShoppingItem item) => !item.isCompleted)
+            .toList();
+        final List<ShoppingItem> completedItems = list.items
+            .where((ShoppingItem item) => item.isCompleted)
+            .toList();
 
         return ConstrainedScaffold(
           backgroundColor: isDark
@@ -319,7 +347,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                     child: Row(
                       children: <Widget>[
                         Icon(
-                          list.isArchived ? Icons.unarchive_outlined : Icons.archive_outlined,
+                          list.isArchived
+                              ? Icons.unarchive_outlined
+                              : Icons.archive_outlined,
                           size: 20,
                         ),
                         const SizedBox(width: 10),
@@ -331,9 +361,16 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                     value: 'delete',
                     child: Row(
                       children: <Widget>[
-                        Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20),
+                        Icon(
+                          Icons.delete_outline_rounded,
+                          color: Colors.red,
+                          size: 20,
+                        ),
                         SizedBox(width: 10),
-                        Text('Eliminar lista', style: TextStyle(color: Colors.red)),
+                        Text(
+                          'Eliminar lista',
+                          style: TextStyle(color: Colors.red),
+                        ),
                       ],
                     ),
                   ),
@@ -358,10 +395,16 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
 
               // Progress Bar & Counter Card
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 4.0,
+                ),
                 child: GlassCard(
                   borderRadius: 16.0,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 10.0,
+                  ),
                   backgroundColor: palette.backgroundColor(isDark),
                   borderColor: palette.borderColor(isDark),
                   child: Row(
@@ -397,8 +440,12 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                               child: LinearProgressIndicator(
                                 value: list.progressPercentage,
                                 minHeight: 4.0,
-                                backgroundColor: Colors.white.withValues(alpha: isDark ? 0.1 : 0.4),
-                                valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                                backgroundColor: Colors.white.withValues(
+                                  alpha: isDark ? 0.1 : 0.4,
+                                ),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  accentColor,
+                                ),
                               ),
                             ),
                           ],
@@ -446,7 +493,10 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                       )
                     : ListView(
                         physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8.0,
+                        ),
                         children: <Widget>[
                           // Pending items and separators
                           for (final ShoppingItem item in pendingItems)
@@ -454,21 +504,36 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                               ListSeparatorTile(
                                 item: item,
                                 palette: palette,
-                                onRename: () => _showRenameSeparatorDialog(item),
-                                onDelete: () => widget.controller.deleteItem(list.id, item.id),
+                                onRename: () =>
+                                    _showRenameSeparatorDialog(item),
+                                onDelete: () => widget.controller.deleteItem(
+                                  list.id,
+                                  item.id,
+                                ),
                               )
                             else
                               ShoppingItemTile(
                                 item: item,
                                 palette: palette,
                                 onToggleCompleted: (bool val) {
-                                  widget.controller.toggleItem(list.id, item.id, val);
+                                  widget.controller.toggleItem(
+                                    list.id,
+                                    item.id,
+                                    val,
+                                  );
                                 },
                                 onAmountChanged: (int newAmount) {
-                                  widget.controller.setItemAmount(list.id, item.id, newAmount);
+                                  widget.controller.setItemAmount(
+                                    list.id,
+                                    item.id,
+                                    newAmount,
+                                  );
                                 },
                                 onDelete: () {
-                                  widget.controller.deleteItem(list.id, item.id);
+                                  widget.controller.deleteItem(
+                                    list.id,
+                                    item.id,
+                                  );
                                 },
                               ),
 
@@ -484,7 +549,10 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                               },
                               borderRadius: BorderRadius.circular(10.0),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 4.0),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 6.0,
+                                  horizontal: 4.0,
+                                ),
                                 child: Row(
                                   children: <Widget>[
                                     Icon(
@@ -514,13 +582,24 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                                   item: item,
                                   palette: palette,
                                   onToggleCompleted: (bool val) {
-                                    widget.controller.toggleItem(list.id, item.id, val);
+                                    widget.controller.toggleItem(
+                                      list.id,
+                                      item.id,
+                                      val,
+                                    );
                                   },
                                   onAmountChanged: (int newAmount) {
-                                    widget.controller.setItemAmount(list.id, item.id, newAmount);
+                                    widget.controller.setItemAmount(
+                                      list.id,
+                                      item.id,
+                                      newAmount,
+                                    );
                                   },
                                   onDelete: () {
-                                    widget.controller.deleteItem(list.id, item.id);
+                                    widget.controller.deleteItem(
+                                      list.id,
+                                      item.id,
+                                    );
                                   },
                                 ),
                           ],

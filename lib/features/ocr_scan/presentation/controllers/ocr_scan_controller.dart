@@ -11,10 +11,8 @@ class OcrScanController extends ChangeNotifier {
   final OcrService ocrService;
   final ImagePicker _imagePicker;
 
-  OcrScanController({
-    required this.ocrService,
-    ImagePicker? imagePicker,
-  }) : _imagePicker = imagePicker ?? ImagePicker();
+  OcrScanController({required this.ocrService, ImagePicker? imagePicker})
+    : _imagePicker = imagePicker ?? ImagePicker();
 
   String? _imagePath;
   ui.Size? _imageSize;
@@ -33,7 +31,8 @@ class OcrScanController extends ChangeNotifier {
 
   int get selectedCount => selectedItems.length;
   int get totalCount => _items.length;
-  bool get allSelected => _items.isNotEmpty && _items.every((OcrRecognizedItem i) => i.isSelected);
+  bool get allSelected =>
+      _items.isNotEmpty && _items.every((OcrRecognizedItem i) => i.isSelected);
 
   Future<void> pickAndScanImage(ImageSource source) async {
     try {
@@ -99,7 +98,9 @@ class OcrScanController extends ChangeNotifier {
   }
 
   void toggleItemSelection(String id) {
-    final int idx = _items.indexWhere((OcrRecognizedItem item) => item.id == id);
+    final int idx = _items.indexWhere(
+      (OcrRecognizedItem item) => item.id == id,
+    );
     if (idx != -1) {
       _items[idx] = _items[idx].copyWith(isSelected: !_items[idx].isSelected);
       notifyListeners();
@@ -107,13 +108,17 @@ class OcrScanController extends ChangeNotifier {
   }
 
   void selectAll(bool select) {
-    _items = _items.map((OcrRecognizedItem item) => item.copyWith(isSelected: select)).toList();
+    _items = _items
+        .map((OcrRecognizedItem item) => item.copyWith(isSelected: select))
+        .toList();
     notifyListeners();
   }
 
   void updateItemName(String id, String newName) {
     if (newName.trim().isEmpty) return;
-    final int idx = _items.indexWhere((OcrRecognizedItem item) => item.id == id);
+    final int idx = _items.indexWhere(
+      (OcrRecognizedItem item) => item.id == id,
+    );
     if (idx != -1) {
       _items[idx] = _items[idx].copyWith(cleanedName: newName.trim());
       notifyListeners();

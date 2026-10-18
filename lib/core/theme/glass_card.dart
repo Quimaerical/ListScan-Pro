@@ -43,7 +43,9 @@ class GlassCard extends StatelessWidget {
 
     final Color effectiveBorder = borderColor != null
         ? borderColor!.withValues(alpha: isDark ? 0.35 : 0.55)
-        : (isDark ? Colors.white.withValues(alpha: 0.12) : Colors.white.withValues(alpha: 0.60));
+        : (isDark
+              ? Colors.white.withValues(alpha: 0.12)
+              : Colors.white.withValues(alpha: 0.60));
 
     final Widget cardBody = Container(
       width: width,
@@ -52,10 +54,7 @@ class GlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: effectiveBg,
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          color: effectiveBorder,
-          width: 1.2,
-        ),
+        border: Border.all(color: effectiveBorder, width: 1.2),
         boxShadow: <BoxShadow>[
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.05),
@@ -91,10 +90,7 @@ class GlassCard extends StatelessWidget {
     }
 
     if (margin != null) {
-      result = Padding(
-        padding: margin!,
-        child: result,
-      );
+      result = Padding(padding: margin!, child: result);
     }
 
     return result;

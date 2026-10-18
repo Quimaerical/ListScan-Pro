@@ -33,7 +33,8 @@ class ListFileHandler {
 
       final String check = item.isCompleted ? '[x]' : '[ ]';
       final String amountPrefix = item.amount > 1 ? '${item.amount}x ' : '';
-      final String qtyPrefix = (item.quantity != null && item.quantity!.trim().isNotEmpty)
+      final String qtyPrefix =
+          (item.quantity != null && item.quantity!.trim().isNotEmpty)
           ? '${item.quantity!.trim()} '
           : '';
       buffer.writeln('- $check $amountPrefix$qtyPrefix${item.name.trim()}');
@@ -197,10 +198,15 @@ class ListFileHandler {
       final String name = cols.isNotEmpty ? cols[0].trim() : '';
       if (name.isEmpty) continue;
 
-      final String quantity = (cols.length > 1 && cols[1].trim().isNotEmpty) ? cols[1].trim() : '';
+      final String quantity = (cols.length > 1 && cols[1].trim().isNotEmpty)
+          ? cols[1].trim()
+          : '';
       final String completedRaw = cols.length > 2 ? cols[2].trim() : '0';
-      final bool isCompleted = completedRaw == '1' || completedRaw.toLowerCase() == 'true';
-      final String category = (cols.length > 3 && cols[3].trim().isNotEmpty) ? cols[3].trim() : '';
+      final bool isCompleted =
+          completedRaw == '1' || completedRaw.toLowerCase() == 'true';
+      final String category = (cols.length > 3 && cols[3].trim().isNotEmpty)
+          ? cols[3].trim()
+          : '';
 
       items.add(
         ShoppingItem(
@@ -231,7 +237,9 @@ class ListFileHandler {
     required String filename,
     required String content,
   }) {
-    final String cleanTitle = filename.replaceAll(RegExp(r'\.[^.]+$'), '').trim();
+    final String cleanTitle = filename
+        .replaceAll(RegExp(r'\.[^.]+$'), '')
+        .trim();
     final String title = cleanTitle.isNotEmpty ? cleanTitle : 'Lista Importada';
 
     if (filename.toLowerCase().endsWith('.csv')) {
@@ -243,7 +251,10 @@ class ListFileHandler {
 
   // Helper: RFC 4180 CSV escaping
   static String _escapeCsvField(String field) {
-    if (field.contains(',') || field.contains('"') || field.contains('\n') || field.contains('\r')) {
+    if (field.contains(',') ||
+        field.contains('"') ||
+        field.contains('\n') ||
+        field.contains('\r')) {
       final String escaped = field.replaceAll('"', '""');
       return '"$escaped"';
     }

@@ -59,8 +59,12 @@ class Recipe {
       area: map['area'] as String?,
       instructions: map['instructions'] as String?,
       thumbnailUrl: map['thumbnailUrl'] as String?,
-      ingredients: (map['ingredients'] as List<dynamic>?)
-              ?.map((item) => RecipeIngredient.fromMap(item as Map<String, dynamic>))
+      ingredients:
+          (map['ingredients'] as List<dynamic>?)
+              ?.map(
+                (item) =>
+                    RecipeIngredient.fromMap(item as Map<String, dynamic>),
+              )
               .toList() ??
           const [],
     );

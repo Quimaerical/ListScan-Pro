@@ -30,10 +30,8 @@ class ExportImportSheet extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (BuildContext ctx) => ExportImportSheet(
-        controller: controller,
-        activeList: activeList,
-      ),
+      builder: (BuildContext ctx) =>
+          ExportImportSheet(controller: controller, activeList: activeList),
     );
   }
 
@@ -58,7 +56,8 @@ class ExportImportSheet extends StatelessWidget {
   Future<void> _handleSaveMarkdown(BuildContext context) async {
     if (activeList == null) return;
     final String mdContent = controller.exportToMarkdown(activeList!);
-    final String filename = '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.md';
+    final String filename =
+        '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.md';
 
     await _saveContentToFile(
       context: context,
@@ -71,7 +70,8 @@ class ExportImportSheet extends StatelessWidget {
   Future<void> _handleSaveCsv(BuildContext context) async {
     if (activeList == null) return;
     final String csvContent = controller.exportToCsv(activeList!);
-    final String filename = '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.csv';
+    final String filename =
+        '${activeList!.title.replaceAll(RegExp(r'[^\w\s-]'), '_')}.csv';
 
     await _saveContentToFile(
       context: context,
@@ -91,7 +91,10 @@ class ExportImportSheet extends StatelessWidget {
       final FileSaveLocation? location = await getSaveLocation(
         suggestedName: filename,
         acceptedTypeGroups: <XTypeGroup>[
-          XTypeGroup(label: extension.toUpperCase(), extensions: <String>[extension]),
+          XTypeGroup(
+            label: extension.toUpperCase(),
+            extensions: <String>[extension],
+          ),
         ],
       );
 
@@ -116,9 +119,9 @@ class ExportImportSheet extends StatelessWidget {
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al guardar archivo: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al guardar archivo: $e')));
       }
     }
   }
@@ -132,7 +135,9 @@ class ExportImportSheet extends StatelessWidget {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('¡Lista copiada al portapapeles! Lista para pegar en cualquier app.'),
+          content: Text(
+            '¡Lista copiada al portapapeles! Lista para pegar en cualquier app.',
+          ),
           backgroundColor: AppColors.primaryMint,
         ),
       );
@@ -181,7 +186,9 @@ class ExportImportSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -202,7 +209,9 @@ class ExportImportSheet extends StatelessWidget {
                 width: 40.0,
                 height: 4.5,
                 decoration: BoxDecoration(
-                  color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.2),
+                  color: (isDark ? Colors.white : Colors.black).withValues(
+                    alpha: 0.2,
+                  ),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
               ),
@@ -222,7 +231,9 @@ class ExportImportSheet extends StatelessWidget {
               'Guarda tus listas en el dispositivo, cópialas o importa archivos sin dependencias externas.',
               style: TextStyle(
                 fontSize: 13.0,
-                color: (isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight),
+                color: (isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondaryLight),
               ),
             ),
             const SizedBox(height: 18.0),
@@ -233,7 +244,8 @@ class ExportImportSheet extends StatelessWidget {
                 icon: Icons.share_rounded,
                 iconColor: AppColors.primaryMint,
                 title: 'Compartir a otra aplicación',
-                subtitle: 'Envía la lista directamente por WhatsApp, Telegram, Correo o Mensajes.',
+                subtitle:
+                    'Envía la lista directamente por WhatsApp, Telegram, Correo o Mensajes.',
                 onTap: () => _handleShareDirectly(context),
               ),
               const SizedBox(height: 10.0),
@@ -243,7 +255,8 @@ class ExportImportSheet extends StatelessWidget {
                 icon: Icons.copy_all_rounded,
                 iconColor: const Color(0xFF8B5CF6),
                 title: 'Copiar al Portapapeles',
-                subtitle: 'Copia el checklist en Markdown para pegarlo donde prefieras.',
+                subtitle:
+                    'Copia el checklist en Markdown para pegarlo donde prefieras.',
                 onTap: () => _handleCopyToClipboard(context),
               ),
               const SizedBox(height: 10.0),
@@ -253,7 +266,8 @@ class ExportImportSheet extends StatelessWidget {
                 icon: Icons.article_outlined,
                 iconColor: const Color(0xFF3B82F6),
                 title: 'Guardar archivo Markdown (.md)',
-                subtitle: 'Guarda la lista para abrirla en Obsidian, Notability o editores de texto.',
+                subtitle:
+                    'Guarda la lista para abrirla en Obsidian, Notability o editores de texto.',
                 onTap: () => _handleSaveMarkdown(context),
               ),
               const SizedBox(height: 10.0),
@@ -263,7 +277,8 @@ class ExportImportSheet extends StatelessWidget {
                 icon: Icons.table_chart_outlined,
                 iconColor: const Color(0xFF10B981),
                 title: 'Guardar archivo CSV (.csv)',
-                subtitle: 'Guarda la lista para abrirla en Microsoft Excel, Hojas de cálculo o Notion.',
+                subtitle:
+                    'Guarda la lista para abrirla en Microsoft Excel, Hojas de cálculo o Notion.',
                 onTap: () => _handleSaveCsv(context),
               ),
               const SizedBox(height: 10.0),
@@ -274,7 +289,8 @@ class ExportImportSheet extends StatelessWidget {
               icon: Icons.file_upload_outlined,
               iconColor: const Color(0xFFF59E0B),
               title: 'Importar Archivo (.md o .csv)',
-              subtitle: 'Selecciona un archivo local del dispositivo para agregarlo como lista.',
+              subtitle:
+                  'Selecciona un archivo local del dispositivo para agregarlo como lista.',
               onTap: () => _handleImportFile(context),
             ),
           ],
@@ -302,8 +318,12 @@ class _SheetActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final Color secColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color secColor = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
 
     return Material(
       color: Colors.transparent,
@@ -345,15 +365,15 @@ class _SheetActionTile extends StatelessWidget {
                     const SizedBox(height: 2.0),
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontSize: 12.0,
-                        color: secColor,
-                      ),
+                      style: TextStyle(fontSize: 12.0, color: secColor),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: secColor.withValues(alpha: 0.6)),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: secColor.withValues(alpha: 0.6),
+              ),
             ],
           ),
         ),

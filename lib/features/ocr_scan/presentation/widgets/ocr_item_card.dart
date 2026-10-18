@@ -19,7 +19,9 @@ class OcrItemCard extends StatelessWidget {
   });
 
   void _showEditDialog(BuildContext context) {
-    final TextEditingController textController = TextEditingController(text: item.cleanedName);
+    final TextEditingController textController = TextEditingController(
+      text: item.cleanedName,
+    );
 
     showDialog<void>(
       context: context,
@@ -28,9 +30,7 @@ class OcrItemCard extends StatelessWidget {
         content: TextField(
           controller: textController,
           autofocus: true,
-          decoration: const InputDecoration(
-            labelText: 'Nombre del producto',
-          ),
+          decoration: const InputDecoration(labelText: 'Nombre del producto'),
         ),
         actions: <Widget>[
           TextButton(
@@ -38,7 +38,9 @@ class OcrItemCard extends StatelessWidget {
             child: const Text('Cancelar'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.primaryMint),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primaryMint,
+            ),
             onPressed: () {
               final String val = textController.text.trim();
               if (val.isNotEmpty) {
@@ -56,8 +58,12 @@ class OcrItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
-    final Color secColor = isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
+    final Color secColor = isDark
+        ? AppColors.textSecondaryDark
+        : AppColors.textSecondaryLight;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -81,7 +87,9 @@ class OcrItemCard extends StatelessWidget {
             value: item.isSelected,
             activeColor: AppColors.primaryMint,
             checkColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5.0),
+            ),
             onChanged: (bool? val) {
               if (val != null) {
                 onToggleSelect(val);
@@ -100,11 +108,14 @@ class OcrItemCard extends StatelessWidget {
                     item.cleanedName,
                     style: TextStyle(
                       fontSize: 15.0,
-                      fontWeight: item.isSelected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight: item.isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w400,
                       color: item.isSelected ? textColor : secColor,
                     ),
                   ),
-                  if (item.originalText != item.cleanedName && item.originalText.isNotEmpty)
+                  if (item.originalText != item.cleanedName &&
+                      item.originalText.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 2.0),
                       child: Text(
@@ -125,7 +136,10 @@ class OcrItemCard extends StatelessWidget {
           // Quantity badge if detected
           if (item.quantity != null && item.quantity!.isNotEmpty)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 3.0,
+              ),
               margin: const EdgeInsets.only(right: 6.0),
               decoration: BoxDecoration(
                 color: AppColors.primaryMint.withValues(alpha: 0.15),

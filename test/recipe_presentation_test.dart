@@ -105,16 +105,15 @@ void main() {
   });
 
   group('RecipeCard Widget Tests', () {
-    testWidgets('renders title, category, area and ingredient count', (tester) async {
+    testWidgets('renders title, category, area and ingredient count', (
+      tester,
+    ) async {
       bool tapped = false;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: RecipeCard(
-              recipe: sampleRecipe,
-              onTap: () => tapped = true,
-            ),
+            body: RecipeCard(recipe: sampleRecipe, onTap: () => tapped = true),
           ),
         ),
       );

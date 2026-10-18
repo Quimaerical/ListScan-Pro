@@ -57,8 +57,9 @@ class OcrRecognizedItem {
   factory OcrRecognizedItem.fromMap(Map<String, dynamic> map) {
     Rect? box;
     if (map['bounding_box'] != null) {
-      final Map<String, dynamic> boxMap =
-          Map<String, dynamic>.from(map['bounding_box'] as Map);
+      final Map<String, dynamic> boxMap = Map<String, dynamic>.from(
+        map['bounding_box'] as Map,
+      );
       box = Rect.fromLTRB(
         (boxMap['left'] as num).toDouble(),
         (boxMap['top'] as num).toDouble(),
@@ -91,11 +92,11 @@ class OcrRecognizedItem {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        originalText,
-        cleanedName,
-        quantity,
-        isSelected,
-        boundingBox,
-      );
+    id,
+    originalText,
+    cleanedName,
+    quantity,
+    isSelected,
+    boundingBox,
+  );
 }

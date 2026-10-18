@@ -23,11 +23,13 @@ class ShoppingList {
   });
 
   /// Real products only — separators are purely visual and never counted.
-  Iterable<ShoppingItem> get products => items.where((ShoppingItem item) => !item.isSeparator);
+  Iterable<ShoppingItem> get products =>
+      items.where((ShoppingItem item) => !item.isSeparator);
 
   int get totalCount => products.length;
 
-  int get completedCount => products.where((ShoppingItem item) => item.isCompleted).length;
+  int get completedCount =>
+      products.where((ShoppingItem item) => item.isCompleted).length;
 
   int get pendingCount => totalCount - completedCount;
 
@@ -70,15 +72,22 @@ class ShoppingList {
     };
   }
 
-  factory ShoppingList.fromMap(Map<String, dynamic> map, [List<ShoppingItem> items = const <ShoppingItem>[]]) {
+  factory ShoppingList.fromMap(
+    Map<String, dynamic> map, [
+    List<ShoppingItem> items = const <ShoppingItem>[],
+  ]) {
     return ShoppingList(
       id: map['id'] as String,
       title: map['title'] as String,
       colorIndex: map['color_index'] as int? ?? 0,
       isPinned: (map['is_pinned'] as int? ?? 0) == 1,
       isArchived: (map['is_archived'] as int? ?? 0) == 1,
-      createdAt: DateTime.tryParse(map['created_at'] as String? ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(map['updated_at'] as String? ?? '') ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(map['created_at'] as String? ?? '') ??
+          DateTime.now(),
+      updatedAt:
+          DateTime.tryParse(map['updated_at'] as String? ?? '') ??
+          DateTime.now(),
       items: items,
     );
   }

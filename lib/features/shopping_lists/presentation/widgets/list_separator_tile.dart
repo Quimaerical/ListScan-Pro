@@ -22,7 +22,9 @@ class ListSeparatorTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color accentColor = palette.accentColor(isDark);
-    final Color textColor = isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight;
+    final Color textColor = isDark
+        ? AppColors.textPrimaryDark
+        : AppColors.textPrimaryLight;
 
     final bool hasLabel = item.name.trim().isNotEmpty;
 
@@ -82,7 +84,9 @@ class ListSeparatorTile extends StatelessWidget {
                   ),
                   boxShadow: <BoxShadow>[
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                      color: Colors.black.withValues(
+                        alpha: isDark ? 0.2 : 0.04,
+                      ),
                       blurRadius: 4.0,
                     ),
                   ],
@@ -90,11 +94,7 @@ class ListSeparatorTile extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Icon(
-                      Icons.tag_rounded,
-                      size: 14.0,
-                      color: accentColor,
-                    ),
+                    Icon(Icons.tag_rounded, size: 14.0, color: accentColor),
                     if (hasLabel) ...<Widget>[
                       const SizedBox(width: 5.0),
                       Text(

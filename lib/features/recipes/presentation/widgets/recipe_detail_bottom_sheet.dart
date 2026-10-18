@@ -22,15 +22,14 @@ class RecipeDetailBottomSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => RecipeDetailBottomSheet(
-        recipe: recipe,
-        onImport: onImport,
-      ),
+      builder: (ctx) =>
+          RecipeDetailBottomSheet(recipe: recipe, onImport: onImport),
     );
   }
 
   @override
-  State<RecipeDetailBottomSheet> createState() => _RecipeDetailBottomSheetState();
+  State<RecipeDetailBottomSheet> createState() =>
+      _RecipeDetailBottomSheetState();
 }
 
 class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
@@ -49,7 +48,9 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
 
   void _toggleAll(bool select) {
     setState(() {
-      _ingredients = _ingredients.map((i) => i.copyWith(isSelected: select)).toList();
+      _ingredients = _ingredients
+          .map((i) => i.copyWith(isSelected: select))
+          .toList();
     });
   }
 
@@ -63,10 +64,13 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
   String _formatIngredientName(String name) {
     final trimmed = name.trim();
     if (trimmed.isEmpty) return trimmed;
-    return trimmed.split(' ').map((word) {
-      if (word.isEmpty) return word;
-      return word[0].toUpperCase() + word.substring(1).toLowerCase();
-    }).join(' ');
+    return trimmed
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
 
   @override
@@ -185,7 +189,10 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                   _instructionsExpanded = !_instructionsExpanded;
                 }),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: isDark
                         ? Colors.white.withValues(alpha: 0.05)
@@ -253,12 +260,16 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => _toggleAll(_selectedCount < _ingredients.length),
+                  onPressed: () =>
+                      _toggleAll(_selectedCount < _ingredients.length),
                   child: Text(
                     _selectedCount < _ingredients.length
                         ? 'Seleccionar todos'
                         : 'Deseleccionar',
-                    style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -282,7 +293,10 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                   checkboxShape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 2,
+                  ),
                   title: Text(
                     _formatIngredientName(ingredient.name),
                     style: TextStyle(
@@ -293,11 +307,15 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                           : TextDecoration.lineThrough,
                       color: ingredient.isSelected
                           ? (isDark
-                              ? AppColors.textPrimaryDark
-                              : AppColors.textPrimaryLight)
+                                ? AppColors.textPrimaryDark
+                                : AppColors.textPrimaryLight)
                           : (isDark
-                              ? AppColors.textSecondaryDark.withValues(alpha: 0.6)
-                              : AppColors.textSecondaryLight.withValues(alpha: 0.6)),
+                                ? AppColors.textSecondaryDark.withValues(
+                                    alpha: 0.6,
+                                  )
+                                : AppColors.textSecondaryLight.withValues(
+                                    alpha: 0.6,
+                                  )),
                     ),
                   ),
                   subtitle: ingredient.measure.isNotEmpty
@@ -306,12 +324,19 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 3.5),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 9.0,
+                                vertical: 3.5,
+                              ),
                               decoration: BoxDecoration(
-                                color: AppColors.primaryMint.withValues(alpha: isDark ? 0.20 : 0.12),
+                                color: AppColors.primaryMint.withValues(
+                                  alpha: isDark ? 0.20 : 0.12,
+                                ),
                                 borderRadius: BorderRadius.circular(8.0),
                                 border: Border.all(
-                                  color: AppColors.primaryMint.withValues(alpha: isDark ? 0.35 : 0.25),
+                                  color: AppColors.primaryMint.withValues(
+                                    alpha: isDark ? 0.35 : 0.25,
+                                  ),
                                   width: 0.8,
                                 ),
                               ),
@@ -341,7 +366,9 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                 child: FilledButton.icon(
                   onPressed: _selectedCount > 0
                       ? () {
-                          final selected = _ingredients.where((i) => i.isSelected).toList();
+                          final selected = _ingredients
+                              .where((i) => i.isSelected)
+                              .toList();
                           Navigator.of(context).pop();
                           widget.onImport(selected);
                         }

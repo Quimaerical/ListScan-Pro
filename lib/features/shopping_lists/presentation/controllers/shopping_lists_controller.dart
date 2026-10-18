@@ -51,7 +51,9 @@ class ShoppingListsController extends ChangeNotifier {
       if (_searchQuery.trim().isEmpty) return true;
       final String query = _searchQuery.toLowerCase();
       if (list.title.toLowerCase().contains(query)) return true;
-      return list.items.any((ShoppingItem item) => item.name.toLowerCase().contains(query));
+      return list.items.any(
+        (ShoppingItem item) => item.name.toLowerCase().contains(query),
+      );
     }).toList();
   }
 
@@ -64,7 +66,9 @@ class ShoppingListsController extends ChangeNotifier {
   Future<void> loadSettings() async {
     try {
       final Map<String, String> values = await settingsRepository.loadAll();
-      _themeMode = values[SettingsKeys.themeMode] == 'dark' ? ThemeMode.dark : ThemeMode.light;
+      _themeMode = values[SettingsKeys.themeMode] == 'dark'
+          ? ThemeMode.dark
+          : ThemeMode.light;
       _isGridView = values[SettingsKeys.isGridView] == '1';
       _isCompletedExpanded = values[SettingsKeys.completedExpanded] != '0';
       notifyListeners();
@@ -81,9 +85,14 @@ class ShoppingListsController extends ChangeNotifier {
   }
 
   void toggleThemeMode() {
-    _themeMode = (_themeMode == ThemeMode.light) ? ThemeMode.dark : ThemeMode.light;
+    _themeMode = (_themeMode == ThemeMode.light)
+        ? ThemeMode.dark
+        : ThemeMode.light;
     notifyListeners();
-    _persist(SettingsKeys.themeMode, _themeMode == ThemeMode.dark ? 'dark' : 'light');
+    _persist(
+      SettingsKeys.themeMode,
+      _themeMode == ThemeMode.dark ? 'dark' : 'light',
+    );
   }
 
   void toggleCompletedExpanded() {
@@ -134,12 +143,14 @@ class ShoppingListsController extends ChangeNotifier {
     final String listId = _uuid.v4();
 
     int sortIdx = 0;
-    final List<ShoppingItem> boundItems = (initialItems ?? <ShoppingItem>[]).map((ShoppingItem item) {
-      return item.copyWith(
-        listId: listId,
-        sortOrder: item.sortOrder == 0 ? sortIdx++ : item.sortOrder,
-      );
-    }).toList();
+    final List<ShoppingItem> boundItems = (initialItems ?? <ShoppingItem>[])
+        .map((ShoppingItem item) {
+          return item.copyWith(
+            listId: listId,
+            sortOrder: item.sortOrder == 0 ? sortIdx++ : item.sortOrder,
+          );
+        })
+        .toList();
 
     final ShoppingList newList = ShoppingList(
       id: listId,
@@ -188,7 +199,9 @@ class ShoppingListsController extends ChangeNotifier {
     if (name.trim().isEmpty) return;
 
     // A bare integer typed as "quantity" (e.g. "3") feeds the counter instead.
-    String? detail = quantity?.trim().isNotEmpty == true ? quantity!.trim() : null;
+    String? detail = quantity?.trim().isNotEmpty == true
+        ? quantity!.trim()
+        : null;
     int resolvedAmount = amount;
     final int? parsed = detail != null ? int.tryParse(detail) : null;
     if (parsed != null && parsed > 0) {
@@ -228,7 +241,11 @@ class ShoppingListsController extends ChangeNotifier {
   }
 
   /// Renames a separator (an empty label renders as a plain divider line).
-  Future<void> renameSeparator(String listId, String itemId, String label) async {
+  Future<void> renameSeparator(
+    String listId,
+    String itemId,
+    String label,
+  ) async {
     final ShoppingItem? current = _findItem(listId, itemId);
     if (current == null || !current.isSeparator) return;
 
@@ -243,7 +260,9 @@ class ShoppingListsController extends ChangeNotifier {
     final int listIdx = _lists.indexWhere((ShoppingList l) => l.id == listId);
     if (listIdx == -1) return;
 
-    final List<ShoppingItem> updatedItems = _lists[listIdx].items.map((ShoppingItem item) {
+    final List<ShoppingItem> updatedItems = _lists[listIdx].items.map((
+      ShoppingItem item,
+    ) {
       return item.id == itemId ? item.copyWith(amount: safeAmount) : item;
     }).toList();
     _lists[listIdx] = _lists[listIdx].copyWith(items: updatedItems);
@@ -253,15 +272,17 @@ class ShoppingListsController extends ChangeNotifier {
   }
 
   /// Queries SQLite for previously entered product names for autocomplete suggestions.
-  Future<List<String>> getProductSuggestions(String query, {int limit = 8}) async {
+  Future<List<String>> getProductSuggestions(
+    String query, {
+    int limit = 8,
+  }) async {
     return repository.getProductSuggestions(query, limit: limit);
   }
 
   int _nextSortOrder(String listId) {
     final int listIdx = _lists.indexWhere((ShoppingList l) => l.id == listId);
     if (listIdx == -1 || _lists[listIdx].items.isEmpty) return 0;
-    return _lists[listIdx]
-            .items
+    return _lists[listIdx].items
             .map((ShoppingItem i) => i.sortOrder)
             .reduce((int a, int b) => a > b ? a : b) +
         1;
@@ -276,18 +297,27 @@ class ShoppingListsController extends ChangeNotifier {
     return null;
   }
 
-  Future<void> toggleItem(String listId, String itemId, bool isCompleted) async {
+  Future<void> toggleItem(
+    String listId,
+    String itemId,
+    bool isCompleted,
+  ) async {
     await repository.toggleItemCompleted(itemId, isCompleted);
     // Optimistic in-memory update for fluid instant feedback
     final int listIdx = _lists.indexWhere((ShoppingList l) => l.id == listId);
     if (listIdx != -1) {
-      final List<ShoppingItem> updatedItems = _lists[listIdx].items.map((ShoppingItem item) {
+      final List<ShoppingItem> updatedItems = _lists[listIdx].items.map((
+        ShoppingItem item,
+      ) {
         if (item.id == itemId) {
           return item.copyWith(isCompleted: isCompleted);
         }
         return item;
       }).toList();
-      _lists[listIdx] = _lists[listIdx].copyWith(items: updatedItems, updatedAt: DateTime.now());
+      _lists[listIdx] = _lists[listIdx].copyWith(
+        items: updatedItems,
+        updatedAt: DateTime.now(),
+      );
       notifyListeners();
     }
     // Refresh with persisted state
@@ -298,8 +328,9 @@ class ShoppingListsController extends ChangeNotifier {
     await repository.deleteItem(itemId);
     final int listIdx = _lists.indexWhere((ShoppingList l) => l.id == listId);
     if (listIdx != -1) {
-      final List<ShoppingItem> updatedItems =
-          _lists[listIdx].items.where((ShoppingItem item) => item.id != itemId).toList();
+      final List<ShoppingItem> updatedItems = _lists[listIdx].items
+          .where((ShoppingItem item) => item.id != itemId)
+          .toList();
       _lists[listIdx] = _lists[listIdx].copyWith(items: updatedItems);
       notifyListeners();
     }

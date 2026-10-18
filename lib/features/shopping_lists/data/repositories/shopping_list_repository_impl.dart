@@ -10,7 +10,7 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   final ShoppingListLocalDataSource localDataSource;
 
   ShoppingListRepositoryImpl({ShoppingListLocalDataSource? localDataSource})
-      : localDataSource = localDataSource ?? ShoppingListLocalDataSource();
+    : localDataSource = localDataSource ?? ShoppingListLocalDataSource();
 
   @override
   Future<List<ShoppingList>> getAllLists({bool includeArchived = false}) {
@@ -81,7 +81,13 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   }
 
   @override
-  ShoppingList importFromContent({required String filename, required String content}) {
-    return ListFileHandler.importFromContent(filename: filename, content: content);
+  ShoppingList importFromContent({
+    required String filename,
+    required String content,
+  }) {
+    return ListFileHandler.importFromContent(
+      filename: filename,
+      content: content,
+    );
   }
 }

@@ -7,8 +7,8 @@ class MealDbRemoteDataSource {
   final ApiClient _client;
 
   MealDbRemoteDataSource({ApiClient? client})
-      : _client = client ??
-            ApiClient(baseUrl: EndpointSecurity.getMealDbBaseUrl());
+    : _client =
+          client ?? ApiClient(baseUrl: EndpointSecurity.getMealDbBaseUrl());
 
   /// Searches meals by name query.
   /// An empty query string searches for default recipes on TheMealDB.

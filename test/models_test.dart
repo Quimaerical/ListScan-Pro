@@ -62,10 +62,34 @@ void main() {
         createdAt: now,
         updatedAt: now,
         items: [
-          ShoppingItem(id: '1', listId: 'list-1', name: 'Pasta', isCompleted: true, createdAt: now),
-          ShoppingItem(id: '2', listId: 'list-1', name: 'Salsa', isCompleted: true, createdAt: now),
-          ShoppingItem(id: '3', listId: 'list-1', name: 'Queso', isCompleted: false, createdAt: now),
-          ShoppingItem(id: '4', listId: 'list-1', name: 'Vino', isCompleted: false, createdAt: now),
+          ShoppingItem(
+            id: '1',
+            listId: 'list-1',
+            name: 'Pasta',
+            isCompleted: true,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: '2',
+            listId: 'list-1',
+            name: 'Salsa',
+            isCompleted: true,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: '3',
+            listId: 'list-1',
+            name: 'Queso',
+            isCompleted: false,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: '4',
+            listId: 'list-1',
+            name: 'Vino',
+            isCompleted: false,
+            createdAt: now,
+          ),
         ],
       );
 
@@ -98,10 +122,36 @@ void main() {
         createdAt: now,
         updatedAt: now,
         items: [
-          ShoppingItem(id: 's1', listId: 'sep-list', name: 'Frutas', isSeparator: true, createdAt: now),
-          ShoppingItem(id: 'p1', listId: 'sep-list', name: 'Manzanas', isCompleted: true, amount: 3, createdAt: now),
-          ShoppingItem(id: 's2', listId: 'sep-list', name: 'Bebidas', isSeparator: true, createdAt: now),
-          ShoppingItem(id: 'p2', listId: 'sep-list', name: 'Agua', isCompleted: false, amount: 2, createdAt: now),
+          ShoppingItem(
+            id: 's1',
+            listId: 'sep-list',
+            name: 'Frutas',
+            isSeparator: true,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: 'p1',
+            listId: 'sep-list',
+            name: 'Manzanas',
+            isCompleted: true,
+            amount: 3,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: 's2',
+            listId: 'sep-list',
+            name: 'Bebidas',
+            isSeparator: true,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: 'p2',
+            listId: 'sep-list',
+            name: 'Agua',
+            isCompleted: false,
+            amount: 2,
+            createdAt: now,
+          ),
         ],
       );
 
