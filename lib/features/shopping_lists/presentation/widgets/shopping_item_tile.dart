@@ -136,8 +136,8 @@ class ShoppingItemTile extends StatelessWidget {
         ),
       ),
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 3.0),
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+        margin: const EdgeInsets.symmetric(vertical: 3.5),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 9.0),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: isDark ? 0.05 : 0.40),
           borderRadius: BorderRadius.circular(14.0),
@@ -147,6 +147,7 @@ class ShoppingItemTile extends StatelessWidget {
           ),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             // Smooth custom Checkbox
             Transform.scale(
@@ -176,123 +177,166 @@ class ShoppingItemTile extends StatelessWidget {
             ),
             const SizedBox(width: 8.0),
 
-            // Item Name with Strikethrough
+            // Item Name and Details Column
             Expanded(
-              child: Text(
-                item.name,
-                style: TextStyle(
-                  fontSize: 16.5,
-                  fontWeight: item.isCompleted
-                      ? FontWeight.w500
-                      : FontWeight.w700,
-                  color: item.isCompleted
-                      ? textColor.withValues(alpha: 0.45)
-                      : textColor,
-                  decoration: item.isCompleted
-                      ? TextDecoration.lineThrough
-                      : null,
-                  decorationColor: textColor.withValues(alpha: 0.45),
-                ),
-              ),
-            ),
-
-            // Integer Stepper Counter to the right of the name
-            _ItemAmountStepper(
-              item: item,
-              accentColor: accentColor,
-              isDark: isDark,
-              onAmountChanged: onAmountChanged,
-            ),
-
-            // Free-text Detail / Unit Chip if available (e.g. "kg", "paquetes")
-            if (item.quantity != null && item.quantity!.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8.0,
-                  vertical: 4.0,
-                ),
-                margin: const EdgeInsets.only(left: 5.0),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(
-                    color: accentColor.withValues(alpha: isDark ? 0.35 : 0.25),
-                    width: 0.8,
-                  ),
-                ),
-                child: Text(
-                  item.quantity!,
-                  style: TextStyle(
-                    fontSize: 12.0,
-                    fontWeight: FontWeight.w700,
-                    color: accentColor,
-                  ),
-                ),
-              ),
-
-            // Interactive Price Chip (Optional unit price)
-            InkWell(
-              onTap: !item.isCompleted
-                  ? () => _showPriceInputDialog(context, accentColor)
-                  : null,
-              borderRadius: BorderRadius.circular(10.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6.0,
-                  vertical: 4.0,
-                ),
-                margin: const EdgeInsets.only(left: 5.0),
-                decoration: BoxDecoration(
-                  color: item.price != null
-                      ? accentColor.withValues(alpha: isDark ? 0.22 : 0.15)
-                      : Colors.white.withValues(alpha: isDark ? 0.08 : 0.40),
-                  borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(
-                    color: item.price != null
-                        ? accentColor.withValues(alpha: isDark ? 0.45 : 0.35)
-                        : (isDark ? AppColors.borderDark : AppColors.borderLight),
-                    width: 0.8,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(
-                      Icons.attach_money_rounded,
-                      size: 14.0,
-                      color: item.price != null
-                          ? accentColor
-                          : textColor.withValues(alpha: 0.45),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    item.name,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: item.isCompleted
+                          ? FontWeight.w500
+                          : FontWeight.w700,
+                      color: item.isCompleted
+                          ? textColor.withValues(alpha: 0.45)
+                          : textColor,
+                      decoration: item.isCompleted
+                          ? TextDecoration.lineThrough
+                          : null,
+                      decorationColor: textColor.withValues(alpha: 0.45),
                     ),
-                    if (item.price != null)
-                      Text(
-                        item.price!.toStringAsFixed(2),
-                        style: TextStyle(
-                          fontSize: 12.0,
-                          fontWeight: FontWeight.w800,
-                          color: accentColor,
+                  ),
+
+                  // Detail chips in responsive Wrap
+                  const SizedBox(height: 4.0),
+                  Wrap(
+                    spacing: 6.0,
+                    runSpacing: 4.0,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: <Widget>[
+                      // Free-text Detail / Unit Chip if available (e.g. "kg", "paquetes")
+                      if (item.quantity != null && item.quantity!.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7.0,
+                            vertical: 3.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: accentColor.withValues(
+                              alpha: isDark ? 0.20 : 0.12,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                            border: Border.all(
+                              color: accentColor.withValues(
+                                alpha: isDark ? 0.35 : 0.25,
+                              ),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Text(
+                            item.quantity!,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: accentColor,
+                            ),
+                          ),
+                        ),
+
+                      // Interactive Price Chip (Optional unit price)
+                      InkWell(
+                        onTap: !item.isCompleted
+                            ? () => _showPriceInputDialog(context, accentColor)
+                            : null,
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6.0,
+                            vertical: 3.0,
+                          ),
+                          decoration: BoxDecoration(
+                            color: item.price != null
+                                ? accentColor.withValues(
+                                    alpha: isDark ? 0.22 : 0.15,
+                                  )
+                                : Colors.white.withValues(
+                                    alpha: isDark ? 0.08 : 0.40,
+                                  ),
+                            borderRadius: BorderRadius.circular(8.0),
+                            border: Border.all(
+                              color: item.price != null
+                                  ? accentColor.withValues(
+                                      alpha: isDark ? 0.45 : 0.35,
+                                    )
+                                  : (isDark
+                                      ? AppColors.borderDark
+                                      : AppColors.borderLight),
+                              width: 0.8,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              Icon(
+                                Icons.attach_money_rounded,
+                                size: 13.0,
+                                color: item.price != null
+                                    ? accentColor
+                                    : textColor.withValues(alpha: 0.45),
+                              ),
+                              if (item.price != null)
+                                Text(
+                                  item.price!.toStringAsFixed(2),
+                                  style: TextStyle(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: accentColor,
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
-                  ],
-                ),
+
+                      // Subtotal calculation if amount > 1 and price != null
+                      if (item.price != null && item.amount > 1)
+                        Text(
+                          '(\$${(item.price! * item.amount).toStringAsFixed(2)})',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: textColor.withValues(alpha: 0.55),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
             ),
+            const SizedBox(width: 8.0),
 
-            // Direct delete item button
-            IconButton(
-              icon: Icon(
-                Icons.close_rounded,
-                size: 17.0,
-                color: textColor.withValues(alpha: 0.35),
-              ),
-              visualDensity: VisualDensity.compact,
-              padding: const EdgeInsets.only(left: 4.0),
-              constraints: const BoxConstraints(
-                minWidth: 26.0,
-                minHeight: 26.0,
-              ),
-              tooltip: 'Eliminar producto',
-              onPressed: onDelete,
+            // Stepper and direct delete button docked on the right
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Integer Stepper Counter
+                _ItemAmountStepper(
+                  item: item,
+                  accentColor: accentColor,
+                  isDark: isDark,
+                  onAmountChanged: onAmountChanged,
+                ),
+
+                // Direct delete item button
+                IconButton(
+                  icon: Icon(
+                    Icons.close_rounded,
+                    size: 17.0,
+                    color: textColor.withValues(alpha: 0.35),
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  padding: const EdgeInsets.only(left: 4.0),
+                  constraints: const BoxConstraints(
+                    minWidth: 26.0,
+                    minHeight: 26.0,
+                  ),
+                  tooltip: 'Eliminar producto',
+                  onPressed: onDelete,
+                ),
+              ],
             ),
           ],
         ),
