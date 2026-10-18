@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/utils/regex_sanitizer.dart';
@@ -23,7 +24,12 @@ class MlKitOcrService implements OcrService {
       );
     }
 
-    final InputImage inputImage = InputImage.fromFilePath(imagePath);
+    final File file = File(imagePath);
+    if (!await file.exists() || await file.length() == 0) {
+      return <OcrRecognizedItem>[];
+    }
+
+    final InputImage inputImage = InputImage.fromFile(file);
     final RecognizedText recognizedText = await _textRecognizer.processImage(
       inputImage,
     );
