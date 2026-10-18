@@ -11,7 +11,11 @@ import '../widgets/list_separator_tile.dart';
 import '../widgets/quick_add_bar.dart';
 import '../widgets/shopping_item_tile.dart';
 import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
+import '../../../recipes/data/services/web_recipe_extractor_service.dart';
+import '../../../recipes/domain/models/recipe.dart';
+import '../../../recipes/domain/models/recipe_ingredient.dart';
 import '../../../recipes/presentation/views/recipe_search_screen.dart';
+import '../../../recipes/presentation/widgets/web_recipe_import_sheet.dart';
 
 /// Interactive detail screen for a shopping list with instant item checkoffs,
 /// live title editing, pastel palette selector, collapsible completed section,
@@ -196,6 +200,43 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
     if (newLabel != null) {
       await widget.controller.renameSeparator(widget.listId, item.id, newLabel);
     }
+  }
+
+  Future<void> _handleSmartLinkImport(
+    BuildContext context,
+    ShoppingList list,
+    String url,
+  ) async {
+    final WebRecipeExtractorService extractor = WebRecipeExtractorService();
+    await WebRecipeImportSheet.show(
+      context: context,
+      extractorService: extractor,
+      initialUrl: url,
+      onRecipeExtracted: (Recipe recipe) async {
+        int added = 0;
+        for (final RecipeIngredient ing in recipe.ingredients) {
+          final String name = ing.name.trim();
+          if (name.isNotEmpty) {
+            await widget.controller.addItem(
+              list.id,
+              name,
+              quantity: ing.measure.isNotEmpty ? ing.measure : null,
+            );
+            added++;
+          }
+        }
+        if (context.mounted && added > 0) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Se importaron $added ingredientes de "${recipe.name}".',
+              ),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override
@@ -383,6 +424,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
             onFetchSuggestions: widget.controller.getProductSuggestions,
             onAdd: (String name, String? quantity) {
               widget.controller.addItem(list.id, name, quantity: quantity);
+            },
+            onImportLink: (String url) {
+              _handleSmartLinkImport(context, list, url);
             },
             onImportMarkdown: (String markdownContent) async {
               final int count = await widget.controller.importMarkdownIntoList(

@@ -9,17 +9,20 @@ import '../../domain/models/recipe.dart';
 class WebRecipeImportSheet extends StatefulWidget {
   final WebRecipeExtractorService extractorService;
   final void Function(Recipe recipe) onRecipeExtracted;
+  final String? initialUrl;
 
   const WebRecipeImportSheet({
     super.key,
     required this.extractorService,
     required this.onRecipeExtracted,
+    this.initialUrl,
   });
 
   static Future<void> show({
     required BuildContext context,
     required WebRecipeExtractorService extractorService,
     required void Function(Recipe recipe) onRecipeExtracted,
+    String? initialUrl,
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -33,6 +36,7 @@ class WebRecipeImportSheet extends StatefulWidget {
             child: WebRecipeImportSheet(
               extractorService: extractorService,
               onRecipeExtracted: onRecipeExtracted,
+              initialUrl: initialUrl,
             ),
           ),
         ),
@@ -58,6 +62,14 @@ class _WebRecipeImportSheetState extends State<WebRecipeImportSheet>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    if (widget.initialUrl != null && widget.initialUrl!.trim().isNotEmpty) {
+      _urlController.text = widget.initialUrl!.trim();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _extractFromWeb();
+        }
+      });
+    }
   }
 
   @override

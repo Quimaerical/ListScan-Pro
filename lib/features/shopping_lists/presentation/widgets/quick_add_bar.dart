@@ -9,6 +9,7 @@ class QuickAddBar extends StatefulWidget {
   final PastelPalette palette;
   final void Function(String name, String? quantity) onAdd;
   final void Function(String markdownContent)? onImportMarkdown;
+  final ValueChanged<String>? onImportLink;
   final Future<List<String>> Function(String query)? onFetchSuggestions;
 
   const QuickAddBar({
@@ -16,6 +17,7 @@ class QuickAddBar extends StatefulWidget {
     required this.palette,
     required this.onAdd,
     this.onImportMarkdown,
+    this.onImportLink,
     this.onFetchSuggestions,
   });
 
@@ -71,6 +73,11 @@ class _QuickAddBarState extends State<QuickAddBar> {
     });
   }
 
+  bool _isWebUrl(String text) {
+    final String trimmed = text.trim();
+    return trimmed.startsWith('http://') || trimmed.startsWith('https://');
+  }
+
   bool _isMarkdownOrMultiLine(String text) {
     if (text.contains('\n')) return true;
     final String trimmed = text.trim();
@@ -92,6 +99,15 @@ class _QuickAddBarState extends State<QuickAddBar> {
     final String qty = _qtyController.text.trim();
 
     if (name.isEmpty) return;
+
+    if (widget.onImportLink != null && _isWebUrl(rawInput)) {
+      widget.onImportLink!(rawInput.trim());
+      _debounceTimer?.cancel();
+      _nameController.clear();
+      _qtyController.clear();
+      setState(() => _suggestions = <String>[]);
+      return;
+    }
 
     if (widget.onImportMarkdown != null && _isMarkdownOrMultiLine(rawInput)) {
       widget.onImportMarkdown!(rawInput);
@@ -197,7 +213,7 @@ class _QuickAddBarState extends State<QuickAddBar> {
                     keyboardType: TextInputType.multiline,
                     textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
-                      hintText: 'Agregar producto o pegar Markdown...',
+                      hintText: 'Agregar producto, link o Markdown...',
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
