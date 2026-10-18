@@ -9,6 +9,7 @@ class ShoppingList {
   final bool isArchived;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? notes;
   final List<ShoppingItem> items;
 
   const ShoppingList({
@@ -17,6 +18,7 @@ class ShoppingList {
     this.colorIndex = 0,
     this.isPinned = false,
     this.isArchived = false,
+    this.notes,
     required this.createdAt,
     required this.updatedAt,
     this.items = const <ShoppingItem>[],
@@ -49,12 +51,17 @@ class ShoppingList {
   bool get hasPrices =>
       products.any((ShoppingItem item) => item.price != null);
 
+  /// Whether the list has non-empty recipe or plain notes attached.
+  bool get hasNotes => notes != null && notes!.trim().isNotEmpty;
+
   ShoppingList copyWith({
     String? id,
     String? title,
     int? colorIndex,
     bool? isPinned,
     bool? isArchived,
+    String? notes,
+    bool clearNotes = false,
     DateTime? createdAt,
     DateTime? updatedAt,
     List<ShoppingItem>? items,
@@ -65,6 +72,7 @@ class ShoppingList {
       colorIndex: colorIndex ?? this.colorIndex,
       isPinned: isPinned ?? this.isPinned,
       isArchived: isArchived ?? this.isArchived,
+      notes: clearNotes ? null : (notes ?? this.notes),
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       items: items ?? this.items,
@@ -78,6 +86,7 @@ class ShoppingList {
       'color_index': colorIndex,
       'is_pinned': isPinned ? 1 : 0,
       'is_archived': isArchived ? 1 : 0,
+      'notes': notes,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
@@ -93,6 +102,7 @@ class ShoppingList {
       colorIndex: map['color_index'] as int? ?? 0,
       isPinned: (map['is_pinned'] as int? ?? 0) == 1,
       isArchived: (map['is_archived'] as int? ?? 0) == 1,
+      notes: map['notes'] as String?,
       createdAt:
           DateTime.tryParse(map['created_at'] as String? ?? '') ??
           DateTime.now(),

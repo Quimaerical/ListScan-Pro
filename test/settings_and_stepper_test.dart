@@ -41,6 +41,9 @@ class _FakeShoppingListRepository implements ShoppingListRepository {
   Future<void> setArchived(String id, bool isArchived) async {}
 
   @override
+  Future<void> updateListNotes(String id, String? notes) async {}
+
+  @override
   Future<void> saveItem(ShoppingItem item) async {}
 
   @override

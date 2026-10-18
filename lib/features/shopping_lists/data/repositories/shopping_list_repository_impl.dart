@@ -46,6 +46,11 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   }
 
   @override
+  Future<void> updateListNotes(String id, String? notes) {
+    return localDataSource.updateListNotes(id, notes);
+  }
+
+  @override
   Future<void> saveItem(ShoppingItem item) {
     return localDataSource.saveItem(item);
   }

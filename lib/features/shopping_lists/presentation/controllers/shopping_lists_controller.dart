@@ -138,6 +138,7 @@ class ShoppingListsController extends ChangeNotifier {
   Future<ShoppingList> createList({
     required String title,
     int colorIndex = 0,
+    String? notes,
     List<ShoppingItem>? initialItems,
   }) async {
     final DateTime now = DateTime.now();
@@ -159,6 +160,7 @@ class ShoppingListsController extends ChangeNotifier {
       colorIndex: colorIndex,
       isPinned: false,
       isArchived: false,
+      notes: notes,
       createdAt: now,
       updatedAt: now,
       items: boundItems,
@@ -172,6 +174,20 @@ class ShoppingListsController extends ChangeNotifier {
   Future<void> updateList(ShoppingList list) async {
     await repository.saveList(list.copyWith(updatedAt: DateTime.now()));
     await loadLists();
+  }
+
+  Future<void> updateListNotes(String listId, String? notes) async {
+    final String? clean = notes?.trim().isEmpty ?? true ? null : notes!.trim();
+    final int idx = _lists.indexWhere((ShoppingList l) => l.id == listId);
+    if (idx != -1) {
+      _lists[idx] = _lists[idx].copyWith(
+        notes: clean,
+        clearNotes: clean == null,
+        updatedAt: DateTime.now(),
+      );
+      notifyListeners();
+    }
+    await repository.updateListNotes(listId, clean);
   }
 
   Future<void> deleteList(String id) async {

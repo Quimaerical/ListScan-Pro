@@ -257,5 +257,39 @@ void main() {
       expect(noPriceList.hasPrices, isFalse);
       expect(noPriceList.totalPrice, equals(0.0));
     });
+
+    test('serializes and deserializes notes properly, and updates via copyWith', () {
+      final now = DateTime.now();
+      final listWithNotes = ShoppingList(
+        id: 'notes-list',
+        title: 'Tacos al Pastor',
+        notes: '1. Marinar la carne con achiote y naranja.\n2. Asar con piña.',
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      expect(listWithNotes.hasNotes, isTrue);
+      expect(listWithNotes.notes, contains('Marinar la carne'));
+
+      final map = listWithNotes.toMap();
+      expect(map['notes'], equals(listWithNotes.notes));
+
+      final fromMap = ShoppingList.fromMap(map);
+      expect(fromMap.notes, equals(listWithNotes.notes));
+      expect(fromMap.hasNotes, isTrue);
+
+      final clearedNotes = listWithNotes.copyWith(clearNotes: true);
+      expect(clearedNotes.notes, isNull);
+      expect(clearedNotes.hasNotes, isFalse);
+
+      final listWithoutNotes = ShoppingList(
+        id: 'no-notes',
+        title: 'Simple',
+        createdAt: now,
+        updatedAt: now,
+      );
+      expect(listWithoutNotes.hasNotes, isFalse);
+      expect(listWithoutNotes.notes, isNull);
+    });
   });
 }

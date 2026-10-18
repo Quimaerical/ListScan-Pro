@@ -111,6 +111,19 @@ class ShoppingListLocalDataSource {
     );
   }
 
+  Future<void> updateListNotes(String id, String? notes) async {
+    final Database db = await _db;
+    await db.update(
+      SqliteDbHelper.tableLists,
+      <String, dynamic>{
+        'notes': notes,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      where: 'id = ?',
+      whereArgs: <dynamic>[id],
+    );
+  }
+
   Future<void> saveItem(ShoppingItem item) async {
     final Database db = await _db;
     await db.transaction((Transaction txn) async {

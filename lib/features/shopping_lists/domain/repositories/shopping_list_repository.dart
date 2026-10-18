@@ -21,6 +21,9 @@ abstract class ShoppingListRepository {
   /// Updates archive status for a given list.
   Future<void> setArchived(String id, bool isArchived);
 
+  /// Persists plain text recipe or general notes for a given list.
+  Future<void> updateListNotes(String id, String? notes);
+
   /// Inserts or updates an individual [ShoppingItem].
   Future<void> saveItem(ShoppingItem item);
 

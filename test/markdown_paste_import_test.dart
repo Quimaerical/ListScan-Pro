@@ -44,6 +44,14 @@ class MockShoppingListRepository implements ShoppingListRepository {
   Future<void> setArchived(String id, bool isArchived) async {}
 
   @override
+  Future<void> updateListNotes(String id, String? notes) async {
+    final ShoppingList? list = _lists[id];
+    if (list != null) {
+      _lists[id] = list.copyWith(notes: notes, clearNotes: notes == null);
+    }
+  }
+
+  @override
   Future<void> saveItem(ShoppingItem item) async {
     final ShoppingList? list = _lists[item.listId];
     if (list != null) {
