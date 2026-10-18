@@ -229,14 +229,28 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                       ),
                       if (_instructionsExpanded) ...[
                         const SizedBox(height: 8),
-                        Text(
-                          widget.recipe.instructions!.trim(),
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            height: 1.45,
-                            color: isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight,
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+                          ),
+                          child: Scrollbar(
+                            thumbVisibility: true,
+                            child: SingleChildScrollView(
+                              physics: const BouncingScrollPhysics(),
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 6.0),
+                                child: Text(
+                                  widget.recipe.instructions!.trim(),
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    height: 1.45,
+                                    color: isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondaryLight,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ],
