@@ -126,5 +126,17 @@ void main() {
       await tester.tap(find.byType(RecipeCard));
       expect(tapped, isTrue);
     });
+
+    test('Recipe.toPlainTextNotes formats instructions and ingredients properly', () {
+      final notes = sampleRecipe.toPlainTextNotes();
+      expect(notes, contains('### Spaghetti Carbonara'));
+      expect(notes, contains('Categoría: Pasta'));
+      expect(notes, contains('Origen: Italian'));
+      expect(notes, contains('• Spaghetti (500g)'));
+      expect(notes, contains('• Eggs (3)'));
+      expect(notes, contains('• Bacon (150g)'));
+      expect(notes, contains('Instrucciones:'));
+      expect(notes, contains('Boil water and cook pasta.'));
+    });
   });
 }

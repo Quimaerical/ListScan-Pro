@@ -89,6 +89,31 @@ class Recipe {
       area.hashCode ^
       thumbnailUrl.hashCode;
 
+  /// Formats the recipe into a clean plain text / Markdown representation for shopping list notes.
+  String toPlainTextNotes() {
+    final StringBuffer sb = StringBuffer();
+    sb.writeln('### $name');
+    if (category != null && category!.trim().isNotEmpty) {
+      sb.writeln('Categoría: ${category!.trim()}');
+    }
+    if (area != null && area!.trim().isNotEmpty) {
+      sb.writeln('Origen: ${area!.trim()}');
+    }
+    if (ingredients.isNotEmpty) {
+      sb.writeln('\nIngredientes:');
+      for (final RecipeIngredient ing in ingredients) {
+        final String measure =
+            ing.measure.trim().isNotEmpty ? ' (${ing.measure.trim()})' : '';
+        sb.writeln('• ${ing.name.trim()}$measure');
+      }
+    }
+    if (instructions != null && instructions!.trim().isNotEmpty) {
+      sb.writeln('\nInstrucciones:');
+      sb.writeln(instructions!.trim());
+    }
+    return sb.toString().trim();
+  }
+
   @override
   String toString() =>
       'Recipe(id: $id, name: $name, category: $category, area: $area, ingredients: ${ingredients.length})';

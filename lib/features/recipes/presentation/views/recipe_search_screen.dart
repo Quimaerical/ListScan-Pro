@@ -180,6 +180,24 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
         quantity: ing.measure.isNotEmpty ? ing.measure : null,
       );
     }
+
+    // Attach recipe notes to existing list
+    final recipeNotes = recipe.toPlainTextNotes();
+    if (recipeNotes.isNotEmpty) {
+      final existingList = widget.shoppingListsController.lists
+          .where((l) => l.id == listId)
+          .firstOrNull;
+      if (existingList != null) {
+        if (existingList.notes == null || existingList.notes!.trim().isEmpty) {
+          await widget.shoppingListsController.updateListNotes(listId, recipeNotes);
+        } else {
+          await widget.shoppingListsController.updateListNotes(
+            listId,
+            '${existingList.notes}\n\n---\n\n$recipeNotes',
+          );
+        }
+      }
+    }
   }
 
   Future<void> _showTargetSelectionModal(
@@ -281,6 +299,7 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
                 final createdList = await widget.shoppingListsController
                     .createList(
                       title: '🍳 ${recipe.name}',
+                      notes: recipe.toPlainTextNotes(),
                       initialItems: items,
                     );
 

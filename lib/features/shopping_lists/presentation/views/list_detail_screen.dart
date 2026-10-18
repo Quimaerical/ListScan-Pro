@@ -228,29 +228,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
         }
 
         // Format and attach recipe plain text to list notes
-        final StringBuffer sb = StringBuffer();
-        sb.writeln('### ${recipe.name}');
-        if (recipe.category != null && recipe.category!.isNotEmpty) {
-          sb.writeln('Categoría: ${recipe.category}');
-        }
-        if (recipe.area != null && recipe.area!.isNotEmpty) {
-          sb.writeln('Origen: ${recipe.area}');
-        }
-        if (recipe.ingredients.isNotEmpty) {
-          sb.writeln('\nIngredientes:');
-          for (final RecipeIngredient ing in recipe.ingredients) {
-            final String measure =
-                ing.measure.isNotEmpty ? ' (${ing.measure})' : '';
-            sb.writeln('• ${ing.name}$measure');
-          }
-        }
-        if (recipe.instructions != null &&
-            recipe.instructions!.trim().isNotEmpty) {
-          sb.writeln('\nInstrucciones:');
-          sb.writeln(recipe.instructions!.trim());
-        }
-
-        final String recipeNotes = sb.toString().trim();
+        final String recipeNotes = recipe.toPlainTextNotes();
         if (recipeNotes.isNotEmpty) {
           if (list.notes == null || list.notes!.trim().isEmpty) {
             await widget.controller.updateListNotes(list.id, recipeNotes);
