@@ -47,24 +47,27 @@ class GlassCard extends StatelessWidget {
               ? Colors.white.withValues(alpha: 0.12)
               : Colors.white.withValues(alpha: 0.60));
 
-    final Widget cardBody = Container(
-      width: width,
-      height: height,
-      padding: padding ?? const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: effectiveBg,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: effectiveBorder, width: 1.2),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.05),
-            blurRadius: 16.0,
-            spreadRadius: 0,
-            offset: const Offset(0, 6),
-          ),
-        ],
+    final Widget cardBody = Material(
+      color: Colors.transparent,
+      child: Container(
+        width: width,
+        height: height,
+        padding: padding ?? const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: effectiveBg,
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: Border.all(color: effectiveBorder, width: 1.2),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.05),
+              blurRadius: 16.0,
+              spreadRadius: 0,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: child,
       ),
-      child: child,
     );
 
     Widget result = ClipRRect(

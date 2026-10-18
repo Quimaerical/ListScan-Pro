@@ -669,6 +669,7 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                       )
                     : ListView(
                         physics: const BouncingScrollPhysics(),
+                        primary: false,
                         padding: const EdgeInsets.fromLTRB(
                           16.0,
                           8.0,

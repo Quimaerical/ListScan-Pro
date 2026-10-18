@@ -212,13 +212,12 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (modalCtx) => Container(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
+      builder: (modalCtx) => Material(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -384,7 +383,8 @@ class _RecipeSearchScreenState extends State<RecipeSearchScreen> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   @override

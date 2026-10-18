@@ -42,27 +42,29 @@ class ShoppingItemTile extends StatelessWidget {
             'Precio unitario de "${item.name}"',
             style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w700),
           ),
-          content: TextField(
-            controller: textController,
-            autofocus: true,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              labelText: 'Precio unitario (\$)',
-              hintText: 'Ej: 2.50',
-              prefixText: '\$ ',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+          content: SingleChildScrollView(
+            child: TextField(
+              controller: textController,
+              autofocus: true,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(
+                labelText: 'Precio unitario (\$)',
+                hintText: 'Ej: 2.50',
+                prefixText: '\$ ',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
               ),
+              onSubmitted: (String val) {
+                final String clean = val.trim().replaceAll(',', '.');
+                if (clean.isEmpty) {
+                  Navigator.of(ctx).pop(-1.0);
+                } else {
+                  final double? parsed = double.tryParse(clean);
+                  Navigator.of(ctx).pop(parsed);
+                }
+              },
             ),
-            onSubmitted: (String val) {
-              final String clean = val.trim().replaceAll(',', '.');
-              if (clean.isEmpty) {
-                Navigator.of(ctx).pop(-1.0);
-              } else {
-                final double? parsed = double.tryParse(clean);
-                Navigator.of(ctx).pop(parsed);
-              }
-            },
           ),
           actions: <Widget>[
             if (item.price != null)
@@ -146,44 +148,45 @@ class ShoppingItemTile extends StatelessWidget {
             width: 0.8,
           ),
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            // Smooth custom Checkbox
-            Transform.scale(
-              scale: 1.15,
-              child: Checkbox(
-                value: item.isCompleted,
-                activeColor: accentColor,
-                checkColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6.0),
+            // Top Row: Checkbox, Name, and Delete Button
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                // Smooth custom Checkbox
+                Transform.scale(
+                  scale: 1.15,
+                  child: Checkbox(
+                    value: item.isCompleted,
+                    activeColor: accentColor,
+                    checkColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6.0),
+                    ),
+                    side: BorderSide(
+                      color: item.isCompleted
+                          ? accentColor
+                          : (isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight)
+                                .withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                    onChanged: (bool? value) {
+                      if (value != null) {
+                        onToggleCompleted(value);
+                      }
+                    },
+                  ),
                 ),
-                side: BorderSide(
-                  color: item.isCompleted
-                      ? accentColor
-                      : (isDark
-                                ? AppColors.textSecondaryDark
-                                : AppColors.textSecondaryLight)
-                            .withValues(alpha: 0.5),
-                  width: 1.5,
-                ),
-                onChanged: (bool? value) {
-                  if (value != null) {
-                    onToggleCompleted(value);
-                  }
-                },
-              ),
-            ),
-            const SizedBox(width: 8.0),
+                const SizedBox(width: 8.0),
 
-            // Item Name and Details Column
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
+                // Item Name (expands across full remaining width)
+                Expanded(
+                  child: Text(
                     item.name,
                     style: TextStyle(
                       fontSize: 16.0,
@@ -199,128 +202,9 @@ class ShoppingItemTile extends StatelessWidget {
                       decorationColor: textColor.withValues(alpha: 0.45),
                     ),
                   ),
-
-                  // Detail chips in responsive Wrap
-                  const SizedBox(height: 4.0),
-                  Wrap(
-                    spacing: 6.0,
-                    runSpacing: 4.0,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: <Widget>[
-                      // Free-text Detail / Unit Chip if available (e.g. "kg", "paquetes")
-                      if (item.quantity != null && item.quantity!.isNotEmpty)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7.0,
-                            vertical: 3.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color: accentColor.withValues(
-                              alpha: isDark ? 0.20 : 0.12,
-                            ),
-                            borderRadius: BorderRadius.circular(8.0),
-                            border: Border.all(
-                              color: accentColor.withValues(
-                                alpha: isDark ? 0.35 : 0.25,
-                              ),
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Text(
-                            item.quantity!,
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w700,
-                              color: accentColor,
-                            ),
-                          ),
-                        ),
-
-                      // Interactive Price Chip (Optional unit price)
-                      InkWell(
-                        onTap: !item.isCompleted
-                            ? () => _showPriceInputDialog(context, accentColor)
-                            : null,
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6.0,
-                            vertical: 3.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color: item.price != null
-                                ? accentColor.withValues(
-                                    alpha: isDark ? 0.22 : 0.15,
-                                  )
-                                : Colors.white.withValues(
-                                    alpha: isDark ? 0.08 : 0.40,
-                                  ),
-                            borderRadius: BorderRadius.circular(8.0),
-                            border: Border.all(
-                              color: item.price != null
-                                  ? accentColor.withValues(
-                                      alpha: isDark ? 0.45 : 0.35,
-                                    )
-                                  : (isDark
-                                      ? AppColors.borderDark
-                                      : AppColors.borderLight),
-                              width: 0.8,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Icon(
-                                Icons.attach_money_rounded,
-                                size: 13.0,
-                                color: item.price != null
-                                    ? accentColor
-                                    : textColor.withValues(alpha: 0.45),
-                              ),
-                              if (item.price != null)
-                                Text(
-                                  item.price!.toStringAsFixed(2),
-                                  style: TextStyle(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w800,
-                                    color: accentColor,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-
-                      // Subtotal calculation if amount > 1 and price != null
-                      if (item.price != null && item.amount > 1)
-                        Text(
-                          '(\$${(item.price! * item.amount).toStringAsFixed(2)})',
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                            color: textColor.withValues(alpha: 0.55),
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8.0),
-
-            // Stepper and direct delete button docked on the right
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                // Integer Stepper Counter
-                _ItemAmountStepper(
-                  item: item,
-                  accentColor: accentColor,
-                  isDark: isDark,
-                  onAmountChanged: onAmountChanged,
                 ),
 
-                // Direct delete item button
+                // Direct delete item button at top right
                 IconButton(
                   icon: Icon(
                     Icons.close_rounded,
@@ -337,6 +221,120 @@ class ShoppingItemTile extends StatelessWidget {
                   onPressed: onDelete,
                 ),
               ],
+            ),
+
+            // Bottom Section: Stepper, Quantity/Unit, Price, and Subtotal in responsive Wrap
+            Padding(
+              padding: const EdgeInsets.only(left: 48.0, top: 2.0, bottom: 2.0),
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 6.0,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  // Integer Stepper Counter
+                  _ItemAmountStepper(
+                    item: item,
+                    accentColor: accentColor,
+                    isDark: isDark,
+                    onAmountChanged: onAmountChanged,
+                  ),
+
+                  // Free-text Detail / Unit Chip if available (e.g. "kg", "paquetes")
+                  if (item.quantity != null && item.quantity!.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7.0,
+                        vertical: 3.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(
+                          alpha: isDark ? 0.20 : 0.12,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(
+                          color: accentColor.withValues(
+                            alpha: isDark ? 0.35 : 0.25,
+                          ),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Text(
+                        item.quantity!,
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: accentColor,
+                        ),
+                      ),
+                    ),
+
+                  // Interactive Price Chip (Optional unit price)
+                  InkWell(
+                    onTap: !item.isCompleted
+                        ? () => _showPriceInputDialog(context, accentColor)
+                        : null,
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6.0,
+                        vertical: 3.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: item.price != null
+                            ? accentColor.withValues(
+                                alpha: isDark ? 0.22 : 0.15,
+                              )
+                            : Colors.white.withValues(
+                                alpha: isDark ? 0.08 : 0.40,
+                              ),
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(
+                          color: item.price != null
+                              ? accentColor.withValues(
+                                  alpha: isDark ? 0.45 : 0.35,
+                                )
+                              : (isDark
+                                  ? AppColors.borderDark
+                                  : AppColors.borderLight),
+                          width: 0.8,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Icon(
+                            Icons.attach_money_rounded,
+                            size: 13.0,
+                            color: item.price != null
+                                ? accentColor
+                                : textColor.withValues(alpha: 0.45),
+                          ),
+                          if (item.price != null)
+                            Text(
+                              item.price!.toStringAsFixed(2),
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w800,
+                                color: accentColor,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Subtotal calculation if amount > 1 and price != null
+                  if (item.price != null && item.amount > 1)
+                    Text(
+                      '(\$${(item.price! * item.amount).toStringAsFixed(2)})',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: textColor.withValues(alpha: 0.55),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),
@@ -375,23 +373,25 @@ class _ItemAmountStepper extends StatelessWidget {
             'Cantidad para "${item.name}"',
             style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w700),
           ),
-          content: TextField(
-            controller: textController,
-            autofocus: true,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: 'Cantidad entera',
-              hintText: 'Ej: 1, 3, 12',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+          content: SingleChildScrollView(
+            child: TextField(
+              controller: textController,
+              autofocus: true,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Cantidad entera',
+                hintText: 'Ej: 1, 3, 12',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
               ),
+              onSubmitted: (String val) {
+                final int? parsed = int.tryParse(val.trim());
+                Navigator.of(
+                  ctx,
+                ).pop(parsed != null ? ShoppingItem.clampAmount(parsed) : null);
+              },
             ),
-            onSubmitted: (String val) {
-              final int? parsed = int.tryParse(val.trim());
-              Navigator.of(
-                ctx,
-              ).pop(parsed != null ? ShoppingItem.clampAmount(parsed) : null);
-            },
           ),
           actions: <Widget>[
             TextButton(

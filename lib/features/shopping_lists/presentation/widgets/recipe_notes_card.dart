@@ -241,6 +241,7 @@ class _RecipeNotesCardState extends State<RecipeNotesCard> {
                 secondChild: Container(
                   constraints: const BoxConstraints(maxHeight: 220.0),
                   child: SingleChildScrollView(
+                    primary: false,
                     physics: const BouncingScrollPhysics(),
                     child: SelectableText(
                       widget.notes!,

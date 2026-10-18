@@ -78,19 +78,21 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final maxSheetHeight = MediaQuery.of(context).size.height * 0.85;
 
-    return Container(
-      constraints: BoxConstraints(maxHeight: maxSheetHeight),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        constraints: BoxConstraints(maxHeight: maxSheetHeight),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.surfaceDark : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -236,6 +238,7 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
                           child: Scrollbar(
                             thumbVisibility: true,
                             child: SingleChildScrollView(
+                              primary: false,
                               physics: const BouncingScrollPhysics(),
                               child: Padding(
                                 padding: const EdgeInsets.only(right: 6.0),
@@ -295,6 +298,7 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
           // Scrollable list of ingredients
           Flexible(
             child: ListView.builder(
+              primary: false,
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               itemCount: _ingredients.length,
@@ -408,6 +412,7 @@ class _RecipeDetailBottomSheetState extends State<RecipeDetailBottomSheet> {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 }
