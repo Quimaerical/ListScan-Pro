@@ -66,55 +66,85 @@ class ListSeparatorTile extends StatelessWidget {
             ),
 
             // Optional Label Chip
-            InkWell(
-              onTap: onRename,
-              borderRadius: BorderRadius.circular(12.0),
-              child: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: hasLabel ? 12.0 : 8.0,
-                  vertical: 4.0,
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: hasLabel ? 10.0 : 8.0,
+                vertical: 3.5,
+              ),
+              margin: const EdgeInsets.symmetric(horizontal: 8.0),
+              decoration: BoxDecoration(
+                color: palette.backgroundColor(isDark),
+                borderRadius: BorderRadius.circular(12.0),
+                border: Border.all(
+                  color: palette.borderColor(isDark),
+                  width: 0.8,
                 ),
-                margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                decoration: BoxDecoration(
-                  color: palette.backgroundColor(isDark),
-                  borderRadius: BorderRadius.circular(12.0),
-                  border: Border.all(
-                    color: palette.borderColor(isDark),
-                    width: 0.8,
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color: Colors.black.withValues(
+                      alpha: isDark ? 0.2 : 0.04,
+                    ),
+                    blurRadius: 4.0,
                   ),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                      color: Colors.black.withValues(
-                        alpha: isDark ? 0.2 : 0.04,
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  // Tap label/icon area to rename
+                  InkWell(
+                    onTap: onRename,
+                    borderRadius: BorderRadius.circular(8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 3.0,
+                        vertical: 2.0,
                       ),
-                      blurRadius: 4.0,
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(Icons.tag_rounded, size: 14.0, color: accentColor),
-                    if (hasLabel) ...<Widget>[
-                      const SizedBox(width: 5.0),
-                      Text(
-                        item.name,
-                        style: TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                          color: textColor,
-                          letterSpacing: 0.2,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Icon(
+                            Icons.tag_rounded,
+                            size: 14.0,
+                            color: accentColor,
+                          ),
+                          if (hasLabel) ...<Widget>[
+                            const SizedBox(width: 5.0),
+                            Text(
+                              item.name,
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w700,
+                                color: textColor,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(width: 4.0),
+                          Icon(
+                            Icons.edit_rounded,
+                            size: 12.0,
+                            color: accentColor.withValues(alpha: 0.6),
+                          ),
+                        ],
                       ),
-                    ],
-                    const SizedBox(width: 4.0),
-                    Icon(
-                      Icons.edit_rounded,
-                      size: 12.0,
-                      color: accentColor.withValues(alpha: 0.6),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 6.0),
+                  // Direct delete separator button
+                  InkWell(
+                    onTap: onDelete,
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 14.0,
+                        color: textColor.withValues(alpha: 0.40),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
 

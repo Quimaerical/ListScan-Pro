@@ -181,6 +181,14 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
         ),
         actions: <Widget>[
           TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFFEF4444),
+            ),
+            onPressed: () => Navigator.of(ctx).pop('__DELETE__'),
+            child: const Text('Eliminar'),
+          ),
+          const Spacer(),
+          TextButton(
             onPressed: () => Navigator.of(ctx).pop(null),
             child: const Text('Cancelar'),
           ),
@@ -198,7 +206,9 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
       ),
     );
 
-    if (newLabel != null) {
+    if (newLabel == '__DELETE__') {
+      await widget.controller.deleteItem(widget.listId, item.id);
+    } else if (newLabel != null) {
       await widget.controller.renameSeparator(widget.listId, item.id, newLabel);
     }
   }

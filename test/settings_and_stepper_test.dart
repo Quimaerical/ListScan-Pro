@@ -243,6 +243,41 @@ void main() {
 
       expect(renameCalled, isTrue);
     });
+
+    testWidgets('triggers onDelete when close button is tapped', (
+      WidgetTester tester,
+    ) async {
+      bool deleteCalled = false;
+
+      final separator = ShoppingItem(
+        id: 'sep-2',
+        listId: 'list-1',
+        name: 'Snacks',
+        isSeparator: true,
+        createdAt: DateTime.now(),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ListSeparatorTile(
+              item: separator,
+              palette: AppColors.getPalette(0),
+              onRename: () {},
+              onDelete: () {
+                deleteCalled = true;
+              },
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.close_rounded), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.close_rounded));
+      await tester.pumpAndSettle();
+
+      expect(deleteCalled, isTrue);
+    });
   });
 
   group('Markdown Export/Import with Separators and Multipliers', () {
