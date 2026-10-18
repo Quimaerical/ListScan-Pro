@@ -159,6 +159,16 @@ class ShoppingListLocalDataSource {
     );
   }
 
+  Future<void> updateItemPrice(String id, double? price) async {
+    final Database db = await _db;
+    await db.update(
+      SqliteDbHelper.tableItems,
+      <String, dynamic>{'price': price},
+      where: 'id = ?',
+      whereArgs: <dynamic>[id],
+    );
+  }
+
   Future<List<String>> getProductSuggestions(
     String query, {
     int limit = 10,

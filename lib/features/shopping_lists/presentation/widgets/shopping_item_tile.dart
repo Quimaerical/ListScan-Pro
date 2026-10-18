@@ -10,6 +10,7 @@ class ShoppingItemTile extends StatelessWidget {
   final PastelPalette palette;
   final ValueChanged<bool> onToggleCompleted;
   final ValueChanged<int>? onAmountChanged;
+  final ValueChanged<double?>? onPriceChanged;
   final VoidCallback onDelete;
 
   const ShoppingItemTile({
@@ -18,8 +19,96 @@ class ShoppingItemTile extends StatelessWidget {
     required this.palette,
     required this.onToggleCompleted,
     this.onAmountChanged,
+    this.onPriceChanged,
     required this.onDelete,
   });
+
+  Future<void> _showPriceInputDialog(
+    BuildContext context,
+    Color accentColor,
+  ) async {
+    final TextEditingController textController = TextEditingController(
+      text: item.price != null ? item.price!.toStringAsFixed(2) : '',
+    );
+
+    final double? result = await showDialog<double?>(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: Text(
+            'Precio unitario de "${item.name}"',
+            style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.w700),
+          ),
+          content: TextField(
+            controller: textController,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: 'Precio unitario (\$)',
+              hintText: 'Ej: 2.50',
+              prefixText: '\$ ',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+            ),
+            onSubmitted: (String val) {
+              final String clean = val.trim().replaceAll(',', '.');
+              if (clean.isEmpty) {
+                Navigator.of(ctx).pop(-1.0);
+              } else {
+                final double? parsed = double.tryParse(clean);
+                Navigator.of(ctx).pop(parsed);
+              }
+            },
+          ),
+          actions: <Widget>[
+            if (item.price != null)
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFEF4444),
+                ),
+                onPressed: () => Navigator.of(ctx).pop(-1.0),
+                child: const Text('Quitar precio'),
+              ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(item.price),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: accentColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+              ),
+              onPressed: () {
+                final String clean =
+                    textController.text.trim().replaceAll(',', '.');
+                if (clean.isEmpty) {
+                  Navigator.of(ctx).pop(-1.0);
+                } else {
+                  final double? parsed = double.tryParse(clean);
+                  Navigator.of(ctx).pop(parsed);
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      if (result == -1.0) {
+        onPriceChanged?.call(null);
+      } else if (result != item.price) {
+        onPriceChanged?.call(result);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,10 +208,10 @@ class ShoppingItemTile extends StatelessWidget {
             if (item.quantity != null && item.quantity!.isNotEmpty)
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 9.0,
+                  horizontal: 8.0,
                   vertical: 4.0,
                 ),
-                margin: const EdgeInsets.only(left: 6.0),
+                margin: const EdgeInsets.only(left: 5.0),
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: isDark ? 0.20 : 0.12),
                   borderRadius: BorderRadius.circular(10.0),
@@ -134,12 +223,60 @@ class ShoppingItemTile extends StatelessWidget {
                 child: Text(
                   item.quantity!,
                   style: TextStyle(
-                    fontSize: 13.0,
+                    fontSize: 12.0,
                     fontWeight: FontWeight.w700,
                     color: accentColor,
                   ),
                 ),
               ),
+
+            // Interactive Price Chip (Optional unit price)
+            InkWell(
+              onTap: !item.isCompleted
+                  ? () => _showPriceInputDialog(context, accentColor)
+                  : null,
+              borderRadius: BorderRadius.circular(10.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 6.0,
+                  vertical: 4.0,
+                ),
+                margin: const EdgeInsets.only(left: 5.0),
+                decoration: BoxDecoration(
+                  color: item.price != null
+                      ? accentColor.withValues(alpha: isDark ? 0.22 : 0.15)
+                      : Colors.white.withValues(alpha: isDark ? 0.08 : 0.40),
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(
+                    color: item.price != null
+                        ? accentColor.withValues(alpha: isDark ? 0.45 : 0.35)
+                        : (isDark ? AppColors.borderDark : AppColors.borderLight),
+                    width: 0.8,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(
+                      Icons.attach_money_rounded,
+                      size: 14.0,
+                      color: item.price != null
+                          ? accentColor
+                          : textColor.withValues(alpha: 0.45),
+                    ),
+                    if (item.price != null)
+                      Text(
+                        item.price!.toStringAsFixed(2),
+                        style: TextStyle(
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.w800,
+                          color: accentColor,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

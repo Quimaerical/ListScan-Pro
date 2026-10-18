@@ -33,6 +33,9 @@ abstract class ShoppingListRepository {
   /// Persists the integer counter of an item (clamped to a valid range).
   Future<void> updateItemAmount(String id, int amount);
 
+  /// Persists the unit price of an item (or clears it if null).
+  Future<void> updateItemPrice(String id, double? price);
+
   /// Returns distinct item names matching the given [query] for autocomplete.
   Future<List<String>> getProductSuggestions(String query, {int limit = 10});
 

@@ -66,6 +66,11 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   }
 
   @override
+  Future<void> updateItemPrice(String id, double? price) {
+    return localDataSource.updateItemPrice(id, price);
+  }
+
+  @override
   Future<List<String>> getProductSuggestions(String query, {int limit = 10}) {
     return localDataSource.getProductSuggestions(query, limit: limit);
   }

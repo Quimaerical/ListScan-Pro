@@ -5,7 +5,7 @@ import 'package:sqflite/sqflite.dart';
 /// table definitions and foreign key constraints.
 class SqliteDbHelper {
   static const String _databaseName = 'shopliist_pro.db';
-  static const int _databaseVersion = 2;
+  static const int _databaseVersion = 3;
 
   static const String tableLists = 'shopping_lists';
   static const String tableItems = 'shopping_items';
@@ -61,6 +61,7 @@ class SqliteDbHelper {
         quantity TEXT,
         category TEXT,
         amount INTEGER NOT NULL DEFAULT 1,
+        price REAL,
         is_separator INTEGER NOT NULL DEFAULT 0,
         is_completed INTEGER NOT NULL DEFAULT 0,
         sort_order INTEGER NOT NULL DEFAULT 0,
@@ -98,6 +99,12 @@ class SqliteDbHelper {
       ''');
 
       await _createSettingsTable(db);
+    }
+
+    if (oldVersion < 3) {
+      await db.execute(
+        'ALTER TABLE $tableItems ADD COLUMN price REAL',
+      );
     }
   }
 

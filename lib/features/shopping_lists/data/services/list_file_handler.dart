@@ -37,7 +37,15 @@ class ListFileHandler {
           (item.quantity != null && item.quantity!.trim().isNotEmpty)
           ? '${item.quantity!.trim()} '
           : '';
-      buffer.writeln('- $check $amountPrefix$qtyPrefix${item.name.trim()}');
+      final String priceSuffix =
+          item.price != null ? ' (\$${item.price!.toStringAsFixed(2)})' : '';
+      buffer.writeln('- $check $amountPrefix$qtyPrefix${item.name.trim()}$priceSuffix');
+    }
+
+    if (list.hasPrices) {
+      buffer.writeln();
+      buffer.writeln('---');
+      buffer.writeln('**Total estimado: \$${list.totalPrice.toStringAsFixed(2)}**');
     }
 
     return buffer.toString();
@@ -192,6 +200,18 @@ class ListFileHandler {
         fullText = matchMult.group(2)?.trim() ?? rawText;
       }
 
+      // Check optional price suffix e.g. "($3.50)" or "(3.50)" or "($12)"
+      double? price;
+      final RegExp priceMatcher = RegExp(
+        r'\(\s*\$?\s*(\d+(?:[.,]\d{1,2})?)\s*\)\s*$',
+      );
+      final Match? priceMatch = priceMatcher.firstMatch(fullText);
+      if (priceMatch != null) {
+        final String rawPrice = priceMatch.group(1)!.replaceAll(',', '.');
+        price = double.tryParse(rawPrice);
+        fullText = fullText.substring(0, priceMatch.start).trim();
+      }
+
       // Try extracting quantity prefix ("2 kg Manzanas") or suffix ("Harina 1 kg")
       String? quantity;
       String name = fullText;
@@ -215,6 +235,7 @@ class ListFileHandler {
           name: name,
           quantity: quantity,
           amount: ShoppingItem.clampAmount(amount),
+          price: price,
           isCompleted: isCompleted,
           sortOrder: sortOrder++,
           createdAt: now,
@@ -232,15 +253,19 @@ class ListFileHandler {
   /// Exports a [ShoppingList] into standard CSV format.
   static String exportToCsv(ShoppingList list) {
     final StringBuffer buffer = StringBuffer();
-    buffer.writeln('name,quantity,is_completed,category');
+    buffer.writeln('name,quantity,is_completed,category,amount,price');
 
     for (final ShoppingItem item in list.items) {
       final String nameEscaped = _escapeCsvField(item.name);
       final String qtyEscaped = _escapeCsvField(item.quantity ?? '');
       final String completed = item.isCompleted ? '1' : '0';
       final String catEscaped = _escapeCsvField(item.category ?? '');
+      final String priceStr =
+          item.price != null ? item.price!.toStringAsFixed(2) : '';
 
-      buffer.writeln('$nameEscaped,$qtyEscaped,$completed,$catEscaped');
+      buffer.writeln(
+        '$nameEscaped,$qtyEscaped,$completed,$catEscaped,${item.amount},$priceStr',
+      );
     }
 
     return buffer.toString();
@@ -283,6 +308,12 @@ class ListFileHandler {
       final String category = (cols.length > 3 && cols[3].trim().isNotEmpty)
           ? cols[3].trim()
           : '';
+      final String amountRaw = cols.length > 4 ? cols[4].trim() : '1';
+      final int amount = int.tryParse(amountRaw) ?? 1;
+      final String priceRaw = cols.length > 5 ? cols[5].trim() : '';
+      final double? price = priceRaw.isNotEmpty
+          ? double.tryParse(priceRaw.replaceAll(',', '.'))
+          : null;
 
       items.add(
         ShoppingItem(
@@ -291,6 +322,8 @@ class ListFileHandler {
           name: name,
           quantity: quantity.isNotEmpty ? quantity : null,
           category: category.isNotEmpty ? category : null,
+          amount: ShoppingItem.clampAmount(amount),
+          price: price,
           isCompleted: isCompleted,
           sortOrder: sortOrder++,
           createdAt: now,

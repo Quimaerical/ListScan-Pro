@@ -142,13 +142,41 @@ class NoteCardWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text(
-                '${list.completedCount}/${list.totalCount} completados',
-                style: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w600,
-                  color: secondaryTextColor,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    '${list.completedCount}/${list.totalCount} completados',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: secondaryTextColor,
+                    ),
+                  ),
+                  if (list.hasPrices) ...<Widget>[
+                    const SizedBox(width: 6.0),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5.0,
+                        vertical: 1.5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(
+                          alpha: isDark ? 0.22 : 0.14,
+                        ),
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      child: Text(
+                        '\$${list.totalPrice.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                          color: accentColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
               ),
               if (list.totalCount > 0 && list.completedCount == list.totalCount)
                 Container(

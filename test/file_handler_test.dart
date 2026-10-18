@@ -76,7 +76,62 @@ void main() {
   });
 
   group('ListFileHandler - CSV (RFC 4180)', () {
-    test('exports ShoppingList to CSV RFC 4180 format', () {
+    test('exports ShoppingList with price and total estimated line', () {
+      final now = DateTime.now();
+      final list = ShoppingList(
+        id: 'test-price',
+        title: 'Mercado Semanal',
+        createdAt: now,
+        updatedAt: now,
+        items: [
+          ShoppingItem(
+            id: 'item-1',
+            listId: 'test-price',
+            name: 'Café',
+            amount: 2,
+            price: 3.50,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: 'item-2',
+            listId: 'test-price',
+            name: 'Pan',
+            amount: 1,
+            price: 1.50,
+            createdAt: now,
+          ),
+        ],
+      );
+
+      final markdown = ListFileHandler.exportToMarkdown(list);
+      expect(markdown, contains('- [ ] 2x Café (\$3.50)'));
+      expect(markdown, contains('- [ ] Pan (\$1.50)'));
+      expect(markdown, contains('**Total estimado: \$8.50**'));
+    });
+
+    test('parses Markdown content with price suffix', () {
+      const markdown = '''
+# Compras
+- [ ] 2x Café (\$3.50)
+- [x] Pan (\$1.50)
+- [ ] Manzanas
+''';
+
+      final parsed = ListFileHandler.parseMarkdown(content: markdown);
+      expect(parsed.items.length, equals(3));
+      expect(parsed.items[0].name, equals('Café'));
+      expect(parsed.items[0].amount, equals(2));
+      expect(parsed.items[0].price, equals(3.50));
+
+      expect(parsed.items[1].name, equals('Pan'));
+      expect(parsed.items[1].amount, equals(1));
+      expect(parsed.items[1].price, equals(1.50));
+
+      expect(parsed.items[2].name, equals('Manzanas'));
+      expect(parsed.items[2].price, isNull);
+    });
+
+    test('exports ShoppingList to CSV RFC 4180 format with price and amount', () {
       final now = DateTime.now();
       final list = ShoppingList(
         id: 'test-2',
@@ -90,6 +145,8 @@ void main() {
             name: 'Tornillos, arandelas',
             quantity: '50 uds',
             category: 'Herramientas',
+            amount: 2,
+            price: 4.25,
             isCompleted: false,
             createdAt: now,
           ),
@@ -105,17 +162,16 @@ void main() {
 
       final csv = ListFileHandler.exportToCsv(list);
 
-      expect(csv, contains('name,quantity,is_completed,category'));
-      // Field with comma must be escaped with quotes
-      expect(csv, contains('"Tornillos, arandelas",50 uds,0,Herramientas'));
-      expect(csv, contains('Cinta aislante,,1,'));
+      expect(csv, contains('name,quantity,is_completed,category,amount,price'));
+      expect(csv, contains('"Tornillos, arandelas",50 uds,0,Herramientas,2,4.25'));
+      expect(csv, contains('Cinta aislante,,1,,1,'));
     });
 
     test('parses CSV content with RFC 4180 into ShoppingList', () {
-      const csv = '''name,quantity,is_completed,category
-"Manzanas, peras y uvas",2 kg,0,Frutas
-Leche deslactosada,1 L,1,Lácteos
-Pan campesino,,0,Panadería
+      const csv = '''name,quantity,is_completed,category,amount,price
+"Manzanas, peras y uvas",2 kg,0,Frutas,1,5.50
+Leche deslactosada,1 L,1,Lácteos,2,1.25
+Pan campesino,,0,Panadería,1,
 ''';
 
       final parsed = ListFileHandler.parseCsv(
@@ -130,14 +186,20 @@ Pan campesino,,0,Panadería
       expect(parsed.items[0].quantity, equals('2 kg'));
       expect(parsed.items[0].isCompleted, isFalse);
       expect(parsed.items[0].category, equals('Frutas'));
+      expect(parsed.items[0].amount, equals(1));
+      expect(parsed.items[0].price, equals(5.50));
 
       expect(parsed.items[1].name, equals('Leche deslactosada'));
       expect(parsed.items[1].quantity, equals('1 L'));
       expect(parsed.items[1].isCompleted, isTrue);
+      expect(parsed.items[1].amount, equals(2));
+      expect(parsed.items[1].price, equals(1.25));
 
       expect(parsed.items[2].name, equals('Pan campesino'));
       expect(parsed.items[2].quantity, isNull);
       expect(parsed.items[2].isCompleted, isFalse);
+      expect(parsed.items[2].amount, equals(1));
+      expect(parsed.items[2].price, isNull);
     });
   });
 }

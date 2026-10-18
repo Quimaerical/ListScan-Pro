@@ -278,25 +278,70 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
               icon: const Icon(Icons.arrow_back_ios_new_rounded),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            title: TextField(
-              controller: _titleController,
-              focusNode: _titleFocusNode,
-              textCapitalization: TextCapitalization.sentences,
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.w700,
-                color: textColor,
-                letterSpacing: -0.4,
-              ),
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                filled: false,
-                contentPadding: EdgeInsets.zero,
-                hintText: 'Título de la lista',
-              ),
-              onSubmitted: _handleTitleChange,
+            title: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    controller: _titleController,
+                    focusNode: _titleFocusNode,
+                    textCapitalization: TextCapitalization.sentences,
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                      letterSpacing: -0.4,
+                    ),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      filled: false,
+                      contentPadding: EdgeInsets.zero,
+                      hintText: 'Título de la lista',
+                    ),
+                    onSubmitted: _handleTitleChange,
+                  ),
+                ),
+                if (list.hasPrices)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 3.5,
+                    ),
+                    margin: const EdgeInsets.only(left: 6.0),
+                    decoration: BoxDecoration(
+                      color: accentColor.withValues(
+                        alpha: isDark ? 0.22 : 0.14,
+                      ),
+                      borderRadius: BorderRadius.circular(10.0),
+                      border: Border.all(
+                        color: accentColor.withValues(
+                          alpha: isDark ? 0.40 : 0.30,
+                        ),
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Icon(
+                          Icons.receipt_long_rounded,
+                          size: 13.0,
+                          color: accentColor,
+                        ),
+                        const SizedBox(width: 4.0),
+                        Text(
+                          'Total: \$${list.totalPrice.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 12.0,
+                            fontWeight: FontWeight.w800,
+                            color: accentColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
             ),
             actions: <Widget>[
               // Toggle Pin
@@ -484,13 +529,41 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                                     color: secColor,
                                   ),
                                 ),
-                                Text(
-                                  '${list.completedCount} de ${list.totalCount}',
-                                  style: TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w700,
-                                    color: accentColor,
-                                  ),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: <Widget>[
+                                    if (list.hasPrices) ...<Widget>[
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6.5,
+                                          vertical: 1.5,
+                                        ),
+                                        margin: const EdgeInsets.only(right: 8.0),
+                                        decoration: BoxDecoration(
+                                          color: accentColor.withValues(
+                                            alpha: isDark ? 0.20 : 0.12,
+                                          ),
+                                          borderRadius: BorderRadius.circular(6.0),
+                                        ),
+                                        child: Text(
+                                          'Total: \$${list.totalPrice.toStringAsFixed(2)}',
+                                          style: TextStyle(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: accentColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    Text(
+                                      '${list.completedCount} de ${list.totalCount}',
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: accentColor,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -589,6 +662,13 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                                     newAmount,
                                   );
                                 },
+                                onPriceChanged: (double? newPrice) {
+                                  widget.controller.updateItemPrice(
+                                    list.id,
+                                    item.id,
+                                    newPrice,
+                                  );
+                                },
                                 onDelete: () {
                                   widget.controller.deleteItem(
                                     list.id,
@@ -653,6 +733,13 @@ class _ListDetailScreenState extends State<ListDetailScreen> {
                                       list.id,
                                       item.id,
                                       newAmount,
+                                    );
+                                  },
+                                  onPriceChanged: (double? newPrice) {
+                                    widget.controller.updateItemPrice(
+                                      list.id,
+                                      item.id,
+                                      newPrice,
                                     );
                                   },
                                   onDelete: () {

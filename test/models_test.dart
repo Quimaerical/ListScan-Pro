@@ -25,6 +25,7 @@ void main() {
       expect(map['category'], equals('Verduras'));
       expect(map['is_completed'], equals(1));
       expect(map['sort_order'], equals(2));
+      expect(map['price'], isNull);
 
       final restored = ShoppingItem.fromMap(map);
       expect(restored.id, equals(item.id));
@@ -34,6 +35,30 @@ void main() {
       expect(restored.category, equals(item.category));
       expect(restored.isCompleted, equals(item.isCompleted));
       expect(restored.sortOrder, equals(item.sortOrder));
+      expect(restored.price, isNull);
+      expect(restored.totalLinePrice, isNull);
+    });
+
+    test('serializes and calculates price and totalLinePrice properly', () {
+      final now = DateTime.now();
+      final item = ShoppingItem(
+        id: '1',
+        listId: '10',
+        name: 'Café',
+        amount: 3,
+        price: 4.50,
+        createdAt: now,
+      );
+
+      expect(item.price, equals(4.50));
+      expect(item.totalLinePrice, equals(13.50));
+
+      final map = item.toMap();
+      expect(map['price'], equals(4.50));
+
+      final restored = ShoppingItem.fromMap(map);
+      expect(restored.price, equals(4.50));
+      expect(restored.totalLinePrice, equals(13.50));
     });
 
     test('copyWith updates properties properly', () {
@@ -45,11 +70,19 @@ void main() {
         createdAt: now,
       );
 
-      final updated = item.copyWith(isCompleted: true, quantity: '1 kg');
+      final updated = item.copyWith(
+        isCompleted: true,
+        quantity: '1 kg',
+        price: 2.50,
+      );
       expect(updated.id, equals('1'));
       expect(updated.name, equals('Arroz'));
       expect(updated.isCompleted, isTrue);
       expect(updated.quantity, equals('1 kg'));
+      expect(updated.price, equals(2.50));
+
+      final clearedPrice = updated.copyWith(clearPrice: true);
+      expect(clearedPrice.price, isNull);
     });
   });
 
@@ -160,6 +193,69 @@ void main() {
       expect(listWithSeparators.completedCount, equals(1));
       expect(listWithSeparators.pendingCount, equals(1));
       expect(listWithSeparators.progressPercentage, equals(0.5));
+    });
+
+    test('calculates totalPrice and hasPrices accurately', () {
+      final now = DateTime.now();
+      final list = ShoppingList(
+        id: 'price-list',
+        title: 'Supermercado',
+        createdAt: now,
+        updatedAt: now,
+        items: [
+          ShoppingItem(
+            id: '1',
+            listId: 'price-list',
+            name: 'Leche',
+            amount: 2,
+            price: 1.50, // 2 * 1.50 = 3.00
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: 'sep',
+            listId: 'price-list',
+            name: 'Panadería',
+            isSeparator: true,
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: '2',
+            listId: 'price-list',
+            name: 'Pan',
+            amount: 1,
+            price: 2.25, // 1 * 2.25 = 2.25
+            createdAt: now,
+          ),
+          ShoppingItem(
+            id: '3',
+            listId: 'price-list',
+            name: 'Huevos',
+            amount: 1,
+            // price is null -> ignored in total
+            createdAt: now,
+          ),
+        ],
+      );
+
+      expect(list.hasPrices, isTrue);
+      expect(list.totalPrice, equals(5.25));
+
+      final noPriceList = ShoppingList(
+        id: 'no-price',
+        title: 'Sin precios',
+        createdAt: now,
+        updatedAt: now,
+        items: [
+          ShoppingItem(
+            id: '1',
+            listId: 'no-price',
+            name: 'Agua',
+            createdAt: now,
+          ),
+        ],
+      );
+      expect(noPriceList.hasPrices, isFalse);
+      expect(noPriceList.totalPrice, equals(0.0));
     });
   });
 }

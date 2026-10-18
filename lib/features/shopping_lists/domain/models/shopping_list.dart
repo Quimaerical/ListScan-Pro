@@ -38,6 +38,17 @@ class ShoppingList {
     return completedCount / totalCount;
   }
 
+  /// Total cumulative price of all priced products in the list.
+  double get totalPrice => products.fold<double>(
+        0.0,
+        (double acc, ShoppingItem item) =>
+            item.price == null ? acc : acc + (item.totalLinePrice ?? 0.0),
+      );
+
+  /// Whether at least one product in the list has an assigned price.
+  bool get hasPrices =>
+      products.any((ShoppingItem item) => item.price != null);
+
   ShoppingList copyWith({
     String? id,
     String? title,

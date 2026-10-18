@@ -196,6 +196,7 @@ class ShoppingListsController extends ChangeNotifier {
     String? quantity,
     String? category,
     int amount = 1,
+    double? price,
   }) async {
     if (name.trim().isEmpty) return;
 
@@ -217,6 +218,7 @@ class ShoppingListsController extends ChangeNotifier {
       quantity: detail,
       category: category?.trim().isNotEmpty == true ? category!.trim() : null,
       amount: ShoppingItem.clampAmount(resolvedAmount),
+      price: price,
       isCompleted: false,
       sortOrder: _nextSortOrder(listId),
       createdAt: DateTime.now(),
@@ -224,6 +226,32 @@ class ShoppingListsController extends ChangeNotifier {
 
     await repository.saveItem(newItem);
     await loadLists();
+  }
+
+  /// Updates the unit price for an item with immediate optimistic UI update.
+  Future<void> updateItemPrice(
+    String listId,
+    String itemId,
+    double? price,
+  ) async {
+    final int listIdx = _lists.indexWhere((ShoppingList l) => l.id == listId);
+    if (listIdx != -1) {
+      final List<ShoppingItem> updatedItems = _lists[listIdx].items.map((
+        ShoppingItem item,
+      ) {
+        if (item.id == itemId) {
+          return item.copyWith(price: price, clearPrice: price == null);
+        }
+        return item;
+      }).toList();
+      _lists[listIdx] = _lists[listIdx].copyWith(
+        items: updatedItems,
+        updatedAt: DateTime.now(),
+      );
+      notifyListeners();
+    }
+
+    await repository.updateItemPrice(itemId, price);
   }
 
   /// Imports multiple items and visual separators parsed from Markdown or multiline text directly into an existing list.

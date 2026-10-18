@@ -4,6 +4,9 @@
 /// counter) or a **separator** ([isSeparator] = `true`): a visual divider
 /// with an optional label that never counts towards progress or totals.
 class ShoppingItem {
+  /// Optional unit price for this product.
+  final double? price;
+
   /// Lower and upper bounds for the integer counter shown on each product.
   static const int minAmount = 1;
   static const int maxAmount = 9999;
@@ -33,11 +36,15 @@ class ShoppingItem {
     this.quantity,
     this.category,
     this.amount = 1,
+    this.price,
     this.isSeparator = false,
     this.isCompleted = false,
     this.sortOrder = 0,
     required this.createdAt,
   });
+
+  /// Computed total line price (unit price * amount) or null if no price set.
+  double? get totalLinePrice => price != null ? price! * amount : null;
 
   /// Clamps any incoming integer into the valid counter range.
   static int clampAmount(int value) => value.clamp(minAmount, maxAmount);
@@ -49,6 +56,8 @@ class ShoppingItem {
     String? quantity,
     String? category,
     int? amount,
+    double? price,
+    bool clearPrice = false,
     bool? isSeparator,
     bool? isCompleted,
     int? sortOrder,
@@ -61,6 +70,7 @@ class ShoppingItem {
       quantity: quantity ?? this.quantity,
       category: category ?? this.category,
       amount: amount ?? this.amount,
+      price: clearPrice ? null : (price ?? this.price),
       isSeparator: isSeparator ?? this.isSeparator,
       isCompleted: isCompleted ?? this.isCompleted,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -76,6 +86,7 @@ class ShoppingItem {
       'quantity': quantity,
       'category': category,
       'amount': amount,
+      'price': price,
       'is_separator': isSeparator ? 1 : 0,
       'is_completed': isCompleted ? 1 : 0,
       'sort_order': sortOrder,
@@ -91,6 +102,7 @@ class ShoppingItem {
       quantity: map['quantity'] as String?,
       category: map['category'] as String?,
       amount: clampAmount(map['amount'] as int? ?? 1),
+      price: (map['price'] as num?)?.toDouble(),
       isSeparator: (map['is_separator'] as int? ?? 0) == 1,
       isCompleted: (map['is_completed'] as int? ?? 0) == 1,
       sortOrder: map['sort_order'] as int? ?? 0,
@@ -110,6 +122,7 @@ class ShoppingItem {
         other.quantity == quantity &&
         other.category == category &&
         other.amount == amount &&
+        other.price == price &&
         other.isSeparator == isSeparator &&
         other.isCompleted == isCompleted &&
         other.sortOrder == sortOrder &&
@@ -124,6 +137,7 @@ class ShoppingItem {
     quantity,
     category,
     amount,
+    price,
     isSeparator,
     isCompleted,
     sortOrder,
