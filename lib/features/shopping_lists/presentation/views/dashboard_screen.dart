@@ -6,6 +6,7 @@ import '../../domain/models/shopping_list.dart';
 import '../controllers/shopping_lists_controller.dart';
 import '../widgets/export_import_sheet.dart';
 import '../widgets/note_card_widget.dart';
+import '../widgets/update_notification_banner.dart';
 import '../../../../core/widgets/app_logo.dart';
 import 'list_detail_screen.dart';
 import '../../../ocr_scan/presentation/views/scan_list_screen.dart';
@@ -34,6 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.controller.loadLists();
+      widget.controller.checkForAppUpdates();
     });
   }
 
@@ -199,6 +201,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 parent: BouncingScrollPhysics(),
               ),
               slivers: <Widget>[
+                // GitHub Update Banner (Dismissible, only shown when newer release is detected)
+                if (widget.controller.shouldShowUpdateBanner)
+                  SliverToBoxAdapter(
+                    child: UpdateNotificationBanner(
+                      updateInfo: widget.controller.updateInfo!,
+                      onDismiss: widget.controller.dismissUpdateBanner,
+                    ),
+                  ),
+
                 // Search Bar Section
                 SliverToBoxAdapter(
                   child: Padding(

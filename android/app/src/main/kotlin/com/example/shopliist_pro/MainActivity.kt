@@ -12,21 +12,40 @@ class MainActivity : FlutterActivity() {
         super.configureFlutterEngine(flutterEngine)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SHARE_CHANNEL).setMethodCallHandler { call, result ->
-            if (call.method == "shareText") {
-                val text = call.argument<String>("text") ?: ""
-                val title = call.argument<String>("title") ?: "Compartir lista de compras"
+            when (call.method) {
+                "shareText" -> {
+                    val text = call.argument<String>("text") ?: ""
+                    val title = call.argument<String>("title") ?: "Compartir lista de compras"
 
-                val sendIntent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, text)
-                    type = "text/plain"
+                    val sendIntent = Intent().apply {
+                        action = Intent.ACTION_SEND
+                        putExtra(Intent.EXTRA_TEXT, text)
+                        type = "text/plain"
+                    }
+
+                    val shareIntent = Intent.createChooser(sendIntent, title)
+                    startActivity(shareIntent)
+                    result.success(true)
                 }
-
-                val shareIntent = Intent.createChooser(sendIntent, title)
-                startActivity(shareIntent)
-                result.success(true)
-            } else {
-                result.notImplemented()
+                "openBrowser" -> {
+                    val url = call.argument<String>("url")
+                    if (!url.isNullOrBlank()) {
+                        try {
+                            val browserIntent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                            startActivity(browserIntent)
+                            result.success(true)
+                        } catch (e: Exception) {
+                            result.error("OPEN_FAILED", e.localizedMessage, null)
+                        }
+                    } else {
+                        result.error("INVALID_URL", "URL cannot be empty", null)
+                    }
+                }
+                else -> {
+                    result.notImplemented()
+                }
             }
         }
     }

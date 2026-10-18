@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import '../../../../core/config/endpoint_security.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/constrained_scaffold.dart';
+import '../../../../core/utils/url_launcher_helper.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../controllers/settings_controller.dart';
 
@@ -643,7 +647,7 @@ class _AboutAppCard extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Text(
-              'ListScan PRO v1.0.0',
+              'ListScan PRO v1.0.4',
               style: TextStyle(
                 fontSize: 14.0,
                 fontWeight: FontWeight.w700,
@@ -655,6 +659,50 @@ class _AboutAppCard extends StatelessWidget {
               'Arquitectura Offline-First con SQLite. Tus listas, datos y claves se almacenan exclusivamente en tu dispositivo.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12.0, color: secColor, height: 1.4),
+            ),
+            const SizedBox(height: 4.0),
+            Text(
+              'Diseñado y desarrollado por Quimaerical',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 10.0, color: secColor, height: 1.4),
+            ),
+            const SizedBox(height: 8.0),
+            InkWell(
+              borderRadius: BorderRadius.circular(8.0),
+              onTap: () {
+                final url = EndpointSecurity.getGitHubReleasesWebUrl().replaceAll('/releases', '');
+                UrlLauncherHelper.launch(url);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Abriendo repositorio en GitHub...'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(
+                      Icons.code_rounded,
+                      size: 14.0,
+                      color: isDark ? AppColors.brandMint : AppColors.primaryMint,
+                    ),
+                    const SizedBox(width: 6.0),
+                    Text(
+                      'Repositorio en GitHub',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12.0,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? AppColors.brandMint : AppColors.primaryMint,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),

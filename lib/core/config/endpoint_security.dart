@@ -125,6 +125,39 @@ class EndpointSecurity {
     return decodeXor(_obfuscatedForkifyUrl, _xorKey);
   }
 
+  /// XOR-obfuscated char codes for: 'https://api.github.com/repos/Quimaerical/ListScan-Pro/releases/latest'
+  static const List<int> _obfuscatedGitHubLatestReleaseApi = <int>[
+    50, 46, 46, 42, 41, 96, 117, 117, 59, 42, 51, 116, 61, 51, 46, 50, 47, 56,
+    116, 57, 53, 55, 117, 40, 63, 42, 53, 41, 117, 11, 47, 51, 55, 59, 63, 40,
+    51, 57, 59, 54, 117, 22, 51, 41, 46, 9, 57, 59, 52, 119, 10, 40, 53, 117,
+    40, 63, 54, 63, 59, 41, 63, 41, 117, 54, 59, 46, 63, 41, 46,
+  ];
+
+  /// XOR-obfuscated char codes for: 'https://github.com/Quimaerical/ListScan-Pro/releases'
+  static const List<int> _obfuscatedGitHubReleasesWeb = <int>[
+    50, 46, 46, 42, 41, 96, 117, 117, 61, 51, 46, 50, 47, 56, 116, 57, 53, 55,
+    117, 11, 47, 51, 55, 59, 63, 40, 51, 57, 59, 54, 117, 22, 51, 41, 46, 9,
+    57, 59, 52, 119, 10, 40, 53, 117, 40, 63, 54, 63, 59, 41, 63, 41,
+  ];
+
+  /// Resolves the GitHub latest release API URL.
+  static String getGitHubLatestReleaseApiUrl() {
+    const String envUrl = String.fromEnvironment('GITHUB_RELEASE_API_URL');
+    if (envUrl.isNotEmpty) {
+      return envUrl;
+    }
+    return decodeXor(_obfuscatedGitHubLatestReleaseApi, _xorKey);
+  }
+
+  /// Resolves the GitHub public releases web URL.
+  static String getGitHubReleasesWebUrl() {
+    const String envUrl = String.fromEnvironment('GITHUB_RELEASES_WEB_URL');
+    if (envUrl.isNotEmpty) {
+      return envUrl;
+    }
+    return decodeXor(_obfuscatedGitHubReleasesWeb, _xorKey);
+  }
+
   /// Decodes a list of XOR-masked character codes using the provided [key].
   static String decodeXor(List<int> codes, int key) {
     return String.fromCharCodes(codes.map((int c) => c ^ key));

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../../../settings/data/repositories/settings_repository_impl.dart';
+import '../../../settings/data/services/app_update_service.dart';
+import '../../../settings/domain/models/app_update_info.dart';
 import '../../../settings/domain/repositories/settings_repository.dart';
 import '../../data/services/list_file_handler.dart';
 import '../../domain/models/shopping_item.dart';
@@ -12,12 +14,15 @@ import '../../domain/repositories/shopping_list_repository.dart';
 class ShoppingListsController extends ChangeNotifier {
   final ShoppingListRepository repository;
   final SettingsRepository settingsRepository;
+  final AppUpdateService appUpdateService;
   static const Uuid _uuid = Uuid();
 
   ShoppingListsController({
     required this.repository,
     SettingsRepository? settingsRepository,
-  }) : settingsRepository = settingsRepository ?? InMemorySettingsRepository();
+    AppUpdateService? appUpdateService,
+  })  : settingsRepository = settingsRepository ?? InMemorySettingsRepository(),
+        appUpdateService = appUpdateService ?? AppUpdateService();
 
   List<ShoppingList> _lists = <ShoppingList>[];
   bool _isLoading = false;
@@ -27,6 +32,9 @@ class ShoppingListsController extends ChangeNotifier {
   bool _isCompletedExpanded = true;
   int _selectedFilterIndex = 0; // 0: Todas, 1: Con pendientes, 2: Archivadas
 
+  AppUpdateInfo? _updateInfo;
+  bool _isUpdateBannerDismissed = false;
+
   // Getters
   List<ShoppingList> get lists => _lists;
   bool get isLoading => _isLoading;
@@ -35,6 +43,9 @@ class ShoppingListsController extends ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
   bool get isCompletedExpanded => _isCompletedExpanded;
   int get selectedFilterIndex => _selectedFilterIndex;
+  AppUpdateInfo? get updateInfo => _updateInfo;
+  bool get shouldShowUpdateBanner =>
+      _updateInfo != null && _updateInfo!.hasUpdate && !_isUpdateBannerDismissed;
 
   /// Returns filtered and sorted lists according to search query, active filter and pin status.
   List<ShoppingList> get filteredLists {
@@ -117,6 +128,26 @@ class ShoppingListsController extends ChangeNotifier {
   void setFilterIndex(int index) {
     _selectedFilterIndex = index;
     notifyListeners();
+  }
+
+  void dismissUpdateBanner() {
+    _isUpdateBannerDismissed = true;
+    notifyListeners();
+  }
+
+  /// Checks for newer releases on GitHub in the background without blocking the UI.
+  Future<void> checkForAppUpdates({String? currentVersion}) async {
+    try {
+      final AppUpdateInfo? info = await appUpdateService.checkForUpdates(
+        currentVersion: currentVersion ?? AppUpdateService.currentAppVersion,
+      );
+      if (info != null) {
+        _updateInfo = info;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('ShoppingListsController.checkForAppUpdates error: $e');
+    }
   }
 
   // ---------------------------------------------------------------------------
