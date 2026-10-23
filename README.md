@@ -1,4 +1,4 @@
-# ListScan PRO
+# ListScan PRO [![Flutter](https://img.shields.io/badge/SDK%203.27-Flutter?style=flat&logo=flutter&label=Flutter&labelColor=02569B&color=02569B)](https://flutter.dev)  [![Dart](https://img.shields.io/badge/SDK%203.x-Dart?style=flat&logo=dart&label=Dart&labelColor=%23057AEA&color=%23057AEA)]() [![ML kit](https://img.shields.io/badge/ML_kit_text_recognition-Google?style=flat&logo=google&logoColor=ffffff&label=Google&labelColor=%234285F4&color=%234285F4)](https://developers.google.com/ml-kit?hl=es-419) [![]()]()
 
 Aplicación móvil inteligente para la gestión de listas de compras, extracción óptica de textos mediante OCR, importación automática de recetas desde enlaces web o APIs culinarias, control presupuestario y sincronización local primero (offline-first).
 
